@@ -18,7 +18,10 @@ self.addEventListener('fetch',event=>{
   if(event.request.mode==='navigate'){
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE);
-      return (await cache.match('./index.html')) || fetch(event.request);
+      const cached=await cache.match('./index.html');
+      // Static hosts may redirect /index.html to /. Navigation requests reject
+      // redirected cached responses, so return the same bytes as a fresh response.
+      return cached ? new Response(cached.body,{status:cached.status,statusText:cached.statusText,headers:cached.headers}) : fetch(event.request);
     })());return;
   }
   if(urls.has(event.request.url))event.respondWith((async()=>{

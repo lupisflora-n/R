@@ -32,8 +32,9 @@ async function walk(path) {
 await walk('');
 const build = createHash('sha256');
 for (const p of entries.sort()) { build.update(p); build.update(await readFile(new URL(p, out))); }
-const hash = build.digest('hex').slice(0, 16);
 const sw = await readFile(new URL('src/update/sw-template.js', root), 'utf8');
+build.update(sw);
+const hash = build.digest('hex').slice(0, 16);
 await writeFile(new URL('sw.js', out), sw.replace('__BUILD__', hash).replace('__ASSETS__', JSON.stringify(entries.map(p => './' + p))));
 await writeFile(new URL('build.json', out), JSON.stringify({ build: hash, files: entries.length }));
 console.log(`Built ${entries.length} local assets, build ${hash}. No network used.`);

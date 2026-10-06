@@ -1,4 +1,25 @@
 # STATE｜再開点
+## 最新：2026-10-07 検証用HTTPS公開完了
+
+- URL: https://docscan-v2-test.pages.dev/ 。本人承認・ログインを受け、新規検証専用Cloudflare Pagesへ静的29資源をDirect Upload。既存サイトの変更、文書アップロード、有料サービス追加なし。画面のProductionは検証専用サイト内の環境名で、一般提供の承認ではない。
+- 公開build: `93e093055e8d0ad7`。ZIPとハッシュ一覧は`evidence/preview-package.json`。公開build.json一致・HTTPS・CSP/frame-ancestors・Permissions-Policy・nosniff・Referrer-Policyを確認。
+- 初回build `87b14b90678791dd`はCloudflareのindex.html転送とSWキャッシュ応答により2画面目でERR_FAILED。HTMLキャッシュを同じ本文・ヘッダーの新規Responseにして修正。SWテンプレートもbuildハッシュに含めた。DB形式・既存データは変更しない。
+- 回帰を含む合成22件PASS。修正版の公開E2E8件PASS、errors/external空。初回失敗は`evidence/public-browser-first-run.json`、成功は`evidence/public-browser-results.json`、画面は`evidence/public-mobile-home.png`。
+- 次の1作業: 本人のAndroid Chromeで上記URLを開き、架空紙1枚の撮影→四隅/白黒→保存→PDF→共有→本人宛メール添付/受信確認。機種/OS/Chrome/メールと各工程のOK/NG・迷った箇所を記録する。
+- Android実機とiPhoneはNEEDS_HUMAN_TEST、一般提供NO-GO。旧→新20原本保持、Quota/中断、30書式などは未完了。初回起動で更新案内が出る文言改善も残る。初版両OS条件を維持。
+- ブランチ`codex/docscan-v2`、今回の変更前HEADは`43b916d`。下のBLOCKED/未公開/ログイン待ちは履歴。
+
+## 履歴：2026-10-06 実機品質確認の準備
+
+- ブランチ`codex/docscan-v2`。前回コミット`43b916d`はGitHubへpush・先端一致確認済み。下の古いBLOCKEDや未pushの記述は当時の履歴。
+- 本人回答: テスト端末はAndroidのみ。機種/OS/Chrome/メールは実機開始時に記録。iPhoneはNEEDS_HUMAN_TESTであり初版両OSの条件は維持。
+- Dラボの小規模な仮説検証を参考に、`docs/QUALITY_READINESS.md`へ利用者・品質・データ・運用の自己レビュー、仮説UX01〜03、段階試験、提供判定を記録。独立レビュー/人による試験は未実施。
+- 事前検査で日付ラベルの関連付け不足を発見し`src/app.ts`を修正。`npm run test:mobile-quality`で320/360/390/412pxと844×390横向きの5条件×5確認がPASS。証拠は`evidence/mobile-quality/results.json`と10枚の画面。タッチ模擬であり実機判定ではない。
+- 修正後build `87b14b90678791dd`、構文14モジュールPASS、実localhostの主要E2E 8件PASS（errors/external空）。純粋処理の合成21件は前回PASSを継承し、今回のラベル変更で再実行していない。
+- 架空の印刷試験紙、初見観察票、Androidの短い開始手順を作成。320px編集画面の「閉じる」が折り返す軽微な見た目は残り、ボタン操作は可能。機能合格と使いやすさの人評価を混同しない。
+- 配布候補は`release/docscan-preview-87b14b90678791dd.zip`（約1MB、静的29ファイル）。全ファイルのハッシュとZIP再読込み一致を検査。生成スクリプト`scripts/package-preview.mjs`、台帳`evidence/preview-package.json`。文書・PDF・証拠・認証情報は公開ZIPに含まない。
+- ゲート: Android実験準備GO WITH CONDITIONS、一般提供NO-GO。次の1作業は`docs/PREVIEW_RELEASE.md`の検証専用Cloudflare Pages公開承認とアカウント確認、その後本人へ実機URLを渡す。公開は未実行。これはAGENTSの公開承認条件による依存待ちで、PCのブラウザー制限による停止ではない。
+
 更新: 2026-10-03 / 設計2.0 / ローカル実装0.2.0
 
 ## 2026年10月5日の再確認
@@ -71,3 +92,6 @@ v2資料の26件のSHA-256一致を確認して統合。原本と下書き保存
 - 停止理由なし。ローカルで可能なプレビュー・検査は完了。実機検証と外部HTTPS公開は未実施であり、完成アプリとは扱わない。
 - 今回の成果と検証証拠をまとめるコミット件名: `Verify Windows mobile preview and preserve vendor integrity`。親コミット`55dda9f`、作業ブランチ`codex/docscan-v2`。本記録を含むコミットのSHAは`git log -1 --oneline`で確認。pushの成功はコマンド結果とリモート先端SHAの一致で確認する。
 - 次の作業: 実機確認用HTTPSプレビューの公開対象・公開先を具体化し、公開承認後にDEVICE_TEST_GUIDEに従ってiPhone/Androidのカメラとメール添付を検証する。
+
+## 2026-10-06 検証公開の承認とログイン待ち
+本人の「おｋ」で検証専用Cloudflare Pagesへの公開が承認済み。ZIPのSHA-256を台帳と再照合して一致。Cloudflareは未ログインで https://dash.cloudflare.com/login を表示。本人へPCの画面でログインするよう依頼済み。次はログイン完了後にFree/アカウント/新規プロジェクトを確認し、承認済みZIPを配信。公開・デプロイ・実機URL取得はまだ未実行。公開許可を再度取り直さない。

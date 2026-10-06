@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-06T14:28:22.710Z",
+  "scope": "Chromium touch emulation; not physical Android or iPhone",
+  "results": [
+    {
+      "width": 320,
+      "height": 568,
+      "status": "PASS",
+      "checks": [
+        "home fits viewport",
+        "date has accessible label",
+        "editor remains within viewport",
+        "save button is reachable by touch",
+        "cancelled editing preserves draft"
+      ]
+    },
+    {
+      "width": 360,
+      "height": 800,
+      "status": "PASS",
+      "checks": [
+        "home fits viewport",
+        "date has accessible label",
+        "editor remains within viewport",
+        "save button is reachable by touch",
+        "cancelled editing preserves draft"
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "status": "PASS",
+      "checks": [
+        "home fits viewport",
+        "date has accessible label",
+        "editor remains within viewport",
+        "save button is reachable by touch",
+        "cancelled editing preserves draft"
+      ]
+    },
+    {
+      "width": 412,
+      "height": 915,
+      "status": "PASS",
+      "checks": [
+        "home fits viewport",
+        "date has accessible label",
+        "editor remains within viewport",
+        "save button is reachable by touch",
+        "cancelled editing preserves draft"
+      ]
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "status": "PASS",
+      "checks": [
+        "home fits viewport",
+        "date has accessible label",
+        "editor remains within viewport",
+        "save button is reachable by touch",
+        "cancelled editing preserves draft"
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -77,3 +77,13 @@ P0/P1の未解決が1件でもあれば一般配布しない。共有の代替�
 
 ## 2026-10-06 Windows検査
 構文14モジュールPASS、合成21件PASS、build PASS。実localhost配信でスマホ幅390×844のChromium E2E 8件PASS。evidence/browser-results.jsonと3枚のPNGを参照。PDF待機を描画完了と暗色画素検査へ修正。共有取消はモックでありメール送信ではない。WebKitと実機、更新・Quota・中断は未合格。
+
+## 2026-10-06 実機試験前の追加検査
+- build 87b14b90678791dd。日付ラベルの入力関連付けを修正。
+- npm run test:mobile-quality: Chromiumタッチ模擬5画面条件（320×568/360×800/390×844/412×915/844×390）、各5項目PASS。画面内収まり、日付アクセシブル名、編集枠内収まり、44px以上の保存ボタン到達、編集取消後の下書き再読込み。evidence/mobile-quality/results.jsonとPNG。
+- npm run lint: 14モジュール構文PASS。主要test:e2e: 実localhostで8件PASS、errors/external空。合成21件は前回証拠を継承。
+- 実機と初見者試験はNOT_RUN。Androidのみ確保可能、iPhone NEEDS_HUMAN_TEST。UX01〜03と暫定ゲートはdocs/QUALITY_READINESS.md。古い一覧のBLOCKEDは当時の状態であり、現在の部分証拠は上記を参照。各要求全体を一括PASSに変更しない。
+- 配布候補ZIP: 全29資源のSHA-256一致・再読込みPASS、約1MB。公開ヘッダー適用/HTTPS/実機共有/実機更新は未検証。
+
+## 2026-10-07 公開先での回帰修正
+Cloudflareのindex.html転送により初回E2Eの2画面目でERR_FAILEDを検出・修正。修正版93e093055e8d0ad7: 合成22件PASS、公開URLのE2E8件PASS。初回失敗と再試験はevidence/public-browser-first-run.json / public-browser-results.json。公開URLのbuild一致、HTTPSとセキュリティヘッダー確認済み。実機共有・旧新版更新の全試験は未合格。

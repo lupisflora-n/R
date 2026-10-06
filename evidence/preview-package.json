@@ -1,0 +1,157 @@
+{
+  "build": "93e093055e8d0ad7",
+  "output": "release/docscan-preview-93e093055e8d0ad7.zip",
+  "archiveBytes": 995737,
+  "archiveSha256": "16df6612b229cea22ebaff31d7aada892acd5c1cd79b05012cc3a9924ec26381",
+  "fileCount": 29,
+  "totalBytes": 4123191,
+  "published": true,
+  "files": [
+    {
+      "path": "build.json",
+      "bytes": 39,
+      "sha256": "fde9c1f73097f4fe660006f9b8cedbaad4d43e111b7bb021f537dd8acb1335ca"
+    },
+    {
+      "path": "icon.svg",
+      "bytes": 381,
+      "sha256": "24fe011d746cc227eb17a41bc3ac43890f311ef24633426d2b89d1859e741e2f"
+    },
+    {
+      "path": "index.html",
+      "bytes": 1066,
+      "sha256": "eae99aec53e9682c8b763860723d68b67f3438039eac1ee3c32efa4dbb7f77e2"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "bytes": 325,
+      "sha256": "95e5aa739164d1d41dc44448c1555e7aeccf2fd7c08b1014d3569ba7bb29e496"
+    },
+    {
+      "path": "src/app.js",
+      "bytes": 32269,
+      "sha256": "741e1fed5a1d6a034ed143498f9903433f67cfce194f68cd4830739e799fb385"
+    },
+    {
+      "path": "src/backup/backup.js",
+      "bytes": 16995,
+      "sha256": "ed9268e3fa8d58362ac1b24072612d68c61fe9fd7f72dd8799b2ad7b91e79341"
+    },
+    {
+      "path": "src/backup/zip-guard.js",
+      "bytes": 2808,
+      "sha256": "12d8d602620b347835f764c648f01dac2ebcb9fdf12a9ee26accea35d817fb98"
+    },
+    {
+      "path": "src/core.js",
+      "bytes": 3857,
+      "sha256": "1d769ab7a23d702a5e2d28069b4ba854e20ba8ab840316f6571b1a68e97767f2"
+    },
+    {
+      "path": "src/exports/assemble.js",
+      "bytes": 1880,
+      "sha256": "add98ba5436b5e1d14c911e3a932dd53dce5b082c43253d04b33914ec5bc1f99"
+    },
+    {
+      "path": "src/exports/pdf.js",
+      "bytes": 4871,
+      "sha256": "3115fc27b25fc944d19f801ea8de2d873886c93fa6697e9dbba27b0880b54db3"
+    },
+    {
+      "path": "src/exports/viewer.js",
+      "bytes": 885,
+      "sha256": "f2f82fa7f693a24eb20881dff1b53524455f869f7e541a5f2a4162613ce51d62"
+    },
+    {
+      "path": "src/model.js",
+      "bytes": 2521,
+      "sha256": "153bb00a89eaca94a67bb72d9193ab7214ca55dd63e9092825a8f93533ceadf9"
+    },
+    {
+      "path": "src/processing/geometry.js",
+      "bytes": 1638,
+      "sha256": "31902a0deed23dc16801201edee026e27cb5cee21361611fc038d053596c04b7"
+    },
+    {
+      "path": "src/processing/image.js",
+      "bytes": 4605,
+      "sha256": "eca7856adffe95368fcfc56face80901de836ef2c969a2e424e8109399a0e7df"
+    },
+    {
+      "path": "src/processing/worker.js",
+      "bytes": 1862,
+      "sha256": "633456c9c86e568a148354b8312ef56bbd5668dce6f1eb6bda16f3d897b9191c"
+    },
+    {
+      "path": "src/storage/db.js",
+      "bytes": 8563,
+      "sha256": "430e9501b63982da3d586011fde165ada38ffe6068d19d454f3c178b3e010a3b"
+    },
+    {
+      "path": "src/storage/lease.js",
+      "bytes": 952,
+      "sha256": "54a52a1ff68ba6781a18988d43df621aa54afca65ab7b72f6c565393105ea9bd"
+    },
+    {
+      "path": "src/update/client.js",
+      "bytes": 3096,
+      "sha256": "9c51a66f7db388380f0e6bc97c4b5b0dbbffcefba07f48c64a3a743bea3c5eb4"
+    },
+    {
+      "path": "style.css",
+      "bytes": 6207,
+      "sha256": "642317e8cc8d9f21fe08fa954a2683217459121821754f5d183c393570caeaf7"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 2745,
+      "sha256": "c2c7322a9203a6a3d58b5842e9ba30c9b17acfa6ecc231e3b76fb2ba7628bd4d"
+    },
+    {
+      "path": "vendor/INTEGRITY.json",
+      "bytes": 1237,
+      "sha256": "bdc305cf2ec4dfdeea4d5a45c617d0ab1d215e614d96425cad698655da0c41a4"
+    },
+    {
+      "path": "vendor/JSZIP-LICENSE.txt",
+      "bytes": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    },
+    {
+      "path": "vendor/jszip.js",
+      "bytes": 97630,
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    },
+    {
+      "path": "vendor/PDF-LIB-LICENSE.txt",
+      "bytes": 1070,
+      "sha256": "f2c9fc00fdb66eb99ac156ba52d734af66d8d309f65753ae809ad34ee2883bcb"
+    },
+    {
+      "path": "vendor/pdf-lib.js",
+      "bytes": 523417,
+      "sha256": "72c052d97b4d5d9fa6cdbdcb7ad709f03d4ddb1122390cb3afeba4d88651d969"
+    },
+    {
+      "path": "vendor/pdf.worker.mjs",
+      "bytes": 2358232,
+      "sha256": "499da1f7f1c6c24be898b556638d2ffec999b2ad234c796508e3d7c7025c28cb"
+    },
+    {
+      "path": "vendor/PDFJS-LICENSE.txt",
+      "bytes": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    {
+      "path": "vendor/pdfjs.js",
+      "bytes": 999720,
+      "sha256": "d4b840a3238bf6fbebe3dec7a7665757dad60fe014d657351a3f1f067a3df924"
+    },
+    {
+      "path": "_headers",
+      "bytes": 393,
+      "sha256": "dc63915376fa27722cbec1cc904244f093ae4570dfdd371901da5a63f349ffee"
+    }
+  ],
+  "url": "https://docscan-v2-test.pages.dev/"
+}

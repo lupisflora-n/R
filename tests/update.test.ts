@@ -3,6 +3,17 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFileSync} from 'node:fs';
 import {initializeUpdates} from '../src/update/client.ts';
+test('service worker serves redirected cached HTML as a clean navigation response offline',async()=>{
+  const listeners:any={};let networkCalls=0,job:Promise<Response>|undefined;
+  const cached=new Response('<html>saved app</html>',{headers:{'Content-Type':'text/html','Content-Security-Policy':"default-src 'self'"}});
+  Object.defineProperty(cached,'redirected',{value:true});
+  const self={location:'https://preview.test/sw.js',addEventListener:(type:string,fn:any)=>listeners[type]=fn};
+  const source=readFileSync(new URL('../src/update/sw-template.js',import.meta.url),'utf8').replace('__BUILD__','test').replace('__ASSETS__',JSON.stringify(['./index.html']));
+  vm.runInNewContext(source,{self,caches:{open:async()=>({match:async()=>cached})},Response,URL,Set,fetch:async()=>{networkCalls++;throw new Error('offline');}});
+  listeners.fetch({request:{method:'GET',mode:'navigate'},respondWith:(p:Promise<Response>)=>job=p});
+  const result=await job!;assert.equal(result.redirected,false);assert.equal(await result.text(),'<html>saved app</html>');
+  assert.equal(result.headers.get('Content-Security-Policy'),"default-src 'self'");assert.equal(networkCalls,0);
+});
 test('service worker installs complete resources without forced activation and refuses multi-tab update',async()=>{
   const listeners:any={},cached=new Set<string>();let skipped=0,claimed=0,clients=2;
   const self:any={location:'https://local.test/sw.js',addEventListener:(type:string,fn:any)=>listeners[type]=fn,clients:{claim:async()=>{claimed++;},matchAll:async()=>Array(clients).fill({})},skipWaiting:async()=>{skipped++;}};

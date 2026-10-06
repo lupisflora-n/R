@@ -24,7 +24,8 @@ const main=el('main','','wrap');main.append(el('div','DAILY DOCUMENTS','eyebrow'
 const datebar=el('div','','datebar'),dateInput=el('input');dateInput.type='date';dateInput.id='document-date';dateInput.value=localDate();
 const recent=el('select');recent.id='recent-days';recent.setAttribute('aria-label','保存済みの日付');
 const todayButton=button('今日',()=>{if(busy || editing || pendingCapture)return;dateInput.value=localDate();void changeDate();},'quiet');
-datebar.append(el('label','文書の日付'),dateInput,todayButton,recent);main.append(datebar);
+const dateLabel=el('label','文書の日付');dateLabel.htmlFor=dateInput.id;
+datebar.append(dateLabel,dateInput,todayButton,recent);main.append(datebar);
 const storageNotice=el('div','写真はこの端末・ブラウザー内に保存されます。消失に備え、大切な日付は復元用バックアップも外部へ保存してください。','notice');main.append(storageNotice);
 const updateNotice=el('div','','notice hidden');main.append(updateNotice);
 const captureCard=el('section','','card'),captureHead=el('div','','sectionhead');captureHead.append(el('h2','1. 写真を追加'));

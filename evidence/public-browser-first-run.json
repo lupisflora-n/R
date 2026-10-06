@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-06T15:02:59.664Z",
+  "status": "FAIL",
+  "browser": "Playwright Chromium against a real server",
+  "passedBrowserTests": 4,
+  "results": [
+    {
+      "name": "mobile home loads with capture controls",
+      "status": "PASS",
+      "ms": 5817
+    },
+    {
+      "name": "capture -> committed draft -> manual crop -> filter -> revision",
+      "status": "PASS",
+      "ms": 2392
+    },
+    {
+      "name": "selected PDF -> saved bytes -> actual PDF.js rendering -> share cancellation",
+      "status": "PASS",
+      "ms": 1107
+    },
+    {
+      "name": "backup -> hash validation -> additive restore -> repeated import idempotency",
+      "status": "PASS",
+      "ms": 2185
+    },
+    {
+      "name": "second tab is fenced from writing while first tab retains data",
+      "status": "FAIL",
+      "message": "page.goto: net::ERR_FAILED at https://docscan-v2-test.pages.dev/\nCall log:\n\u001b[2m  - navigating to \"https://docscan-v2-test.pages.dev/\", waiting until \"load\"\u001b[22m\n"
+    }
+  ],
+  "errors": [],
+  "external": []
+}

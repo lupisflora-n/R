@@ -39,3 +39,10 @@ Androidのみ、Kotlin/Compose/Room、ML Kit前提、Play配布前提、切り�
 
 ## 2026-10-06 ローカル検証判断
 ADR23: Windows cloneでvendor整合性を保つためvendor/**をGit改行変換対象外にする。既存バイト列とSHA-256を維持。追加依存取得せず、Windows同梱Playwright/Chromiumでローカル画面検査。公開承認不要のPC内プレビューを使用。外部公開・GitHub書込みは実行しない。
+
+## 2026-10-06 実機準備
+ADR24 decided: 本人はAndroidのみ利用可能。Androidから検査しiPhone未検証を保持。ADR25 provisional: 小規模な失敗仮説UX01〜03と初見3人で使いやすさを確認（Dラボの数値基準ではなくプロジェクト案）。ADR26 open: docs/PREVIEW_RELEASE.mdの静的buildを検証専用Cloudflare Pagesへ公開する承認・認証。DB形式と両OS初版要求は変更なし。
+
+ADR26 decided（2026-10-06）: 本人が公開判断カードに「おｋ」と回答。build 87b14b90678791ddの静的アプリ29ファイルをCloudflare Pages Freeの検証専用新規プロジェクトへ公開することを承認。一般提供・課金・文書アップロードは対象外。Cloudflareログイン画面を開き、本人のログイン待ち。
+
+ADR27 decided（2026-10-07）: 承認済み検証範囲内でCloudflare固有のリダイレクトとService Worker応答の不具合を修正し同URLへ再配信。保存形式は不変。URL https://docscan-v2-test.pages.dev/ 、build 93e093055e8d0ad7。一般提供の承認ではない。

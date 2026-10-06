@@ -81,3 +81,9 @@ M0〜M4のローカル実装と一部検査を進めた。各工程の受入れ�
 
 ## 2026-10-06 Windows進捗
 M0〜M4のChromiumスマホ幅経路と実Service Workerオフラインの検査を通過。実機ゲートは未完了。次はDEVICE_TEST_GUIDEのiPhone/Android確認と、承認されたHTTPS検証URLの準備。詳細と再起動手順はSTATE末尾。
+
+## 2026-10-06 実機品質ゲート
+Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）→iPhone→限定提供判断。詳細はdocs/QUALITY_READINESS.md。5条件の画面検査PASS。次はdocs/PREVIEW_RELEASE.mdの公開承認・アカウント確認とHTTPS配信。一般提供はNO-GO。
+
+## 2026-10-07 HTTPS検証開始
+検証専用URL https://docscan-v2-test.pages.dev/ を配信し公開後E2E8件PASS。次はAndroid本人の1枚撮影→PDF→メール添付。実機結果待ち。一般提供NO-GO。
