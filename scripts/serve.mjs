@@ -5,7 +5,12 @@ const root = resolve('dist');
 const types = {'.html':'text/html; charset=utf-8','.js':'application/javascript','.mjs':'application/javascript','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.css':'text/css','.txt':'text/plain'};
 const server = createServer(async (req, res) => {
   try {
-    const file = resolve(root, '.' + decodeURIComponent(new URL(req.url, 'http://localhost').pathname));
+    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    if (pathname === '/mobile-preview.html') {
+      res.writeHead(200, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store' });
+      res.end(await readFile(new URL('./mobile-preview.html', import.meta.url))); return;
+    }
+    const file = resolve(root, '.' + pathname);
     if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403); res.end(); return; }
     const target = (await stat(file)).isDirectory() ? file + '/index.html' : file;
     const data = await readFile(target);

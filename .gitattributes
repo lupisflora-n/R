@@ -1,0 +1,2 @@
+# Preserve vendored bytes: integrity.json verifies exact sizes and SHA-256.
+vendor/** -text

@@ -50,3 +50,24 @@ v2資料の26件のSHA-256一致を確認して統合。原本と下書き保存
 終了時の作業中ジョブなし。初回資料からの変更と実装をローカルGitへコミット済み。最新bundleとソースZIPを `/workspace/R.bundle` と `/workspace/docscan-v2-handoff.zip` に作成する。各マイルストーンの実機ゲートは未完了。安全上限は入力50MiB/24MP、PDF10枚、ZIP1部50MiB/10枚・全体100MiB。型検査・依存のオンライン脆弱性照会も未実施。
 
 監督へ判断が必要な点は、画面検査を実行できる環境の確保。まずWindowsのCodexへ同じブランチを引き継いでローカル検査する案を推奨する。PCを毎回使う運用への変更ではなく、現クラウドの実行制限の回避案。公開URLが必要になったらCloudflare無料静的配信の具体的な公開対象・認証を確認して別承認を求める。推測のモバイル設定画面を再び案内しない。
+
+## 2026-10-06 Windows再開・スマホ幅プレビュー
+- 新規clone: `C:/Users/pc/Documents/Codex/2026-10-06/https-github-com-lupisflora-n-r/R-docscan-v2`。
+- branch `codex/docscan-v2` / HEAD `55dda9f`。以下の変更はローカル未コミット、GitHubへ未送信。
+- Node 24.13.1。既存の同梱Playwright/Chromiumを使用。依存の追加取得なし。agent-browser CLIは未配置のため、リポジトリのPlaywright検査で代替。
+- Windowsのcore.autocrlf=trueによるvendor改行変換で整合性検査が失敗。HEADの正確なバイト列へ復元し、`.gitattributes`でvendorを変換対象外にした。整合性検査を含む21件PASS、14モジュール構文PASS、build PASS。
+- `npm run verify:mobile` PASS。その後、実ローカルサーバーを指定した`npm run test:e2e`は8検査PASS、errors/externalは空。IndexedDB保存、編集、PDF.js描画、共有取消のモック、追加復元と冪等、二画面書込み抑止、再読込み、Service Workerオフラインを検査。
+- PDF画面の既存待機条件はcanvas初期幅だけで描画完了を確認していなかった。ページ表示完了と文書の暗色画素を検査するよう修正し、再実行PASS。
+- 証拠: `evidence/browser-results.json`、`evidence/mobile-home.png`、`evidence/editor.png`、`evidence/pdf-preview.png`（390×844のviewport、全体撮影）。合成文書のみ。
+- ローカルプレビュー起動中: `http://127.0.0.1:4173/mobile-preview.html`（390×844 iframe）。再起動はリポジトリで`npm run preview`。外部公開なし。この127.0.0.1 URLはPC内専用。
+- 状態: LOCAL_IMPLEMENTED / CORE_SYNTHETIC_TESTS_PASS / CHROMIUM_MOBILE_E2E_PASS / NEEDS_HUMAN_TEST。今回の独立レビューは未実施。
+- 未検証: WebKit、実iPhone/Androidのカメラ・HEIC・メール添付・10枚PDF性能、旧→新更新、Quota/中断、30書式、100MiB超の段階復元、完全な型検査。
+- 次の1作業: `docs/DEVICE_TEST_GUIDE.md`に従った実機確認。スマホで利用できるHTTPS検証URLの公開は公開先・対象・認証を具体化して承認後に行う。
+
+## 2026-10-06 コミット・push引き継ぎ
+- ユーザーが変更・検証結果の`codex/docscan-v2`へのcommit/pushを明示承認。
+- 最新ブラウザー検査: 2026-10-06T03:57:07.968Z、実localhost配信、390×844 viewport、8件PASS、ブラウザーエラー0、外部要求0。3枚のスクリーンショットを更新。
+- 合成21件・構文14モジュール・buildは前回PASS。以後の変更はPDF描画待機の検査修正とローカルプレビュー用HTML/配信経路、進捗資料。変更したJavaScriptの構文検査とgit diff --checkもPASS。
+- 停止理由なし。ローカルで可能なプレビュー・検査は完了。実機検証と外部HTTPS公開は未実施であり、完成アプリとは扱わない。
+- 今回の成果と検証証拠をまとめるコミット件名: `Verify Windows mobile preview and preserve vendor integrity`。親コミット`55dda9f`、作業ブランチ`codex/docscan-v2`。本記録を含むコミットのSHAは`git log -1 --oneline`で確認。pushの成功はコマンド結果とリモート先端SHAの一致で確認する。
+- 次の作業: 実機確認用HTTPSプレビューの公開対象・公開先を具体化し、公開承認後にDEVICE_TEST_GUIDEに従ってiPhone/Androidのカメラとメール添付を検証する。

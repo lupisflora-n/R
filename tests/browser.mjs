@@ -42,7 +42,10 @@ try{
   });
   await check('selected PDF -> saved bytes -> actual PDF.js rendering -> share cancellation',async()=>{
     await page.locator('.page-row input[type=checkbox]').check();await page.getByRole('button',{name:'1枚でPDFを作成',exact:true}).click();
-    await page.getByRole('dialog',{name:'完成PDFを確認'}).waitFor();await page.waitForFunction(()=>document.querySelector('.pdfcanvas')?.width>0);
+    await page.getByRole('dialog',{name:'完成PDFを確認'}).waitFor();
+    // A canvas has a nonzero default width even before PDF.js finishes rendering.
+    await page.getByRole('dialog',{name:'完成PDFを確認'}).getByText('1 / 1',{exact:true}).waitFor();
+    assert.equal(await page.evaluate(()=>{const c=document.querySelector('[role=dialog] .pdfcanvas');const pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]>0 && pixels[i]<180 && pixels[i+1]<180 && pixels[i+2]<180)dark++;return dark>100;}),true,'PDF preview must contain visible document ink');
     await page.screenshot({path:'evidence/pdf-preview.png',fullPage:true});
     await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>true});Object.defineProperty(navigator,'share',{configurable:true,value:()=>Promise.reject(new DOMException('Cancel','AbortError'))});});
     await page.getByRole('button',{name:'共有して送る',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[role=status]').textContent.includes('共有を取消しました'));

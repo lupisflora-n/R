@@ -36,3 +36,6 @@ Androidのみ、Kotlin/Compose/Room、ML Kit前提、Play配布前提、切り�
 
 ## 変更記録テンプレート
 日時 / 問題 / 根拠（公式または実測）/ 候補 / 推奨 / 採否 / 影響ファイル / 利用者への影響 / データ互換性 / 復旧方法 / 監督承認要否 / 証拠。
+
+## 2026-10-06 ローカル検証判断
+ADR23: Windows cloneでvendor整合性を保つためvendor/**をGit改行変換対象外にする。既存バイト列とSHA-256を維持。追加依存取得せず、Windows同梱Playwright/Chromiumでローカル画面検査。公開承認不要のPC内プレビューを使用。外部公開・GitHub書込みは実行しない。

@@ -78,3 +78,6 @@ M0〜M4のローカル実装と一部検査を進めた。各工程の受入れ�
 3. 実サーバーが使える場合のみ `DOCSCAN_E2E_URL` をローカルURLへ指定し、Service Workerのオフライン検査。Windows PowerShellでは `$env:DOCSCAN_E2E_URL` を使用。
 4. 旧→新20原本、Quota/中断、EXIF8方向、匿名30書式、HEIC、実機10枚PDF、iPhone/Android添付を順に検査する。大容量の段階復元を実装する。
 5. 外部検証URLはCloudflare無料静的配信を推奨するが、プロジェクト/公開対象/認証と公開承認を先に具体化する。今のアプリを一般公開して完成扱いにしない。
+
+## 2026-10-06 Windows進捗
+M0〜M4のChromiumスマホ幅経路と実Service Workerオフラインの検査を通過。実機ゲートは未完了。次はDEVICE_TEST_GUIDEのiPhone/Android確認と、承認されたHTTPS検証URLの準備。詳細と再起動手順はSTATE末尾。

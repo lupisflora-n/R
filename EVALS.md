@@ -74,3 +74,6 @@ P0/P1の未解決が1件でもあれば一般配布しない。共有の代替�
 ## 次の実行
 
 まず起動可能なサンドボックスまたはWindowsのローカル環境で `npm run test:e2e` を実行し、画面/IndexedDB/PDF表示/追加復元を検査・修正します。公開済み検証URLはありません。URLを公開する場合は別の承認が必要です。実機手順は `docs/DEVICE_TEST_GUIDE.md` にあります。
+
+## 2026-10-06 Windows検査
+構文14モジュールPASS、合成21件PASS、build PASS。実localhost配信でスマホ幅390×844のChromium E2E 8件PASS。evidence/browser-results.jsonと3枚のPNGを参照。PDF待機を描画完了と暗色画素検査へ修正。共有取消はモックでありメール送信ではない。WebKitと実機、更新・Quota・中断は未合格。
