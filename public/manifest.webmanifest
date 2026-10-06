@@ -1,0 +1,12 @@
+{
+  "id": "/",
+  "name": "日付スキャン",
+  "short_name": "日付スキャン",
+  "lang": "ja",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f4",
+  "theme_color": "#196a57",
+  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}

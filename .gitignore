@@ -1,0 +1,22 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Common generated files
+node_modules/
+.next/
+dist/
+build/
+coverage/
+__pycache__/
+.venv/
+*.log

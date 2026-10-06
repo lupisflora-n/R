@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-05T07:12:51.439Z",
+  "status": "BLOCKED",
+  "browser": "Playwright Chromium with in-memory local asset routing",
+  "passedBrowserTests": 0,
+  "results": [
+    {
+      "name": "browser startup",
+      "status": "BLOCKED",
+      "reason": "Operating-system sandbox denied Chromium startup/IPC. No browser test ran."
+    }
+  ],
+  "errors": [],
+  "external": []
+}

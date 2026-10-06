@@ -1,0 +1,69 @@
+{
+  "artifact_version": "2.0",
+  "checked_on": "2026-10-02",
+  "scope": "DOCUMENT_PACKAGE_ONLY",
+  "markdown_toml_file_count": 25,
+  "source_entries": 32,
+  "requirements": {
+    "R01": [
+      "Q01",
+      "Q02"
+    ],
+    "R02": [
+      "Q01",
+      "Q03"
+    ],
+    "R03": [
+      "Q04"
+    ],
+    "R04": [
+      "B01",
+      "S01",
+      "S02"
+    ],
+    "R05": [
+      "F01"
+    ],
+    "R06": [
+      "P01",
+      "P02"
+    ],
+    "R07": [
+      "H01",
+      "H02"
+    ],
+    "R08": [
+      "U01",
+      "U02"
+    ],
+    "R09": [
+      "D01",
+      "D02"
+    ],
+    "R10": [
+      "C01",
+      "C02"
+    ],
+    "R11": [
+      "A01"
+    ]
+  },
+  "skills_yaml_valid": [
+    "docscan-delivery",
+    "docscan-fidelity",
+    "docscan-safe-update"
+  ],
+  "config_example_toml_valid": true,
+  "pdf_pages": 10,
+  "pdf_external_source_links": 32,
+  "pdf_all_10_pages_visually_reviewed": true,
+  "pdf_text_within_page_bounds": true,
+  "original_v1_files_overwritten": false,
+  "app_implemented": false,
+  "app_build_or_test_executed": false,
+  "iphone_test_executed": false,
+  "android_test_executed": false,
+  "deployed": false,
+  "skills_installed_in_user_codex": false,
+  "note": "構文・参照・版・PDFのページとリンクを検査。アプリの機能・品質・費用・互換性の実証ではない。"
+}

@@ -1,0 +1,14 @@
+# 参考例。現行クライアントの公式仕様・既存設定を読んでから統合する。
+# このファイルを作成しただけでは設定は適用されない。
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+# モデルは利用可能な既定値を優先。確認した場合のみ有効化する。
+# model = "gpt-6.1-sol"
+# model_reasoning_effort = "medium"
+
+[sandbox_workspace_write]
+network_access = false
+
+# Cloud Codexでは環境側の設定を別途確認する。
+# npm依存取得/ブラウザー資源の初回取得は必要なネットワーク許可をまとめる。
+# フルアクセス、無断公開、課金を許可する例ではない。

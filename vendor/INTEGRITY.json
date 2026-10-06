@@ -1,0 +1,39 @@
+{
+  "source": "Preinstalled cloud runtime packages; copied locally without network",
+  "versions": {
+    "pdf-lib": "1.17.1",
+    "jszip": "3.10.1",
+    "pdfjs-dist": "5.6.205"
+  },
+  "pdfjsBuild": "legacy, bundled compatibility polyfills",
+  "files": {
+    "JSZIP-LICENSE.txt": {
+      "byteCount": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    },
+    "PDF-LIB-LICENSE.txt": {
+      "byteCount": 1070,
+      "sha256": "f2c9fc00fdb66eb99ac156ba52d734af66d8d309f65753ae809ad34ee2883bcb"
+    },
+    "PDFJS-LICENSE.txt": {
+      "byteCount": 10174,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594"
+    },
+    "jszip.js": {
+      "byteCount": 97630,
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    },
+    "pdf-lib.js": {
+      "byteCount": 523417,
+      "sha256": "72c052d97b4d5d9fa6cdbdcb7ad709f03d4ddb1122390cb3afeba4d88651d969"
+    },
+    "pdf.worker.mjs": {
+      "byteCount": 2358232,
+      "sha256": "499da1f7f1c6c24be898b556638d2ffec999b2ad234c796508e3d7c7025c28cb"
+    },
+    "pdfjs.js": {
+      "byteCount": 999720,
+      "sha256": "d4b840a3238bf6fbebe3dec7a7665757dad60fe014d657351a3f1f067a3df924"
+    }
+  }
+}

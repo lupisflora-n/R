@@ -1,0 +1,8 @@
+2026-10-03 / managed cloud workspace sandbox
+Local server attempt: Error: listen EPERM: operation not permitted 127.0.0.1:4173
+Chromium launch using --remote-debugging-pipe and no external document requests:
+ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:45] setsockopt: Operation not permitted (1)
+Process exited SIGTRAP. No browser UI test ran.
+Initial network-enabled exec requests did not return and were interrupted by the user twice.
+Do not repeat permission-bearing network requests without a concrete execution path and progress visibility.
+Node synthetic core tests ran separately and are recorded in unit-tests.txt.

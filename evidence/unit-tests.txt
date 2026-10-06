@@ -1,0 +1,35 @@
+
+> daily-docscan-v2@0.2.0 test
+> node --experimental-strip-types --test --test-isolation=none tests/*.test.ts
+
+(node:3462) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ backup inspection checks hashes, page recipe, and completed PDF bytes (34.404596ms)
+✔ backup rejects forged hash, MIME, unsupported version, invalid time and PDF snapshot IDs before writing (48.34094ms)
+✔ multipart backup rejects missing parts and conflicting asset identities across complete parts (4.12451ms)
+✔ actual decompression is bounded even with forged central-directory size (51.154127ms)
+✔ document date uses local calendar and validates actual days (0.294663ms)
+✔ crop rejects crossing, inverse, NaN, out-of-bounds and degenerate corners (0.224684ms)
+✔ full crop keeps source resolution; rotation mapping keeps normalized corners (0.773579ms)
+✔ safe Japanese names and filter settings (0.26023ms)
+✔ inverse projective transform maps every output corner to requested trapezoid (0.494271ms)
+✔ standard filter retains fine tone differences; binary requires explicit mode (0.219636ms)
+✔ only live lease owner can write; old generation and incompatible readers are fenced (0.239022ms)
+✔ camera suspension expiry/release creates a fresh generation; heartbeat retains live generation (0.153379ms)
+✔ 1/5/10-page PDF preserves selected order and A4 portrait/landscape structure (39.994559ms)
+✔ PDF rejects empty/duplicate selection, unsupported MIME and cancellation without changing source (1.261353ms)
+✔ service worker installs complete resources without forced activation and refuses multi-tab update (19.601826ms)
+✔ update client blocks new work synchronously before delayed activation acknowledgment (1.484547ms)
+✔ vendored library and license bytes match recorded SHA-256 integrity (7.223028ms)
+✔ actual worker retains every source pixel for full color crop and maps 90-degree rotation (1.972189ms)
+✔ actual worker rejects invalid corners instead of emitting a cropped image (0.700293ms)
+✔ zip preflight accepts own archive and rejects traversal, huge declared expansion and missing manifest (1.799047ms)
+✔ duplicate ZIP entry paths are rejected before a ZIP library can overwrite them (0.752427ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 325.704109
