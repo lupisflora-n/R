@@ -8,6 +8,9 @@
 PCに既にRがあるためZIPの移し直しは不要。WindowsのそのプロジェクトのCodex入力欄でSTATEから検査・修正を再開する。GitHub同期・公開・認証・実データ変更は未実行。
 
 ## 現在
+- 2026-10-06 共有反映完了: ユーザーが誤キャンセルを説明し全許可。GitHubの `codex/docscan-v2` を実装commit `c6d52f836903d2c4e7a0b91b0e8c52fdcd3f2c6d` へ期待SHA付き・force=falseで更新成功。コネクターで同ブランチのpackage.jsonとsrc/app.tsを読取り検証済み。以下のキャンセル記録は過去の経緯。mainは案内READMEのまま、アプリ公開・PC clone・実機スクショは未実行。Cloudのシェル認証は未設定で、PCとCloudの全ファイル自動同期ではなくGitHub経由でのコード共有。
+- 再承認後の再試行（2026-10-06）: ユーザー「おっけ」で再開。共有ブランチのREADMEを読取り、初期案内のままであることを確認。期待SHA付き・force=falseのupdate_refを1回再試行したが、再び `user cancelled MCP tool call` と返った。ブランチ更新成功は確認できず未完了。チャットの承認とツール側の実行承認は別の可能性があるが、キャンセル原因はツール出力から特定できない。別手段で承認を迂回せず停止した。
+- GitHub反映の中断点（2026-10-06）: main初期commit `d387bcbe0d21967b541bc101d893d1557beb2489`、共有ブランチ `codex/docscan-v2` 作成済み。90ファイルのtree `d6c5a0cd391eabad13fe4b0b338a237c4bb94ee2` と実装commit `c6d52f836903d2c4e7a0b91b0e8c52fdcd3f2c6d` はGitHub APIで作成成功。ただし `update_ref` は `user cancelled MCP tool call` で終了したため、ブランチへの反映は未確認・未完了。同じ操作は再試行していない。次はユーザーが進行を望むことを確認し、現在のブランチ先端を読取り確認してから、期待SHA付き・force=falseでこの既存commitへ更新する。ファイル/tree/commitを作り直さない。PC clone案内は反映成功後に行う。
 - 2026-10-06: ユーザー指定 `lupisflora-n/R` は非公開・空リポジトリで、コネクターのpush権限を確認。共有作業をユーザーが「進めて」と承認。mainの案内READMEを初期登録し、実装を `codex/docscan-v2` へ反映する作業を開始。PCには新しいフォルダへのcloneを推奨し、Cloudの既存ローカル履歴との強制統合は行わない。アプリ公開・課金・文書の外部送信は対象外。詳細は `docs/PC_CLOUD_RESUME.md`。
 - スマホプレビュー準備: ビルド済み静的アプリの29ファイルを `/workspace/docscan-mobile-preview.zip` にまとめ、ZIP整合性とルートのindex.htmlを確認。文書画像・PDF・認証情報を含めない。Sitesの手順は読み取れたが必須のsite-workflow補助ツールは環境内にもスキル資源にも取得できず、Site作成・公開は実行していない。スマホ用HTTPS URLとスクショは未取得。外部サービスでの手動静的配信が代替案。
 - 2026-10-05追記: GitHub接続の読取りは成功したが、アクセス可能な12件の一覧にRはなかった。ユーザーへPCのorigin URLを確認中。`npm run verify:mobile` を追加し、Windows/Linuxで構文→合成テスト→ビルド→スマホ幅E2E・スクショを順に検査する。詳細は `docs/PC_CLOUD_RESUME.md`。共有先未確定のため別リポジトリへの書込みはしていない。
