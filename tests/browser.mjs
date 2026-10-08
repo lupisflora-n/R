@@ -28,14 +28,19 @@ try{
   context.on('request',req=>{if(!req.url().startsWith(base) && !req.url().startsWith('blob:') && !req.url().startsWith('data:'))external.push(req.url());});
   await check('mobile home loads with capture controls',async()=>{
     await page.goto(base);await page.getByRole('button',{name:'写真から選ぶ',exact:true}).waitFor();
-    await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.textContent==='写真から選ぶ').disabled);
+    await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.getAttribute('aria-label')==='写真から選ぶ').disabled);
     assert.match(await page.locator('body').innerText(),/その日の紙を、ひとつに/);await page.screenshot({path:'evidence/mobile-home.png',fullPage:true});
   });
   const sample=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=900;c.height=1280;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#172e2b';x.font='bold 44px sans-serif';x.fillText('SYNTHETIC DOCUMENT',72,110);x.font='22px sans-serif';x.fillText('TEST ONLY / 2026-10-03',72,158);x.font='16px sans-serif';for(let i=0;i<32;i++){x.fillText(`Line ${i+1}  123.45  0.05  8pt/10pt  sample`,72,240+i*25);x.fillRect(72,248+i*25,740,.5);}x.strokeStyle='#bb5544';x.lineWidth=3;x.strokeRect(650,80,140,90);x.font='26px sans-serif';x.fillStyle='#bb5544';x.fillText('FAKE',675,136);return Array.from(Uint8Array.from(atob(c.toDataURL('image/png').split(',')[1]),c=>c.charCodeAt(0)));}));
   await check('capture -> committed draft -> manual crop -> filter -> revision',async()=>{
     const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真から選ぶ',exact:true}).click();await(await chooser).setFiles({name:'synthetic.png',mimeType:'image/png',buffer:sample});
-    await page.getByRole('dialog',{name:'四隅と見やすさを確認'}).waitFor();await page.getByRole('button',{name:'加工後を確認',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.editor-controls .notice')?.textContent?.startsWith('確認用の縮小画像です'));
+    await page.getByRole('dialog',{name:'四隅と見やすさを確認'}).waitFor();await page.getByRole('button',{name:'次へ：白黒・カラー',exact:true}).click();await page.getByRole('button',{name:'加工後を確認',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.editor-message')?.textContent?.startsWith('確認用の縮小画像です'));
     await page.screenshot({path:'evidence/editor.png',fullPage:true});
+    await page.getByRole('button',{name:'色調を調整する',exact:true}).click();
+    await page.getByRole('button',{name:'カラー',exact:true}).click();
+    assert.equal(await page.getByRole('button',{name:'編集を保存',exact:true}).isVisible(),false,'changed recipe must be reviewed again');
+    await page.getByRole('button',{name:'加工後を確認',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.editor-message')?.textContent?.startsWith('確認用の縮小画像です'));
     await page.getByRole('button',{name:'編集を保存',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
     await page.waitForFunction(()=>!document.querySelector('.page-row input').disabled);
     const state=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');const pages=await db.list('pages');const original=await db.get('assets',pages[0].originalAssetId);return{pages:pages.length,state:pages[0].state,originalSize:original.byteCount,hash:original.sha256};});
@@ -52,6 +57,30 @@ try{
     await page.getByRole('button',{name:'共有して送る',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[role=status]').textContent.includes('共有を取消しました'));
     await page.getByRole('button',{name:'閉じる',exact:true}).click();
     const pdfs=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return(await db.list('pdfs')).length;});assert.equal(pdfs,1);
+  });
+  await check('trash removes PDF selection; restore preserves original and completed PDF; referenced erase is refused',async()=>{
+    const before=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:await db.list('pages'),pdfs:await db.list('pdfs'),assets:(await db.list('assets')).map(a=>({id:a.id,hash:a.sha256,bytes:a.byteCount}))};});
+    page.once('dialog',dialog=>dialog.accept());await page.locator('.page-actions button.danger').click();
+    await page.getByText('まだ写真がありません。',{exact:true}).waitFor();
+    assert.equal(await page.locator('.orderrow').count(),0);assert.equal(await page.getByRole('button',{name:'PDFを作成',exact:true}).isDisabled(),true);
+    await page.getByRole('button',{name:'ごみ箱を見る（1枚）',exact:true}).click();
+    const trash=page.getByRole('dialog',{name:'写真のごみ箱'});
+    assert.equal(await trash.getByRole('button',{name:'完全削除',exact:true}).isDisabled(),true);
+    assert.equal(await page.evaluate(async()=>{const db=await import('/src/storage/db.js');const deletion=await import('/src/storage/deletion.js');try{await deletion.permanentlyDeletePage((await db.list('pages'))[0].id,true);return false;}catch{return true;}}),true);
+    await trash.getByText(/完成PDFに使った写真は/).waitFor();
+    await trash.getByRole('button',{name:'元に戻す',exact:true}).click();await trash.getByText('写真を一覧へ戻しました。',{exact:true}).waitFor();
+    await trash.getByRole('button',{name:'閉じる',exact:true}).click();
+    const after=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:await db.list('pages'),pdfs:await db.list('pdfs'),assets:(await db.list('assets')).map(a=>({id:a.id,hash:a.sha256,bytes:a.byteCount}))};});
+    assert.deepEqual(after.pdfs,before.pdfs);assert.deepEqual(after.assets,before.assets);
+    assert.deepEqual(after.pages.map(p=>({...p,deletedAt:undefined})),before.pages.map(p=>({...p,deletedAt:undefined})));
+  });
+  await check('unused captured draft can be permanently erased without removing completed PDF',async()=>{
+    const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真から選ぶ',exact:true}).click();await(await chooser).setFiles({name:'throwaway.png',mimeType:'image/png',buffer:sample});
+    const editor=page.getByRole('dialog',{name:'四隅と見やすさを確認'});await editor.waitFor();await editor.getByRole('button',{name:'閉じる',exact:true}).click();
+    page.once('dialog',dialog=>dialog.accept());await page.locator('.page-actions button.danger').last().click();
+    await page.getByRole('button',{name:'ごみ箱を見る（1枚）',exact:true}).click();
+    const trash=page.getByRole('dialog',{name:'写真のごみ箱'});page.once('dialog',dialog=>dialog.accept());await trash.getByRole('button',{name:'完全削除',exact:true}).click();await trash.getByText('原本と編集版を完全削除しました。',{exact:true}).waitFor();await trash.getByRole('button',{name:'閉じる',exact:true}).click();
+    const state=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:(await db.list('pages')).length,pdfs:(await db.list('pdfs')).length};});assert.deepEqual(state,{pages:1,pdfs:1});
   });
   await check('backup -> hash validation -> additive restore -> repeated import idempotency',async()=>{
     await page.getByRole('button',{name:'この日付の復元用ZIPを作る',exact:true}).click();await page.locator('.backups a').waitFor();

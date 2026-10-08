@@ -16,7 +16,7 @@ try {
     async function check(name,fn){await fn();record.checks.push(name);}
     try {
       await page.goto(base);
-      await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(b=>b.textContent==='写真から選ぶ' && !b.disabled));
+      await page.waitForFunction(()=>Array.from(document.querySelectorAll('button')).some(b=>b.getAttribute('aria-label')==='写真から選ぶ' && !b.disabled));
       await check('home fits viewport',async()=>assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)));
       await check('date has accessible label',async()=>assert.equal(await page.getByLabel('文書の日付',{exact:true}).count(),1));
       await page.screenshot({path:`evidence/mobile-quality/home-${width}.png`});
@@ -29,8 +29,8 @@ try {
         const b=await dialog.boundingBox();assert.ok(b.x>=-1 && b.y>=-1 && b.x+b.width<=width+1 && b.y+b.height<=height+1);
         assert.ok(await dialog.evaluate(e=>e.scrollWidth<=e.clientWidth+1));
       });
-      await check('save button is reachable by touch',async()=>{
-        const b=dialog.getByRole('button',{name:'編集を保存',exact:true});
+      await check('current editor action is reachable by touch',async()=>{
+        const b=dialog.getByRole('button',{name:'次へ：白黒・カラー',exact:true});
         await b.scrollIntoViewIfNeeded();await b.click({trial:true});
         const r=await b.boundingBox();assert.ok(r.height>=44 && r.width>=44);
       });

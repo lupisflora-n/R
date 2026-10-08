@@ -1,52 +1,13 @@
 {
-  "date": "2026-10-06T15:15:02.865Z",
-  "status": "COMPLETED",
-  "browser": "Playwright Chromium against a real server",
-  "passedBrowserTests": 8,
+  "date": "2026-10-08T16:15:51.758Z",
+  "status": "BLOCKED",
+  "browser": "Playwright Chromium with in-memory local asset routing",
+  "passedBrowserTests": 0,
   "results": [
     {
-      "name": "mobile home loads with capture controls",
-      "status": "PASS",
-      "ms": 4265
-    },
-    {
-      "name": "capture -> committed draft -> manual crop -> filter -> revision",
-      "status": "PASS",
-      "ms": 2309
-    },
-    {
-      "name": "selected PDF -> saved bytes -> actual PDF.js rendering -> share cancellation",
-      "status": "PASS",
-      "ms": 989
-    },
-    {
-      "name": "backup -> hash validation -> additive restore -> repeated import idempotency",
-      "status": "PASS",
-      "ms": 1035
-    },
-    {
-      "name": "second tab is fenced from writing while first tab retains data",
-      "status": "PASS",
-      "ms": 619
-    },
-    {
-      "name": "saved documents survive browser reload",
-      "status": "PASS",
-      "ms": 169
-    },
-    {
-      "name": "real Service Worker offline resources and saved document reload",
-      "status": "PASS",
-      "ms": 181
-    },
-    {
-      "name": "no external document requests or browser errors",
-      "status": "PASS"
-    },
-    {
-      "name": "WebKit engine",
-      "status": "NOT_RUN",
-      "reason": "This runner tests Chromium only. WebKit and actual iPhone require separate checks."
+      "name": "browser startup",
+      "status": "BLOCKED",
+      "reason": "Operating-system sandbox denied Chromium startup/IPC. No browser test ran."
     }
   ],
   "errors": [],

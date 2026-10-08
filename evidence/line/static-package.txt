@@ -1,0 +1,4 @@
+PASS bootstrap has compiled dynamic imports and no TypeScript paths
+PASS HTML entry defers all document libraries until browser guard
+PASS same-origin resources only; no document HTTP writes, analytics, LINE SDK, or login endpoints
+PASS response headers limit resources and deny embedding/geolocation/microphone

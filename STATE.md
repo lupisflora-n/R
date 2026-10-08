@@ -1,4 +1,23 @@
 # STATE｜再開点
+## 最新：2026-10-08 写真参照のUX・デザイン改修（LINE独立版）
+
+- 本人が旧公開版build `9bc8137a41c23e08` / files32を提示し、LINE起動→PDF生成→メール送信の最低要件達成を報告。端末型番/OS/ブラウザー/複数枚/受信確認は未記録なので詳細実機ゲートの合格へ拡大しない。
+- 本人の要望: 四隅/編集/白黒確認が分かりづらい、撮影・取込写真の削除、自宅でまとめて書いて撮影・提出、慣れた少人数、迷わない、参考画像のデザイン。画像を受領しクリーム/深緑/オレンジ/黄色/幾何学装飾へ統一。ブランドdocPDF維持。自動検出・PDF入力・宛先自動補完・メール送信成功表示は追加しない。
+- UX/実装/保存担当エージェントで作業・統合読取りレビュー・修正確認。設計はdocs/DOCPDF_UX_BRIEF.md、削除契約はdocs/DOCPDF_DELETION.md。人間専門家の評価や実表示の合格と混同しない。
+- 編集3工程、48pxの四隅、端点余白/暗幕/枠、原本比較、工程別CTA、変更時プレビュー失効を実装。ホームの入口とPDF/共有に参照配色を反映。注意は開閉できる欄へ整理し、撮影入口を先に置いた。
+- 写真の削除→ごみ箱（容量減少なし）→復元。ごみ箱の完全削除は戻せず、完成PDFが参照する写真は理由付きで停止。新PDF選択除外、保存/PDFの同一tx再確認、backup deletedAt保持、古いZIPリンク破棄を統合。旧アプリへ復元するとごみ箱状態を読まず一覧へ戻る場合がある。DB初期化・原本書換・外部文書送信はなし。
+- 検査: 合成37 PASS、構文19モジュールPASS（型検査ではない）、静的4 PASS、ビルド/ZIP資源全ハッシュ一致。ChromiumのIPC拒否で画面検査BLOCKED/0 PASS。端末の新しい操作/見た目・実IDB・更新はNEEDS_HUMAN_TEST。旧版の本人報告を新版合格へ流用しない。
+- 配布候補: build `c9bba312e31d048d`、`release/docpdf-line-preview-c9bba312e31d048d.zip`、36ファイル、SHA-256 `8618c9361b9d301a0e797c8f4eb74a8798b3d1abb5f5725e702ede17a528a053`。公開未更新。
+- 対象は/workspace/R-line・codex/docpdf-lineのみ。本線codex/docscan-v2とmainは変更しない。GitHub保存/同じ専用検証サイト更新の許可は既にある。ローカル復元履歴をforce pushせず、GitHubの現treeへ差分を適用する。
+- 次の1作業: 同じCloudflare docpdf-line-testのCreate deploymentへ新ZIPをアップロードし、固定URLのbuild.jsonを確認。配信操作の接続/認証が環境にないため本人操作。別URL・既存docscan-v2-testへ移さず、端末DB/キャッシュを消さない。更新通知は編集中・処理中に適用しない。
+- 新版の架空3枚で四隅→色調→確認→保存、設定変更後の再確認、写真削除/復元、完成PDFの確認/メール引渡しを実機確認。一般提供の合格宣言はしていない。
+
+## 最新：2026-10-08 本人のCloudflare配信成功画面を確認
+
+本人の画面で新規docpdf-line-testの配信に緑チェック、固定ドメインhttps://docpdf-line-test.pages.dev/を確認。これは管理画面の成功表示であり、配信内容・build一致・ヘッダー・実ブラウザーの合格とは分ける。Cloudのcurlはproxy接続不能、Web取得ツールもこのURLへアクセスできず、外部からの確認はBLOCKED。
+
+次の1作業: 本人がhttps://docpdf-line-test.pages.dev/build.jsonを開き、buildが承認済み9bc8137a41c23e08か確認。結果受領後、入口表示とLINEメニュー設定、架空1枚実機へ進む。公開承認済み、再承認不要。顧客情報は試験へ使わない。
+
 ## 最新：2026-10-08 docPDF独立ブランチへのGitHub保存完了
 
 - 本人承認済みの範囲でGitHub lupisflora-n/Rの新規codex/docpdf-lineを作成。実装commit `729a6de3cc298a7a82c2e4656090fa10aa1b67a8`、tree `8feaa52dca2abe9e56a305702c5a33d6c0eb9ded`、親は本線固定8fe715f。ローカル復元履歴はpushせず、GitHub基準treeへ43ファイルの変更を適用した。

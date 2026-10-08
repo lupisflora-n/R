@@ -103,3 +103,7 @@ Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）
 
 ## 2026-10-08 docPDFの共有完了・Cloudflare本人操作待ち
 公開と独立GitHub保存は承認済み。codex/docpdf-lineの実装commit729a6de、既存117ファイル保持/削除0/変更43 blob一致、ref/再読取り/本線不変を確認。ZIP34ファイルのハッシュ一致を再確認。Cloudflare管理画面の操作接続がないため配信は本人操作待ち。docs/DOCPDF_LINE_SETUP.mdの公式Direct Upload手順で新規サイトへ配信し、実際のURLを受け取ったらbuild/ヘッダー/E2E→LINEメニュー→Android架空1枚へ進む。公開許可を取り直さない。
+
+## 2026-10-08 docPDF UX改修
+
+編集3工程・参照配色・ごみ箱/復元/未参照写真の完全削除をLINE独立版へ実装。合成37 PASS、構文19・静的4・ZIP一致PASS。ブラウザーはIPC拒否でBLOCKED（0 PASS）。詳細と次作業はdocs/DOCPDF_UX_RELEASE.md。完成PDF参照の写真は完全削除禁止。原本の書換/メール送信成功の自動判定なし。

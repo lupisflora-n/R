@@ -85,7 +85,7 @@ try {
     await check('external browser landing opens the document app without login', async () => {
       await page.goto(base + '/line.html');
       await page.getByRole('link', { name: 'docPDFを開く', exact: true }).click();
-      await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent === '写真から選ぶ' && !button.disabled));
+      await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.getAttribute('aria-label') === '写真から選ぶ' && !button.disabled));
       assert.ok(await page.evaluate(() => window.__databaseOpens) > 0);
       assert.match(await page.locator('body').innerText(), /docPDF/);
       await page.screenshot({ path: 'evidence/line/external-home.png', fullPage: true });

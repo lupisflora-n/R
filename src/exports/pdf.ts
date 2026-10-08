@@ -4,13 +4,14 @@ import { id, now, MAX_PDF_PAGES } from '../model.ts';
 import type { Job, Page, PdfExport, Revision } from '../model.ts';
 import { pdfName, sha256 } from '../core.ts';
 import { assemblePdf } from './assemble.ts';
+import { withCurrentPdfInputs } from './snapshot.ts';
 
 export async function createPdf(dayId:string, orderedPages:Page[], name:string, onProgress:(n:number)=>void, signal?:AbortSignal):Promise<PdfExport> {
   if(!orderedPages.length || orderedPages.length>MAX_PDF_PAGES)throw new Error('PDFは1〜10枚を選んでください。多い場合は分けて作成できます。');
-  if(new Set(orderedPages.map(p=>p.id)).size!==orderedPages.length || orderedPages.some(p=>p.dayId!==dayId || !p.activeRevisionId))throw new Error('同じ日付の保存済み編集版を重複せず選んでください。');
+  if(new Set(orderedPages.map(p=>p.id)).size!==orderedPages.length || orderedPages.some(p=>p.dayId!==dayId || p.deletedAt || p.state!=='READY' || !p.activeRevisionId))throw new Error('同じ日付の保存済み編集版を重複せず選んでください。');
   const revisionIds=orderedPages.map(p=>p.activeRevisionId!);
   const fence=currentToken(),job:Job={id:id(),kind:'pdf',state:'RUNNING',inputSnapshot:revisionIds,fencingToken:fence,progress:0,createdAt:now()};
-  await write(['jobs'],tx=>tx.objectStore('jobs').add(job),fence);
+  await write(['pages','jobs'],tx=>withCurrentPdfInputs(tx,dayId,orderedPages,()=>tx.objectStore('jobs').add(job)),fence);
   try {
     const bytes=await assemblePdf(revisionIds,async revisionId=>{
       const revision=await get('revisions',revisionId) as Revision;
@@ -28,7 +29,12 @@ export async function createPdf(dayId:string, orderedPages:Page[], name:string, 
     const blob=new Blob([bytes],{type:'application/pdf'}),asset=await makeAsset(blob,'pdf');
     const record:PdfExport={id:job.id,dayId,displayName:pdfName(name),orderedRevisionIds:revisionIds,orderedPageIds:orderedPages.map(p=>p.id),fingerprint:await sha256(new TextEncoder().encode(revisionIds.join('|'))),assetId:asset.id,status:'READY',createdAt:now()};
     if(signal?.aborted)throw new DOMException('取消しました','AbortError');
-    await write(['assets','pdfs','jobs'],tx=>{if(signal?.aborted)throw new DOMException('取消しました','AbortError');tx.objectStore('assets').add(asset);tx.objectStore('pdfs').add(record);tx.objectStore('jobs').put({...job,state:'READY',progress:100});},fence);
+    await write(['pages','assets','pdfs','jobs'],tx=>{
+      withCurrentPdfInputs(tx,dayId,orderedPages,()=>{
+        if(signal?.aborted){tx.abort();return;}
+        tx.objectStore('assets').add(asset);tx.objectStore('pdfs').add(record);tx.objectStore('jobs').put({...job,state:'READY',progress:100});
+      });
+    },fence);
     onProgress(100);return record;
   } catch(error) {
     try {await write(['jobs'],tx=>tx.objectStore('jobs').put({...job,state:error instanceof DOMException && error.name==='AbortError'?'CANCELED':'FAILED',errorCode:error instanceof DOMException?error.name:'PDF_FAILED'}),fence);}catch{ /* A newer owner must reject this old job. */ }

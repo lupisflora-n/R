@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#196a57">
+  <meta name="theme-color" content="#123c2f">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
@@ -20,7 +20,7 @@
       <ol class="help-steps">
         <li>LINEの「docPDFを開く」からChrome／Safariへ移ります。</li>
         <li>文書の日付を選び、「紙を撮影」。受け取った写真が下書き保存されたことを確認します。</li>
-        <li>四隅を紙の角へ合わせ、「加工後を確認」。数字・小数点・薄字を原本と比べ、欠ける場合はカラーへ戻します。</li>
+        <li>「1 四隅」で紙の角へ合わせ、「次へ：白黒・カラー」。「2 白黒・カラー」で見やすさを選び、「加工後を確認」で数字・小数点・薄字を原本と比べます。欠ける場合は戻ってカラーへ変更します。</li>
         <li>「編集を保存」。写真にチェックを入れ、PDFの名前を決めて作成します。</li>
         <li>完成PDFを確認し、「ファイルに保存」または「共有して送る」。共有先は勤務先が認めたものを選び、宛先・添付を確認します。</li>
       </ol>
@@ -32,6 +32,11 @@
       <p class="muted">ブラウザーデータの削除、端末故障、容量不足などで失う可能性があります。PDFは確認した保存先へ。復元用ZIPには原本も含まれ、暗号化されません。顧客情報の保存先として認められているか確認してください。</p>
     </section>
     <section class="card">
+      <h2>写真の削除とごみ箱</h2>
+      <p class="muted">写真の「削除」でごみ箱へ移動し、一覧と新しいPDFの選択対象から外します。容量は減りません。「ごみ箱を見る」から元に戻せます。完成PDFは変わりません。</p>
+      <p class="muted">ごみ箱の「完全削除」は原本と編集版を戻せなくします。完成PDFで使った写真は、復元に必要な参照を保つため完全削除できません。端末の写真アプリ、メール添付、外部へ保存したファイルは別に残ります。復元用ZIPはごみ箱も含みます。</p>
+    </section>
+    <section class="card">
       <h2>LINEと外部通信</h2>
       <p class="muted">LINEは起動の入口です。LINEログイン、プロフィール取得、トークへの自動投稿、書類をサーバーで処理する機能は使いません。写真やPDFをdocPDFのトークに送らないでください。</p>
       <p class="muted">アプリを開く・更新する際は配信先へ通信します。配信事業者がIPアドレスなどのアクセス情報を扱う可能性があります。「通信が一切ない」という意味ではありません。画像の加工・PDF作成は端末内処理です。</p>
@@ -40,7 +45,7 @@
     <section class="card">
       <h2>個人スマホで使う前に</h2>
       <p class="muted">端末ロックとOSの更新、写真の自動バックアップ先、勤務先が認めた保存・送信先、保存期間と削除手順を確認してください。アプリ独自の暗号化や自動削除は実装していません。勤務先の承認や法令への適合を、このアプリが判定するものではありません。</p>
-      <p class="muted">iPhone・AndroidでのLINEからの起動、撮影、メール添付は実機未検証です。一般提供・実務利用の合格判定はまだ出ていません。</p>
+      <p class="muted">本人からLINE起動・PDF作成・メール送信まで達成したとの報告を受けています。端末別の詳細な実機検証、iPhoneや複数枚の評価は継続中です。一般提供・実務利用の合格判定はまだ出ていません。</p>
     </section>
     <a class="launch-button" href="/line.html">docPDFの入口へ戻る</a>
     <footer>docPDF · LINE入口の検証版</footer>

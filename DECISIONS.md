@@ -53,3 +53,7 @@ LIFF/LINEログイン/プロフィール取得/トークへ書類送信/サー�
 
 ## 2026-10-08 docPDF検証公開と独立GitHub保存の承認
 ユーザー「おっけー」でdocs/DOCPDF_LINE_RELEASE.mdの具体的範囲を承認。新規Cloudflare静的検証サイト（候補docpdf-line-test）、静的34ファイルのbuild 9bc8137a41c23e08、GitHub lupisflora-n/Rの新規codex/docpdf-lineへの保存。本線や既存サイトを変更しない。一般提供、費用追加、実書類の送信、LINEメッセージ配信は含めない。公開時に本人操作が必要でも、同じ公開許可を取り直さない。
+
+## 2026-10-08 docPDF UX・削除契約
+
+編集3工程・参照配色・ごみ箱/復元/未参照写真の完全削除をLINE独立版へ実装。合成37 PASS、構文19・静的4・ZIP一致PASS。ブラウザーはIPC拒否でBLOCKED（0 PASS）。詳細と次作業はdocs/DOCPDF_UX_RELEASE.md。完成PDF参照の写真は完全削除禁止。原本の書換/メール送信成功の自動判定なし。

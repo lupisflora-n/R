@@ -2,6 +2,7 @@ import { localDate, safeError, sizeText, validateCorners, pdfName } from './core
 import { defaultRecipe, id, now } from './model.ts';
 import type { Day, IngestIntent, Page, PdfExport, Recipe, Revision } from './model.ts';
 import * as db from './storage/db.ts';
+import { movePageToTrash, restorePage, permanentlyDeletePage, planPageAction } from './storage/deletion.ts';
 import { decode, processImage, validateImage } from './processing/image.ts';
 import { createPdf, download, handOff, logShare, preparedFile } from './exports/pdf.ts';
 import { openPdf } from './exports/viewer.ts';
@@ -14,41 +15,47 @@ function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):H
 function button(text:string,action:()=>void,className=''):HTMLButtonElement {
   const b=el('button',text,className);b.type='button';b.addEventListener('click',action);return b;
 }
+function captureIcon(kind:'camera'|'photo'):HTMLElement {
+  const icon=el('span','',`capture-icon capture-icon-${kind}`);icon.setAttribute('aria-hidden','true');return icon;
+}
 function field(label:string,input:HTMLElement):HTMLElement {
   const wrap=el('div','','field');const l=el('label',label);if(input.id)l.htmlFor=input.id;wrap.append(l,input);return wrap;
 }
 const app=document.querySelector('#app')!;
 const header=el('header'),brand=el('div','','brand'),icon=el('img');icon.src='./icon.svg';icon.alt='';brand.append(icon,el('strong','docPDF'));
 const offlinePill=el('span','準備中','pill');header.append(brand,offlinePill);
-const main=el('main','','wrap');main.append(el('div','DAILY DOCUMENTS','eyebrow'),el('h1','その日の紙を、ひとつに。'),el('p','写真を整えて、日付ごとに保存。必要な分だけPDFにして送れます。','subtitle'));
+const main=el('main','','wrap'),hero=el('div','','home-hero');hero.append(el('div','撮って、整えて、まとめて送る','eyebrow'),el('h1','その日の紙を、ひとつに。'),el('p','家で書いた報告書を、まとめて撮影。確認してPDFにし、メールへ添付できます。','subtitle'));main.append(hero);
 const trialNotice=el('div','検証版：架空の書類で試してください。実務での利用は勤務先の確認後に。写真やPDFをdocPDFのLINEトークへ送らないでください。','notice warning');
 const helpLink=el('a','使い方・保存と安全の説明','text-link');helpLink.href='/help.html';helpLink.target='_blank';helpLink.rel='noopener noreferrer';
-trialNotice.append(el('br'),helpLink);main.append(trialNotice);
+trialNotice.append(el('br'),helpLink);
 const datebar=el('div','','datebar'),dateInput=el('input');dateInput.type='date';dateInput.id='document-date';dateInput.value=localDate();
 const recent=el('select');recent.id='recent-days';recent.setAttribute('aria-label','保存済みの日付');
 const todayButton=button('今日',()=>{if(busy || editing || pendingCapture)return;dateInput.value=localDate();void changeDate();},'quiet');
 const dateLabel=el('label','文書の日付');dateLabel.htmlFor=dateInput.id;
 datebar.append(dateLabel,dateInput,todayButton,recent);main.append(datebar);
-const storageNotice=el('div','写真はこの端末・ブラウザー内に保存されます。消失に備え、大切な日付は復元用バックアップも外部へ保存してください。','notice');main.append(storageNotice);
+const storageNotice=el('div','写真はこの端末・ブラウザー内に保存されます。消失に備え、大切な日付は復元用バックアップも外部へ保存してください。','notice');
+const safetyDetails=el('details','','safety-details');safetyDetails.append(el('summary','検証版：架空の書類でお試しください・保存の注意'),trialNotice,storageNotice);
 const updateNotice=el('div','','notice hidden');main.append(updateNotice);
-const captureCard=el('section','','card'),captureHead=el('div','','sectionhead');captureHead.append(el('h2','1. 写真を追加'));
+const captureCard=el('section','','card capture-card'),captureHead=el('div','','sectionhead');captureHead.append(el('h2','1. 写真を追加'));
 const camera=el('input');camera.type='file';camera.accept='image/*';camera.setAttribute('capture','environment');camera.className='hidden';camera.id='camera-input';
 const gallery=el('input');gallery.type='file';gallery.accept='image/jpeg,image/png,image/heic,image/heif';gallery.className='hidden';gallery.id='gallery-input';
-const cameraButton=button('＋ 紙を撮影',()=>choose(camera),'primary'),galleryButton=button('写真から選ぶ',()=>choose(gallery));
-const captureActions=el('div','','capture');captureActions.append(cameraButton,galleryButton);captureCard.append(captureHead,captureActions,camera,gallery,el('p','受け取った写真を先に保存します。編集を途中で閉じても、下書きから再開できます。','muted small'));main.append(captureCard);
+const cameraButton=button('＋ 紙を撮影',()=>choose(camera),'primary capture-camera'),galleryButton=button('写真から選ぶ',()=>choose(gallery),'capture-gallery');
+for(const [control,kind,label,hint] of [[cameraButton,'camera','＋ 紙を撮影','紙を1枚ずつ撮影'],[galleryButton,'photo','写真から選ぶ','端末の写真を取り込む']] as const){control.textContent='';control.setAttribute('aria-label',label);control.append(captureIcon(kind),el('span',label),el('small',hint));}
+const captureActions=el('div','','capture');captureActions.append(cameraButton,galleryButton);captureCard.append(captureHead,captureActions,camera,gallery,el('p','受け取った写真を先に保存します。編集を途中で閉じても、下書きから再開できます。','muted small'));main.append(captureCard,safetyDetails);
 const retryCaptureButton=button('未保存の写真を再試行',()=>{if(pendingCapture)void ingest(pendingCapture.file,pendingCapture.target);},'hidden');captureCard.append(retryCaptureButton);
 const discardCaptureButton=button('未保存の写真を破棄',()=>{if(busy || !pendingCapture)return;if(confirm('この写真はアプリへ保存できていません。端末側に写真が残っていることを確認してください。画面内の未保存写真を破棄しますか？')){pendingCapture=undefined;void prepareIntent();controls();tell('未保存の写真を破棄しました。保存済みの文書は変更していません。');}},'hidden danger');captureCard.append(discardCaptureButton);
-const pagesCard=el('section','','card'),pagesHead=el('div','','sectionhead'),pageCount=el('span','0枚','pill');pagesHead.append(el('h2','2. 整えて、選ぶ'),pageCount);
+const pagesCard=el('section','','card pages-card'),pagesHead=el('div','','sectionhead'),pageCount=el('span','0枚','pill');pagesHead.append(el('h2','2. 整えて、選ぶ'),pageCount);
 const pagesArea=el('div'),selectionActions=el('div','','actions');selectionActions.append(button('編集済みを全選択',()=>{selected=currentPages.filter(p=>p.state==='READY').map(p=>p.id);renderSelection();renderPages();}),button('選択を解除',()=>{selected=[];renderSelection();renderPages();},'quiet'));
+const trashButton=button('ごみ箱を見る（0枚）',()=>void viewTrash(),'quiet');selectionActions.append(trashButton);
 pagesCard.append(pagesHead,pagesArea,selectionActions);main.append(pagesCard);
-const pdfCard=el('section','','card'),pdfHead=el('div','','sectionhead');pdfHead.append(el('h2','3. PDFにして送る'));
+const pdfCard=el('section','','card pdf-card'),pdfHead=el('div','','sectionhead');pdfHead.append(el('h2','3. PDFにして送る'));
 const orderList=el('div','','orderlist'),nameInput=el('input');nameInput.id='pdf-name';nameInput.value=`${localDate()}_文書`;nameInput.maxLength=100;nameInput.className='wideinput';
 const generateButton=button('PDFを作成',()=>void generate(),'primary'),cancelJob=button('処理を取消',()=>jobAbort?.abort(),'hidden');
 const pdfsArea=el('div');pdfCard.append(pdfHead,el('p','選んだ順番で作成します。完成したPDFを確認してから、別のボタンで共有します。','muted'),orderList,field('PDFの名前',nameInput),generateButton,cancelJob,pdfsArea);main.append(pdfCard);
-const backupCard=el('section','','card'),backupHead=el('div','','sectionhead');backupHead.append(el('h2','端末の外にも残す'));
+const backupCard=el('section','','card backup-card'),backupHead=el('div','','sectionhead');backupHead.append(el('h2','端末の外にも残す'));
 const backupButton=button('この日付の復元用ZIPを作る',()=>void backup()),restoreInput=el('input');restoreInput.type='file';restoreInput.accept='.zip,application/zip';restoreInput.multiple=true;restoreInput.id='restore-input';restoreInput.className='hidden';
 const restoreButton=button('復元用ZIPを読み込む',()=>restoreInput.click()),backupFiles=el('div','','backups');
-backupCard.append(backupHead,el('p','PDFは読む・送るためのファイル。復元用ZIPには原本・現在の編集・日付・完成PDFが入ります。ZIPは暗号化されず、原本の撮影位置なども含む場合があります。','muted'),backupButton,restoreButton,restoreInput,backupFiles);
+backupCard.append(backupHead,el('p','PDFは読む・送るためのファイル。復元用ZIPには原本・現在の編集・日付・完成PDFと、ごみ箱の写真も入ります。ZIPは暗号化されず、原本の撮影位置なども含む場合があります。','muted'),backupButton,restoreButton,restoreInput,backupFiles);
 const storageDetail=el('p','','muted small'),persistButton=button('端末に保存の保持を依頼',()=>void persist());backupCard.append(storageDetail,persistButton);main.append(backupCard);
 main.append(el('footer','docPDF · LINE入口の開発検証版\n文書の外部アップロード・自動メール送信は行いません。'));
 const status=el('div','','status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');main.append(status);app.append(header,main);
@@ -60,7 +67,7 @@ let thumbnailUrls:string[]=[],backupUrls:string[]=[];
 function tell(message:string,error=false):void {status.textContent=message;status.classList.toggle('error',error);}
 function fail(error:unknown):void {tell(safeError(error),true);}
 function controls():void {
-  for(const b of [cameraButton,galleryButton,backupButton,generateButton,restoreButton])b.disabled=busy || editing || !writable || !currentDay;
+  for(const b of [cameraButton,galleryButton,backupButton,generateButton,restoreButton,trashButton])b.disabled=busy || editing || !writable || !currentDay;
   if(!intent || pendingCapture){cameraButton.disabled=true;galleryButton.disabled=true;}
   generateButton.disabled=generateButton.disabled || !selected.length || selected.length>10;
   dateInput.disabled=busy || editing || Boolean(pendingCapture);recent.disabled=busy || editing || Boolean(pendingCapture);todayButton.disabled=busy || editing || Boolean(pendingCapture);
@@ -68,7 +75,9 @@ function controls():void {
   discardCaptureButton.disabled=busy || editing;discardCaptureButton.classList.toggle('hidden',!pendingCapture);
   for(const check of pagesArea.querySelectorAll<HTMLInputElement>('input[type=checkbox]'))check.disabled=busy || editing || !writable || check.dataset.ready!=='true';
   for(const editButton of pagesArea.querySelectorAll<HTMLButtonElement>('button'))editButton.disabled=busy || editing || !writable;
-  for(const node of document.querySelectorAll<HTMLInputElement|HTMLButtonElement>('.editor-controls button,.editor-controls input,#page-title'))node.disabled=busy;
+  for(const action of document.querySelectorAll<HTMLButtonElement>('.trash-actions button'))action.disabled=busy || !writable || action.dataset.uiDisabled==='true';
+  for(const node of document.querySelectorAll<HTMLInputElement|HTMLButtonElement>('.editor-controls button,.editor-controls input,#page-title'))node.disabled=busy || node.dataset.uiDisabled==='true';
+  for(const cancel of document.querySelectorAll<HTMLButtonElement>('.editor-cancel-processing')){cancel.classList.toggle('hidden',!busy);cancel.disabled=!busy;}
 }
 async function run(action:()=>Promise<void>):Promise<void> {
   if(busy){tell('処理中です。完了をお待ちください。');return;}
@@ -80,7 +89,7 @@ function dialog(title:string,onClose:()=>void):{overlay:HTMLElement;body:HTMLEle
   top.append(el('h2',title),closeButton);panel.append(top,body,footer);overlay.append(panel);document.body.append(overlay);closeButton.focus();
   const keydown=(event:KeyboardEvent)=>{
     if(event.key==='Escape' && !busy){close();onClose();}
-    if(event.key==='Tab'){const nodes=Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]'));const first=nodes[0],last=nodes[nodes.length-1];if(event.shiftKey && document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first?.focus();}}
+    if(event.key==='Tab'){const nodes=Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled),input:not(:disabled),select:not(:disabled),a[href]')).filter(node=>node.getClientRects().length>0);const first=nodes[0],last=nodes[nodes.length-1];if(!nodes.includes(document.activeElement as HTMLElement)){event.preventDefault();(event.shiftKey?last:first)?.focus();}else if(event.shiftKey && document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first?.focus();}}
   };
   overlay.addEventListener('keydown',keydown);
   function close(){overlay.remove();prior?.focus();}
@@ -95,7 +104,9 @@ async function changeDate():Promise<void> {
 dateInput.addEventListener('change',()=>void changeDate());
 recent.addEventListener('change',()=>void run(async()=>{const day=await db.get('days',recent.value);if(!day)return;currentDay=day;dateInput.value=day.documentDate;selected=[];nameInput.value=`${day.documentDate}_文書`;await refresh();}));
 async function refresh():Promise<void> {
-  currentPages=(await db.list('pages')).filter(p=>p.dayId===currentDay.id).sort((a,b)=>a.orderIndex-b.orderIndex);
+  const dayPages=(await db.list('pages')).filter(p=>p.dayId===currentDay.id);
+  currentPages=dayPages.filter(p=>!p.deletedAt).sort((a,b)=>a.orderIndex-b.orderIndex);
+  trashButton.textContent=`ごみ箱を見る（${dayPages.filter(p=>p.deletedAt).length}枚）`;
   selected=selected.filter(id=>currentPages.some(p=>p.id===id && p.state==='READY'));
   recent.replaceChildren(el('option','保存済みの日付'));
   for(const day of (await db.list('days')).sort((a,b)=>b.documentDate.localeCompare(a.documentDate))){const option=el('option',`${day.documentDate}${day.id===currentDay.id?' · 表示中':''}`);option.value=day.id;recent.append(option);}
@@ -136,8 +147,48 @@ function renderPages():void {
     const img=el('img','','thumbnail');img.alt=page.title;
     void(async()=>{const revision=page.activeRevisionId?await db.get('revisions',page.activeRevisionId):undefined;const asset=await db.get('assets',revision?.renderedAssetId || page.originalAssetId);if(asset && img.isConnected){const url=URL.createObjectURL(asset.blob);thumbnailUrls.push(url);img.src=url;img.onerror=()=>{img.removeAttribute('src');img.alt='表示できない原本';};}})();
     const info=el('div');info.append(el('strong',page.title),el('div',page.state==='READY'?'編集済み · PDFに選択できます':page.state==='DRAFT_UNSUPPORTED'?'原本保存済み · この端末では編集できません':'下書き · 編集を再開できます',page.state==='READY'?'rowmeta':'rowmeta draft'));
-    const editButton=button('編集',()=>void edit(page));editButton.disabled=busy || !writable;row.append(check,img,info,editButton);pagesArea.append(row);
+    info.className='page-info';
+    const editButton=button('編集',()=>void edit(page));editButton.disabled=busy || !writable;editButton.setAttribute('aria-label',`${page.title}を編集`);
+    const deleteButton=button('削除',()=>void trashPhoto(page),'quiet danger');deleteButton.setAttribute('aria-label',`${page.title}を削除`);
+    const actions=el('div','','page-actions');actions.append(editButton,deleteButton);row.append(check,img,info,actions);pagesArea.append(row);
   }
+}
+async function trashPhoto(page:Page):Promise<void>{
+  if(busy || editing || !writable)return;
+  if(!confirm(`「${page.title}」1枚をごみ箱へ移しますか？\n元に戻せます。完成PDFは変わりません。容量は減りません。`))return;
+  await run(async()=>{await movePageToTrash(page.id,true);clearPreparedBackups();await refresh();tell('写真をごみ箱へ移しました。「ごみ箱を見る」から元に戻せます。');});
+}
+function clearPreparedBackups(){for(const url of backupUrls)URL.revokeObjectURL(url);backupUrls=[];backupFiles.replaceChildren();}
+async function viewTrash():Promise<void>{
+  if(busy || editing || !writable)return;
+  editing=true;controls();let removed=false;
+  const modal=dialog('写真のごみ箱',()=>{removed=true;editing=false;controls();});
+  const intro=el('p','ごみ箱の写真は一覧と新しいPDFの選択対象から外れます。容量は減りません。完成PDFはそのままです。','notice');
+  const rows=el('div'),message=el('p','','notice hidden');message.tabIndex=-1;message.setAttribute('role','status');message.setAttribute('aria-live','polite');modal.body.append(intro,rows,message);
+  modal.body.append(el('p','完全削除は原本と編集版を戻せなくします。完成PDFで使った写真は復元に必要なため完全削除できません。写真アプリや外部へ保存したコピーは別に残ります。','muted small'));
+  async function redraw(){
+    const graph={pages:await db.list('pages'),revisions:await db.list('revisions'),pdfs:await db.list('pdfs'),jobs:await db.list('jobs')};
+    const pages=graph.pages.filter(p=>p.dayId===currentDay.id && p.deletedAt).sort((a,b)=>b.deletedAt!.localeCompare(a.deletedAt!));
+    if(removed)return;rows.replaceChildren();
+    if(!pages.length)rows.append(el('p','この日付のごみ箱は空です。','empty'));
+    for(const page of pages){
+      const row=el('div','','trash-row'),info=el('div');info.append(el('strong',page.title));
+      const actions=el('div','','trash-actions'),eraseButton=button('完全削除',()=>void act(page,true),'danger');
+      try{planPageAction(graph,page.id,'erase',true,now());}
+      catch(error){eraseButton.dataset.uiDisabled='true';eraseButton.disabled=true;info.append(el('p',safeError(error),'rowmeta'));}
+      actions.append(button('元に戻す',()=>void act(page,false)),eraseButton);row.append(info,actions);rows.append(row);
+    }
+    controls();
+  }
+  async function act(page:Page,erase:boolean){
+    if(busy || !writable || removed)return;
+    if(erase && !confirm(`「${page.title}」1枚の原本と編集版を完全削除しますか？\n元に戻せません。必要な写真は外部バックアップの保存を確認してください。外部のコピーは残ります。`))return;
+    await run(async()=>{
+      try{if(erase)await permanentlyDeletePage(page.id,true);else await restorePage(page.id);clearPreparedBackups();await refresh();await redraw();message.textContent=erase?'原本と編集版を完全削除しました。':'写真を一覧へ戻しました。';message.className='notice';message.focus();}
+      catch(error){message.textContent=safeError(error);message.className='notice warning';throw error;}
+    });
+  }
+  try{await redraw();}catch(error){message.textContent=safeError(error);message.classList.remove('hidden');fail(error);}
 }
 function renderSelection():void {
   orderList.replaceChildren();
@@ -158,51 +209,113 @@ async function renderPdfs():Promise<void> {
 async function edit(page:Page):Promise<void> {
   if(busy || editing || !writable)return;
   editing=true;controls();
-  let abort:AbortController|undefined;let removed=false;let previewUrl:string|undefined;
-  const modal=dialog('四隅と見やすさを確認',()=>{removed=true;abort?.abort();if(previewUrl)URL.revokeObjectURL(previewUrl);editing=false;controls();});
+  let abort:AbortController|undefined,removed=false;
+  const closeEditor=()=>{removed=true;abort?.abort();modal.close();editing=false;controls();};
+  const modal=dialog('四隅と見やすさを確認',()=>{removed=true;abort?.abort();editing=false;controls();});
+  modal.overlay.classList.add('editor-overlay');
   try {
     const original=await db.get('assets',page.originalAssetId);if(!original)throw new Error('原本がありません。');
     const previous=page.activeRevisionId?await db.get('revisions',page.activeRevisionId):undefined;
-    let recipe:Recipe=structuredClone(previous?.recipe || defaultRecipe()),active=0;const history:Recipe[]=[];
+    let recipe:Recipe=structuredClone(previous?.recipe || defaultRecipe()),active=0,step=0,previewRecipe:string|undefined;
+    const history:Recipe[]=[],cornerNames=['左上','右上','右下','左下'];
     const decoded=await decode(original.blob,1000);if(removed)return;
-    const title=el('input');title.value=page.title;title.id='page-title';title.maxLength=100;
-    modal.body.append(field('文書の名前',title),el('p','写真全体の四隅を調整します。番号を選んで矢印でも微調整できます。回転は補正後の画像に適用されます。','muted small'));
-    const stage=el('div','','editor-stage'),canvas=el('canvas');canvas.width=decoded.pixels.width;canvas.height=decoded.pixels.height;canvas.getContext('2d')!.putImageData(decoded.pixels,0,0);
-    const handles=el('div','','handles');stage.append(canvas,handles);modal.body.append(stage);
-    const pointButtons=el('div','','cornerbuttons'),handleButtons:HTMLButtonElement[]=[];
-    const checkpoint=()=>{history.push(structuredClone(recipe));if(history.length>50)history.shift();};
-    function paint(){canvas.getContext('2d')!.putImageData(decoded.pixels,0,0);handles.classList.remove('hidden');handleButtons.forEach((b,i)=>{b.style.left=`${recipe.points[i].x*100}%`;b.style.top=`${recipe.points[i].y*100}%`;b.classList.toggle('active',active===i);});}
+    const controlsArea=el('div','','editor-controls');
+    const progress=el('ol','','editor-progress'),stepLabels=['四隅を合わせる','白黒・カラー','加工後を確認'];
+    const progressItems=stepLabels.map((label,i)=>{const item=el('li');item.append(el('span',String(i+1),'step-number'),el('span',label));progress.append(item);return item;});
+    progress.setAttribute('aria-label','写真編集の手順');
+    const stepTitle=el('h3','','editor-step-title'),stepInstruction=el('p','','editor-instruction');
+    stepTitle.id='editor-step-title';stepTitle.tabIndex=-1;stepInstruction.id='editor-step-instruction';
+    const editorMessage=el('p','','notice editor-message');editorMessage.setAttribute('role','status');editorMessage.setAttribute('aria-live','polite');
+    controlsArea.append(progress,stepTitle,stepInstruction);
+    const workspace=el('div','','editor-workspace'),stage=el('div','','editor-stage'),canvas=el('canvas');
+    canvas.width=decoded.pixels.width;canvas.height=decoded.pixels.height;
+    canvas.setAttribute('aria-label','原本の写真。番号のつまみで紙の四隅を合わせます。');
+    const handles=el('div','','handles');stage.append(canvas,handles);workspace.append(stage);controlsArea.append(workspace);
+    const cropPane=el('section','','editor-pane crop-pane'),tonePane=el('section','','editor-pane tone-pane hidden'),previewPane=el('section','','editor-pane preview-pane hidden');
+    const pointButtons=el('div','','cornerbuttons'),handleButtons:HTMLButtonElement[]=[],cornerButtons:HTMLButtonElement[]=[];
+    const activeCorner=el('p','','active-corner');activeCorner.setAttribute('aria-live','polite');
+    function checkpoint(){history.push(structuredClone(recipe));if(history.length>50)history.shift();}
+    function invalidatePreview(){previewRecipe=undefined;comparison.classList.add('hidden');editorMessage.textContent='変更を反映するには「加工後を確認」を押してください。';syncStep();}
+    function paint(){
+      const context=canvas.getContext('2d')!;context.putImageData(decoded.pixels,0,0);
+      if(step===0){
+        context.beginPath();context.rect(0,0,canvas.width,canvas.height);
+        recipe.points.forEach((point,i)=>{const x=point.x*canvas.width,y=point.y*canvas.height;if(i)context.lineTo(x,y);else context.moveTo(x,y);});context.closePath();
+        context.fillStyle='rgba(9,22,18,.42)';context.fill('evenodd');
+        context.beginPath();recipe.points.forEach((point,i)=>{const x=point.x*canvas.width,y=point.y*canvas.height;if(i)context.lineTo(x,y);else context.moveTo(x,y);});context.closePath();
+        context.strokeStyle='#ffffff';context.lineWidth=Math.max(5,canvas.width/100);context.stroke();
+        context.strokeStyle='#19342d';context.lineWidth=Math.max(2,canvas.width/250);context.stroke();
+      }
+      handleButtons.forEach((b,i)=>{b.style.left=`${recipe.points[i].x*100}%`;b.style.top=`${recipe.points[i].y*100}%`;b.classList.toggle('active',active===i);b.setAttribute('aria-pressed',String(active===i));cornerButtons[i].classList.toggle('selected',active===i);cornerButtons[i].setAttribute('aria-pressed',String(active===i));});
+      activeCorner.textContent=`選択中：${active+1} ${cornerNames[active]} · 矢印で少しずつ動かせます`;
+    }
     for(let i=0;i<4;i++) {
-      const b=button(String(i+1),()=>{active=i;paint();},'handle');b.setAttribute('aria-label',`${['左上','右上','右下','左下'][i]}の四隅`);handles.append(b);handleButtons.push(b);
-      const move=(event:PointerEvent)=>{const rect=canvas.getBoundingClientRect();recipe.points[i]={x:Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width)),y:Math.min(1,Math.max(0,(event.clientY-rect.top)/rect.height))};paint();};
+      const b=button(String(i+1),()=>{if(busy)return;active=i;paint();},'handle');b.setAttribute('aria-label',`${i+1} ${cornerNames[i]}の四隅`);handles.append(b);handleButtons.push(b);
+      const move=(event:PointerEvent)=>{const rect=canvas.getBoundingClientRect();recipe.points[i]={x:Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width)),y:Math.min(1,Math.max(0,(event.clientY-rect.top)/rect.height))};invalidatePreview();paint();};
       b.addEventListener('pointerdown',event=>{if(busy)return;event.preventDefault();checkpoint();active=i;b.setPointerCapture(event.pointerId);paint();});
       b.addEventListener('pointermove',event=>{if(b.hasPointerCapture(event.pointerId) && !busy)move(event);});
       b.addEventListener('pointerup',event=>{if(b.hasPointerCapture(event.pointerId))b.releasePointerCapture(event.pointerId);});
-      pointButtons.append(button(`${i+1} ${['左上','右上','右下','左下'][i]}`,()=>{active=i;paint();}));
+      const selector=button(`${i+1} ${cornerNames[i]}`,()=>{if(busy)return;active=i;paint();});pointButtons.append(selector);cornerButtons.push(selector);
     }
-    const controlsArea=el('div','','editor-controls');controlsArea.append(pointButtons);
-    const nudge=el('div','','nudge');for(const [label,dx,dy] of [['←',-1,0],['↑',0,-1],['↓',0,1],['→',1,0]] as const)nudge.append(button(label,()=>{if(busy)return;checkpoint();recipe.points[active]={x:Math.min(1,Math.max(0,recipe.points[active].x+dx*0.002)),y:Math.min(1,Math.max(0,recipe.points[active].y+dy*0.002))};paint();}));controlsArea.append(nudge);
-    const editActions=el('div','','actions');editActions.append(button('原本の全画角へ',()=>{checkpoint();recipe.points=defaultRecipe().points;paint();}),button('90°回転',()=>{checkpoint();recipe.rotation=((recipe.rotation+90)%360) as Recipe['rotation'];rotationText.textContent=`補正後の回転: ${recipe.rotation}°`;}),button('ひとつ戻す',()=>{if(history.length){recipe=history.pop()!;paint();syncParams();}}));controlsArea.append(editActions);
-    const rotationText=el('p',`補正後の回転: ${recipe.rotation}°`,'muted small');controlsArea.append(rotationText);
-    const filters=el('div','','filterbuttons');
-    const filterButtons=new Map<string,HTMLButtonElement>();
-    for(const [value,label] of [['readable','読みやすい白黒'],['gray','グレー'],['color','カラー'],['binary','強い白黒']] as const){const b=button(label,()=>{if(busy)return;checkpoint();recipe.filter=value;syncParams();});filters.append(b);filterButtons.set(value,b);}controlsArea.append(filters);
+    cropPane.append(pointButtons,activeCorner);
+    const nudge=el('div','','nudge');
+    for(const [label,dx,dy,direction] of [['←',-1,0,'左'],['↑',0,-1,'上'],['↓',0,1,'下'],['→',1,0,'右']] as const){const b=button(label,()=>{if(busy)return;checkpoint();recipe.points[active]={x:Math.min(1,Math.max(0,recipe.points[active].x+dx*0.002)),y:Math.min(1,Math.max(0,recipe.points[active].y+dy*0.002))};invalidatePreview();paint();});b.setAttribute('aria-label',`選択中の四隅を${direction}へ少し動かす`);nudge.append(b);}cropPane.append(nudge);
+    cropPane.append(button('原本の全画角へ',()=>{if(busy)return;checkpoint();recipe.points=defaultRecipe().points;invalidatePreview();paint();},'quiet'));
+    const rotationText=el('p','','muted small');
+    tonePane.append(el('p','「読みやすい白黒」は階調を残します。「強い白黒」は薄い文字が消える場合があります。薄字や印影にはカラーも試してください。','muted small'));
+    const filters=el('div','','filterbuttons'),filterButtons=new Map<string,HTMLButtonElement>();
+    for(const [value,label] of [['readable','読みやすい白黒'],['gray','グレー'],['color','カラー'],['binary','強い白黒']] as const){const b=button(label,()=>{if(busy)return;checkpoint();recipe.filter=value;invalidatePreview();syncParams();});filters.append(b);filterButtons.set(value,b);}tonePane.append(filters);
     const brightness=el('input');brightness.id='brightness';brightness.type='range';brightness.min='-40';brightness.max='40';brightness.step='1';
     const contrast=el('input');contrast.id='contrast';contrast.type='range';contrast.min='0.7';contrast.max='1.5';contrast.step='0.05';
-    brightness.addEventListener('change',()=>{checkpoint();recipe.brightness=Number(brightness.value);});contrast.addEventListener('change',()=>{checkpoint();recipe.contrast=Number(contrast.value);});controlsArea.append(field('明るさ',brightness),field('コントラスト',contrast));
-    function syncParams(){brightness.value=String(recipe.brightness);contrast.value=String(recipe.contrast);rotationText.textContent=`補正後の回転: ${recipe.rotation}°`;for(const [key,b]of filterButtons)b.classList.toggle('selected',key===recipe.filter);}
-    const editorMessage=el('p','','notice'),comparison=el('canvas','','pdfcanvas hidden');
-    const previewButton=button('加工後を確認',()=>void run(async()=>{validateCorners(recipe.points);editorMessage.textContent='確認用の画像を処理しています…';abort=new AbortController();const result=await processImage(original.blob,recipe,abort.signal,true);const preview=await decode(result.blob);comparison.width=preview.pixels.width;comparison.height=preview.pixels.height;comparison.getContext('2d')!.putImageData(preview.pixels,0,0);comparison.classList.remove('hidden');editorMessage.textContent='確認用の縮小画像です。保存時は原本から処理します。細字・小数点・印影が残っているか、原本と比べてください。';}));
-    controlsArea.append(previewButton,comparison,editorMessage);modal.body.append(controlsArea);
-    const saveButton=button('編集を保存',()=>void run(async()=>{
-      validateCorners(recipe.points);editorMessage.textContent='原本から編集版を作成・保存しています…';const fence=db.currentToken(),snapshot=structuredClone(recipe),titleSnapshot=title.value.trim();abort=new AbortController();
-      const result=await processImage(original.blob,snapshot,abort.signal),asset=await db.makeAsset(result.blob,'rendered',result.width,result.height);
-      if(abort.signal.aborted)throw new DOMException('取消しました','AbortError');
-      const revision:Revision={id:id(),pageId:page.id,originalHash:original.sha256,recipe:snapshot,filterVersion:1,renderedAssetId:asset.id,createdAt:now()};
-      await db.saveRevision(page,revision,asset,fence,titleSnapshot,abort.signal);
-      removed=true;modal.close();editing=false;tell(`編集を保存しました（${result.width} × ${result.height}画素）。原本は保持しています。`);await refresh();
+    brightness.addEventListener('input',()=>{if(busy)return;invalidatePreview();});contrast.addEventListener('input',()=>{if(busy)return;invalidatePreview();});
+    brightness.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.brightness=Number(brightness.value);invalidatePreview();});contrast.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.contrast=Number(contrast.value);invalidatePreview();});
+    tonePane.append(field('明るさ',brightness),field('コントラスト',contrast),button('90°回転',()=>{if(busy)return;checkpoint();recipe.rotation=((recipe.rotation+90)%360) as Recipe['rotation'];invalidatePreview();syncParams();}),rotationText);
+    function syncParams(){brightness.value=String(recipe.brightness);contrast.value=String(recipe.contrast);rotationText.textContent=`加工後の回転: ${recipe.rotation}°（確認用画像で反映）`;for(const [key,b]of filterButtons){b.classList.toggle('selected',key===recipe.filter);b.setAttribute('aria-pressed',String(key===recipe.filter));}}
+    const comparison=el('canvas','','pdfcanvas hidden');comparison.setAttribute('aria-label','加工後の確認用画像');
+    const originalToggle=button('原本を表示して比較',()=>{if(busy)return;workspace.classList.toggle('hidden');const shown=!workspace.classList.contains('hidden');originalToggle.setAttribute('aria-pressed',String(shown));originalToggle.textContent=shown?'原本を閉じる':'原本を表示して比較';});originalToggle.setAttribute('aria-pressed','false');
+    const title=el('input');title.value=page.title;title.id='page-title';title.maxLength=100;
+    const previewNotice=el('p','細字・小数点・印影が残り、紙の端が切れていないか確認してください。','notice');previewPane.append(comparison,originalToggle,previewNotice,field('文書の名前',title));
+    controlsArea.append(cropPane,tonePane,previewPane,editorMessage);modal.body.append(controlsArea);
+    const cropNext=button('次へ：白黒・カラー',()=>{if(busy)return;try{validateCorners(recipe.points);step=1;editorMessage.textContent='色調を選び、下の「加工後を確認」を押してください。';syncStep(true);}catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');}},'primary');
+    const previewButton=button('加工後を確認',()=>void run(async()=>{
+      try {
+        validateCorners(recipe.points);editorMessage.classList.remove('warning');editorMessage.textContent='確認用の画像を処理しています…';const snapshot=structuredClone(recipe);abort=new AbortController();
+        const result=await processImage(original.blob,snapshot,abort.signal,true),preview=await decode(result.blob);if(removed || abort.signal.aborted)throw new DOMException('取消しました','AbortError');
+        comparison.width=preview.pixels.width;comparison.height=preview.pixels.height;comparison.getContext('2d')!.putImageData(preview.pixels,0,0);
+        previewRecipe=JSON.stringify(snapshot);comparison.classList.remove('hidden');step=2;editorMessage.textContent='確認用の縮小画像です。保存時は原本から処理します。内容を確認してから「編集を保存」を押してください。';syncStep(true);
+      }catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');throw error;}
     }),'primary');
-    modal.footer.append(saveButton,button('処理を取消',()=>abort?.abort()));syncParams();paint();
+    const saveButton=button('編集を保存',()=>{
+      if(previewRecipe!==JSON.stringify(recipe)){editorMessage.textContent='現在の編集内容を「加工後を確認」で確認してから保存してください。';return;}
+      void run(async()=>{
+        try {
+          validateCorners(recipe.points);editorMessage.classList.remove('warning');editorMessage.textContent='原本から編集版を作成・保存しています…';const fence=db.currentToken(),snapshot=structuredClone(recipe),titleSnapshot=title.value.trim();abort=new AbortController();
+          const result=await processImage(original.blob,snapshot,abort.signal),asset=await db.makeAsset(result.blob,'rendered',result.width,result.height);
+          if(abort.signal.aborted)throw new DOMException('取消しました','AbortError');
+          const revision:Revision={id:id(),pageId:page.id,originalHash:original.sha256,recipe:snapshot,filterVersion:1,renderedAssetId:asset.id,createdAt:now()};
+          await db.saveRevision(page,revision,asset,fence,titleSnapshot,abort.signal);
+          removed=true;modal.close();editing=false;tell(`編集を保存しました（${result.width} × ${result.height}画素）。原本は保持しています。`);await refresh();
+        }catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');throw error;}
+      });
+    },'primary');
+    const backButton=button('四隅へ戻る',()=>{if(busy)return;step=Math.max(0,step-1);syncStep(true);});
+    const undoButton=button('ひとつ戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();paint();syncParams();},'quiet');cropPane.append(undoButton);
+    tonePane.append(button('ひとつ戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();paint();syncParams();},'quiet'));
+    const cancelButton=button('編集を閉じる',()=>{if(!busy)closeEditor();},'quiet'),cancelProcessing=button('処理を取消',()=>abort?.abort());
+    const footerActions=el('div','','editor-footer-actions editor-controls');footerActions.append(backButton,cropNext,previewButton,saveButton,cancelButton);modal.footer.append(footerActions,cancelProcessing);
+    cancelProcessing.className='editor-cancel-processing';
+    function syncStep(announce=false){
+      const titles=['1. 紙の四隅を合わせる','2. 白黒・カラーを選ぶ','3. 加工後の内容を確認する'];
+      const instructions=['番号のつまみを紙の角に動かします。番号ボタンと矢印でも調整できます。','この写真は原本です。選んだ色調と回転は「加工後を確認」で表示します。','文字・小数点・印影と紙の端を確認して、編集を保存します。'];
+      stepTitle.textContent=titles[step];stepInstruction.textContent=instructions[step];
+      if(step===2)previewPane.insertBefore(workspace,previewNotice);else controlsArea.insertBefore(workspace,cropPane);
+      progressItems.forEach((item,i)=>{item.classList.toggle('current',i===step);if(i===step)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');});
+      cropPane.classList.toggle('hidden',step!==0);tonePane.classList.toggle('hidden',step!==1);previewPane.classList.toggle('hidden',step!==2);workspace.classList.toggle('hidden',step===2);handles.classList.toggle('hidden',step!==0);canvas.setAttribute('aria-label',step===0?'原本の写真。番号のつまみで紙の四隅を合わせます。':'原本の写真（加工前）。');originalToggle.setAttribute('aria-pressed','false');originalToggle.textContent='原本を表示して比較';
+      cropNext.classList.toggle('hidden',step!==0);previewButton.classList.toggle('hidden',step!==1);saveButton.classList.toggle('hidden',step!==2);backButton.classList.toggle('hidden',step===0);backButton.textContent=step===2?'色調を調整する':'四隅へ戻る';
+      saveButton.dataset.uiDisabled=String(previewRecipe!==JSON.stringify(recipe));paint();controls();
+      if(announce){stepTitle.focus({preventScroll:true});const panel=modal.overlay.querySelector<HTMLElement>('.dialog');if(panel)panel.scrollTop=0;}
+    }
+    syncParams();paint();editorMessage.textContent='写真の原本は保存済みです。閉じても、保存済みの写真から編集を再開できます。';syncStep();
   }catch(error){fail(error);modal.body.append(el('p',safeError(error),'notice warning'));}
 }
 async function generate():Promise<void> {
@@ -215,11 +328,12 @@ async function generate():Promise<void> {
 async function viewPdf(record:PdfExport):Promise<void> {
   if(busy || editing)return;
   editing=true;controls();let viewer:Awaited<ReturnType<typeof openPdf>>|undefined;let closed=false;
-  const modal=dialog('完成PDFを確認',()=>{closed=true;void viewer?.close();editing=false;controls();});
+  const modal=dialog('完成PDFを確認',()=>{closed=true;void viewer?.close();editing=false;controls();});modal.overlay.classList.add('pdf-overlay');
   try {
     const file=await preparedFile(record);if(closed)return;
     const rename=el('input');rename.id='export-name';rename.value=record.displayName;rename.maxLength=104;
-    modal.body.append(field('PDFの名前',rename),el('p',`${record.orderedPageIds?.length || record.orderedRevisionIds.length}ページ · ${sizeText(file.size)}`,'muted'));
+    modal.body.append(el('div','最後に内容を確認して、共有へ','eyebrow'),field('PDFの名前',rename),el('p',`${record.orderedPageIds?.length || record.orderedRevisionIds.length}ページ · ${sizeText(file.size)}`,'pdf-summary'));
+    const shareStatus=el('p','このPDFは端末内に保存済みです。共有先と添付内容を確認して送ります。','notice');shareStatus.setAttribute('role','status');shareStatus.setAttribute('aria-live','polite');
     if(file.size>10*1024*1024)modal.body.append(el('p','10 MBを超えています。メール側の上限に応じて、枚数を分けて作成してください。','notice warning'));
     const canvas=el('canvas','','pdfcanvas'),pager=el('div','','actions'),countLabel=el('span');modal.body.append(canvas,pager);
     viewer=await openPdf(file);if(closed){void viewer.close();return;}let index=1,rendering=false;
@@ -228,11 +342,11 @@ async function viewPdf(record:PdfExport):Promise<void> {
     let shareFile=file;
     rename.addEventListener('input',()=>{shareFile=new File([file],pdfName(rename.value),{type:'application/pdf'});});
     const shareButton=button('共有して送る',()=>{
-      const promise=handOff(shareFile);
+      const promise=handOff(shareFile);shareStatus.textContent='共有先を選んでください。メールの送信はメールアプリで行います。';
       void logShare(record.id,'requested').catch(()=>{});
-      promise.then(()=>{tell('共有先へ引き渡しました。メールの宛先と添付を確認し、送信はメールアプリで行ってください。');void logShare(record.id,'handed-off').catch(()=>{});}).catch(error=>{if(error?.name==='AbortError'){tell('共有を取消しました。完成PDFは保存されています。');void logShare(record.id,'canceled').catch(()=>{});}else{fail(error);void logShare(record.id,'failed').catch(()=>{});}});
+      promise.then(()=>{shareStatus.textContent='共有先へ引き渡しました。メールアプリで宛先と添付を確認し、送信してください。';tell('共有先へ引き渡しました。メールの宛先と添付を確認し、送信はメールアプリで行ってください。');void logShare(record.id,'handed-off').catch(()=>{});}).catch(error=>{if(error?.name==='AbortError'){shareStatus.textContent='共有を取消しました。完成PDFは保存されています。';tell('共有を取消しました。完成PDFは保存されています。');void logShare(record.id,'canceled').catch(()=>{});}else{shareStatus.textContent=`${safeError(error)} 「ファイルに保存」して、メール側から添付できます。`;fail(error);void logShare(record.id,'failed').catch(()=>{});}});
     },'primary');
-    modal.footer.append(shareButton,button('ファイルに保存',()=>{download(shareFile,shareFile.name);tell('ファイル保存を要求しました。端末の保存先を確認してください。');void logShare(record.id,'requested','download').catch(()=>{});}),button('名前を保存',()=>void run(async()=>{record={...record,displayName:pdfName(rename.value)};await db.write(['pdfs'],tx=>tx.objectStore('pdfs').put(record));await renderPdfs();tell('アプリ内のPDF名を保存しました。既に外へ保存したコピーの名前は変わりません。');})));
+    const shareActions=el('div','','pdf-share-actions');shareActions.append(shareButton,button('ファイルに保存',()=>{download(shareFile,shareFile.name);tell('ファイル保存を要求しました。端末の保存先を確認してください。');void logShare(record.id,'requested','download').catch(()=>{});}),button('名前を保存',()=>void run(async()=>{record={...record,displayName:pdfName(rename.value)};await db.write(['pdfs'],tx=>tx.objectStore('pdfs').put(record));await renderPdfs();tell('アプリ内のPDF名を保存しました。既に外へ保存したコピーの名前は変わりません。');})));modal.footer.append(shareActions,shareStatus);
     modal.body.append(el('p','共有先にメールアプリが出ない場合は「ファイルに保存」して、メール側から添付してください。共有はメールの送信完了を意味しません。','muted small'));
   }catch(error){fail(error);modal.body.append(el('p',safeError(error),'notice warning'));}
 }
@@ -245,7 +359,8 @@ async function backup():Promise<void> {
 }
 restoreInput.addEventListener('change',()=>void run(async()=>{
   const files=Array.from(restoreInput.files || []);restoreInput.value='';tell('復元用ZIPの形式・サイズ・ハッシュを確認しています…');const inspected=await inspectBackup(files);
-  busy=false;const modal=dialog('復元内容を確認',()=>{});modal.body.append(el('p',`${inspected.date} · 写真 ${inspected.pageCount}枚 · PDF ${inspected.pdfCount}件`),el('p','既存の文書は上書きせず、別の保存グループとして追加します。同じバックアップの再取込は重複を作りません。','notice'));
+  const trashCount=inspected.parts.reduce((sum,part)=>sum+part.manifest.pages.filter(p=>p.deletedAt).length,0);
+  busy=false;const modal=dialog('復元内容を確認',()=>{});modal.body.append(el('p',`${inspected.date} · 写真 ${inspected.pageCount}枚（ごみ箱 ${trashCount}枚を含む） · PDF ${inspected.pdfCount}件`),el('p','既存の文書は上書きせず、別の保存グループとして追加します。同じバックアップの再取込は重複を作りません。','notice'));
   modal.footer.append(button('確認して追加する',()=>void run(async()=>{currentDay=await restoreBackup(inspected.parts);dateInput.value=currentDay.documentDate;selected=[];modal.close();await refresh();tell('ハッシュを検証して復元しました。既存の文書は上書きしていません。');}),'primary'));
   busy=true;
 }));

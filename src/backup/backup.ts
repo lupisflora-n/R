@@ -6,7 +6,7 @@ import { checkZip, MAX_PACK_BYTES } from './zip-guard.ts';
 import { PDFDocument } from '../../vendor/pdf-lib.js';
 
 type PackedAsset={ref:string;path:string;mime:string;byteCount:number;sha256:string;kind:Asset['kind'];width?:number;height?:number};
-type PackedPage={stableExportId:string;orderIndex:number;title:string;capturedAt:string;originalAssetRef:string;renderedAssetRef?:string;revisionId?:string;currentRevisionRecipe?:Recipe;originalHash:string;state:Page['state']};
+type PackedPage={stableExportId:string;orderIndex:number;title:string;capturedAt:string;deletedAt?:string;originalAssetRef:string;renderedAssetRef?:string;revisionId?:string;currentRevisionRecipe?:Recipe;originalHash:string;state:Page['state']};
 type PackedPdf={stableExportId:string;displayName:string;assetRef:string;orderedPageRefs:string[];orderedRevisionIds:string[];createdAt:string};
 type Manifest={format:'daily-docscan-backup';version:1;backupSetId:string;partId:string;partIndex:number;partCount:number;createdAt:string;documentDates:string[];pages:PackedPage[];pdfs:PackedPdf[];assets:PackedAsset[]};
 type Part={manifest:Manifest;assets:Map<string,Asset>;digest:string};
@@ -32,7 +32,7 @@ export async function exportDay(day:Day,onProgress:(value:string)=>void):Promise
     if(sum>MAX_PACK_BYTES-200_000)throw new Error('1枚の原本と編集版が50 MBを超え、原本を含む復元パックを作れません。原本を落とさず処理を停止しました。');
     if(group.pages.length>=10 || group.bytes+sum>MAX_PACK_BYTES-200_000)group=fresh();
     for(const asset of assetList)if(!group.assets.has(asset.id)){group.assets.set(asset.id,asset);group.bytes+=asset.byteCount;}
-    group.pages.push({stableExportId:page.id,orderIndex:page.orderIndex,title:page.title,capturedAt:page.capturedAt,originalAssetRef:original.id,originalHash:original.sha256,renderedAssetRef:rendered?.id,revisionId:revision?.id,currentRevisionRecipe:revision?.recipe,state:page.state});
+    group.pages.push({stableExportId:page.id,orderIndex:page.orderIndex,title:page.title,capturedAt:page.capturedAt,deletedAt:page.deletedAt,originalAssetRef:original.id,originalHash:original.sha256,renderedAssetRef:rendered?.id,revisionId:revision?.id,currentRevisionRecipe:revision?.recipe,state:page.state});
   }
   for(const pdf of pdfs) {
     const asset=await get('assets',pdf.assetId);if(!asset)throw new Error('完成PDFがありません。');
@@ -112,6 +112,7 @@ export async function inspectBackup(files:File[]):Promise<{date:string;pageCount
     }
     if(Object.keys(zip.files).some(p=>!expected.has(p)))throw new Error('ZIPに定義外のファイルがあります。');
     for(const page of m.pages) {
+      if(page.deletedAt!==undefined && !timestamp(page.deletedAt))throw new Error('ごみ箱の日時が不正です。');
       if(!uuid(page.stableExportId) || !timestamp(page.capturedAt) || !Number.isInteger(page.orderIndex) || page.orderIndex<0 || typeof page.title!=='string' || page.title.length>100 || !['DRAFT','READY','DRAFT_UNSUPPORTED'].includes(page.state))throw new Error('ページ定義が不正です。');
       const original=assets.get(page.originalAssetRef);if(!original || original.kind!=='original' || original.sha256!==page.originalHash)throw new Error('ページ原本が一致しません。');
       if(page.renderedAssetRef){if(assets.get(page.renderedAssetRef)?.kind!=='rendered' || !uuid(page.revisionId))throw new Error('編集版がありません。');validateRecipe(page.currentRevisionRecipe);}
@@ -153,7 +154,7 @@ export async function restoreBackup(parts:Part[]):Promise<Day> {
   }
   for(const part of parts)for(const p of part.manifest.pages) {
     const pageId=id(),revisionId=p.renderedAssetRef?id():undefined;pageMap.set(p.stableExportId,pageId);
-    const page:Page={id:pageId,dayId:day.id,orderIndex:p.orderIndex,title:p.title,capturedAt:p.capturedAt,originalAssetId:assetMap.get(p.originalAssetRef)!,activeRevisionId:revisionId,state:p.state};pages.push(page);
+    const page:Page={id:pageId,dayId:day.id,orderIndex:p.orderIndex,title:p.title,capturedAt:p.capturedAt,deletedAt:p.deletedAt,originalAssetId:assetMap.get(p.originalAssetRef)!,activeRevisionId:revisionId,state:p.state};pages.push(page);
     if(revisionId)revisions.push({id:revisionId,pageId,originalHash:p.originalHash,recipe:p.currentRevisionRecipe!,filterVersion:1,renderedAssetId:assetMap.get(p.renderedAssetRef!)!,createdAt:now()});
   }
   for(const part of parts)for(const p of part.manifest.pdfs) {

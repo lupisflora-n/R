@@ -101,3 +101,7 @@ Cloudflareのindex.html転送により初回E2Eの2画面目でERR_FAILEDを検�
 
 ## 2026-10-08 docPDF GitHub保存確認
 APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit729a6deを作成、新規codex/docpdf-lineへ登録。元treeの117ファイル保持、削除0、変更43のblob SHA一致。refの先端一致とsrc/entry.ts/package.json再読取り成功。本線refは8fe715fのまま。承認済みZIPのアーカイブSHA-256と34全資源ハッシュ一致。アプリ変更なしのため合成検査を無意味に繰り返していない。Cloudflare未公開・公開URLなし・実ブラウザー/LINE/実機未検証。
+
+## 2026-10-08 docPDF UX改修検査
+
+編集3工程・参照配色・ごみ箱/復元/未参照写真の完全削除をLINE独立版へ実装。合成37 PASS、構文19・静的4・ZIP一致PASS。ブラウザーはIPC拒否でBLOCKED（0 PASS）。詳細と次作業はdocs/DOCPDF_UX_RELEASE.md。完成PDF参照の写真は完全削除禁止。原本の書換/メール送信成功の自動判定なし。

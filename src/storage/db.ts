@@ -120,7 +120,7 @@ export async function saveRevision(page: Page, revision: Revision, asset: Asset,
     const req = tx.objectStore('pages').get(page.id);
     req.onsuccess = () => {
       if(signal?.aborted){tx.abort();return;}
-      if (req.result?.activeRevisionId !== page.activeRevisionId) { tx.abort(); return; }
+      if (!req.result || req.result.deletedAt || req.result.activeRevisionId !== page.activeRevisionId) { tx.abort(); return; }
       tx.objectStore('assets').add(asset); tx.objectStore('revisions').add(revision);
       tx.objectStore('pages').put({...req.result,title:title?.trim().slice(0,100) || req.result.title,activeRevisionId:revision.id,state:'READY'});
     };

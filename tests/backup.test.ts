@@ -18,6 +18,13 @@ async function pack(change:(m:any,assets:Map<string,Uint8Array>)=>void=()=>{},op
 test('backup inspection checks hashes, page recipe, and completed PDF bytes',async()=>{
   const inspected=await inspectBackup([await pack(()=>{},{pdf:true})]);assert.equal(inspected.date,'2026-10-03');assert.equal(inspected.pageCount,1);assert.equal(inspected.pdfCount,1);
 });
+test('backup keeps trashed originals and PDF references, rejecting forged trash timestamps',async()=>{
+  const deletedAt='2026-10-08T10:00:00.000Z';
+  const inspected=await inspectBackup([await pack(m=>{m.pages[0].deletedAt=deletedAt;},{pdf:true})]);
+  assert.equal(inspected.parts[0].manifest.pages[0].deletedAt,deletedAt);
+  assert.equal(inspected.pageCount,1);assert.equal(inspected.pdfCount,1);
+  for(const invalid of ['tomorrow',true,{},'2026-10-08'])await assert.rejects(()=>pack(m=>{m.pages[0].deletedAt=invalid;}).then(file=>inspectBackup([file])),/ごみ箱/);
+});
 test('backup rejects forged hash, MIME, unsupported version, invalid time and PDF snapshot IDs before writing',async()=>{
   for(const mutate of [
     (m:any)=>{m.assets[0].sha256='0'.repeat(64);},
