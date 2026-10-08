@@ -8,6 +8,7 @@
 - 写真の削除→ごみ箱（容量減少なし）→復元。ごみ箱の完全削除は戻せず、完成PDFが参照する写真は理由付きで停止。新PDF選択除外、保存/PDFの同一tx再確認、backup deletedAt保持、古いZIPリンク破棄を統合。旧アプリへ復元するとごみ箱状態を読まず一覧へ戻る場合がある。DB初期化・原本書換・外部文書送信はなし。
 - 検査: 合成37 PASS、構文19モジュールPASS（型検査ではない）、静的4 PASS、ビルド/ZIP資源全ハッシュ一致。ChromiumのIPC拒否で画面検査BLOCKED/0 PASS。端末の新しい操作/見た目・実IDB・更新はNEEDS_HUMAN_TEST。旧版の本人報告を新版合格へ流用しない。
 - 配布候補: build `c9bba312e31d048d`、`release/docpdf-line-preview-c9bba312e31d048d.zip`、36ファイル、SHA-256 `8618c9361b9d301a0e797c8f4eb74a8798b3d1abb5f5725e702ede17a528a053`。公開未更新。
+- GitHub保存完了: 独立ブランチcodex/docpdf-lineへ実装commit `1be97a353075756f9fc6b7587cd277357e5668a3`、tree `fc1f87f5f4ce477ede396434270061467e2e8c3c`を期待SHA付きforce=falseで反映しref一致を再確認。既存140ファイルを保持、変更35 blob一致、削除0。本線codex/docscan-v2は8fe715f、mainはd387bcbで不変。
 - 対象は/workspace/R-line・codex/docpdf-lineのみ。本線codex/docscan-v2とmainは変更しない。GitHub保存/同じ専用検証サイト更新の許可は既にある。ローカル復元履歴をforce pushせず、GitHubの現treeへ差分を適用する。
 - 次の1作業: 同じCloudflare docpdf-line-testのCreate deploymentへ新ZIPをアップロードし、固定URLのbuild.jsonを確認。配信操作の接続/認証が環境にないため本人操作。別URL・既存docscan-v2-testへ移さず、端末DB/キャッシュを消さない。更新通知は編集中・処理中に適用しない。
 - 新版の架空3枚で四隅→色調→確認→保存、設定変更後の再確認、写真削除/復元、完成PDFの確認/メール引渡しを実機確認。一般提供の合格宣言はしていない。
