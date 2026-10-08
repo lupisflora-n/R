@@ -16,9 +16,20 @@ self.addEventListener('activate',event=>{
 self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   if(event.request.mode==='navigate'){
+    const requestUrl=new URL(event.request.url);
+    if(requestUrl.origin!==new URL(self.location).origin)return;
+    // Cloudflare Pages redirects *.html to extensionless canonical paths.
+    const documents={'/':'./index.html','/index':'./index.html','/index.html':'./index.html',
+      '/line':'./line.html','/line.html':'./line.html','/help':'./help.html','/help.html':'./help.html'};
+    const documentPath=documents[requestUrl.pathname];
+    if(!documentPath)return;
+    const documentUrl=new URL(documentPath,self.location).href;
+    // Preserve each known HTML route offline. Do not turn help/LINE entry/404
+    // into the document app, and never store user-specific query strings.
+    if(!urls.has(documentUrl))return;
     event.respondWith((async()=>{
       const cache=await caches.open(CACHE);
-      const cached=await cache.match('./index.html');
+      const cached=await cache.match(documentPath);
       // Static hosts may redirect /index.html to /. Navigation requests reject
       // redirected cached responses, so return the same bytes as a fresh response.
       return cached ? new Response(cached.body,{status:cached.status,statusText:cached.statusText,headers:cached.headers}) : fetch(event.request);

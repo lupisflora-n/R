@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-08T05:51:13.385Z",
+  "results": [
+    {
+      "name": "bootstrap has compiled dynamic imports and no TypeScript paths",
+      "status": "PASS"
+    },
+    {
+      "name": "HTML entry defers all document libraries until browser guard",
+      "status": "PASS"
+    },
+    {
+      "name": "same-origin resources only; no document HTTP writes, analytics, LINE SDK, or login endpoints",
+      "status": "PASS"
+    },
+    {
+      "name": "response headers limit resources and deny embedding/geolocation/microphone",
+      "status": "PASS"
+    }
+  ],
+  "limitation": "Source/package review only. Does not establish actual network behavior, deployment header enforcement, or device safety."
+}

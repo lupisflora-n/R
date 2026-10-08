@@ -1,0 +1,7 @@
+
+> daily-docscan-v2@0.2.0 check:syntax
+> node scripts/check.mjs
+
+(node:1802) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Syntax and safety patterns checked: 17 TypeScript modules. Full TypeScript type checking is unavailable; this is syntax checking only.

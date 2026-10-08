@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "日付スキャン",
-  "short_name": "日付スキャン",
+  "name": "docPDF",
+  "short_name": "docPDF",
   "lang": "ja",
   "start_url": "/",
   "scope": "/",

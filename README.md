@@ -1,3 +1,14 @@
+# docPDF｜LINE入口の分岐
+
+2026-10-08: 本線 `codex/docscan-v2` から固定コミット `8fe715f` のコードを復元し、別のローカルブランチ `codex/docpdf-line` で製作。LINEのdocPDF公式アカウントを起動の入口とし、外部ブラウザーで端末内の撮影・補正・PDF作成を行います。未公開・実機未検証です。
+
+- [企画・設計](docs/DOCPDF_LINE_DESIGN.md)
+- [公開後のLINE設定・実機手順](docs/DOCPDF_LINE_SETUP.md)
+- [最新の検査と再開点](STATE.md)
+- コマンド: `npm test`、`npm run check:syntax`、`npm run build`、`npm run test:line`、`npm run test:e2e`、`npm run package:preview`。
+
+新規の専用originへ配信することが必須です。本線のブランチ／公開サイトへ上書きしません。以下は継承した日付スキャンv2の資料です。
+
 # 日付スキャン｜iPhone・Android / 基本無料 / 監督型開発
 設計版 2.0 | 実装更新 2026-10-03 | ローカル実装済み / ブラウザーと実機の受入れ未完了
 

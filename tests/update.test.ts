@@ -10,7 +10,7 @@ test('service worker serves redirected cached HTML as a clean navigation respons
   const self={location:'https://preview.test/sw.js',addEventListener:(type:string,fn:any)=>listeners[type]=fn};
   const source=readFileSync(new URL('../src/update/sw-template.js',import.meta.url),'utf8').replace('__BUILD__','test').replace('__ASSETS__',JSON.stringify(['./index.html']));
   vm.runInNewContext(source,{self,caches:{open:async()=>({match:async()=>cached})},Response,URL,Set,fetch:async()=>{networkCalls++;throw new Error('offline');}});
-  listeners.fetch({request:{method:'GET',mode:'navigate'},respondWith:(p:Promise<Response>)=>job=p});
+  listeners.fetch({request:{method:'GET',mode:'navigate',url:'https://preview.test/?openExternalBrowser=1'},respondWith:(p:Promise<Response>)=>job=p});
   const result=await job!;assert.equal(result.redirected,false);assert.equal(await result.text(),'<html>saved app</html>');
   assert.equal(result.headers.get('Content-Security-Policy'),"default-src 'self'");assert.equal(networkCalls,0);
 });

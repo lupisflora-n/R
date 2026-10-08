@@ -1,0 +1,41 @@
+
+> daily-docscan-v2@0.2.0 test
+> node --experimental-strip-types --test --test-isolation=none tests/*.test.ts
+
+(node:2077) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ backup inspection checks hashes, page recipe, and completed PDF bytes (37.437522ms)
+✔ backup rejects forged hash, MIME, unsupported version, invalid time and PDF snapshot IDs before writing (50.451613ms)
+✔ multipart backup rejects missing parts and conflicting asset identities across complete parts (4.657211ms)
+✔ actual decompression is bounded even with forged central-directory size (64.462333ms)
+✔ document date uses local calendar and validates actual days (0.288186ms)
+✔ crop rejects crossing, inverse, NaN, out-of-bounds and degenerate corners (0.291971ms)
+✔ full crop keeps source resolution; rotation mapping keeps normalized corners (2.837061ms)
+✔ safe Japanese names and filter settings (0.303168ms)
+✔ inverse projective transform maps every output corner to requested trapezoid (0.474041ms)
+✔ standard filter retains fine tone differences; binary requires explicit mode (0.222259ms)
+✔ only live lease owner can write; old generation and incompatible readers are fenced (0.235708ms)
+✔ camera suspension expiry/release creates a fresh generation; heartbeat retains live generation (0.134509ms)
+✔ LINE configuration helper rejects the main site and non-origin/credential URLs (215.458807ms)
+✔ LINE entry recognizes Android/iPhone user agents and ordinary browsers (0.301475ms)
+✔ actual entry bootstrap in LINE does not import document modules or open a database (3.581491ms)
+✔ launch URLs retain only the same origin and the LINE external-browser flag (0.266433ms)
+✔ offline navigation returns the requested help or LINE HTML instead of the document app (24.233153ms)
+✔ 1/5/10-page PDF preserves selected order and A4 portrait/landscape structure (44.878689ms)
+✔ PDF rejects empty/duplicate selection, unsupported MIME and cancellation without changing source (1.457864ms)
+✔ service worker serves redirected cached HTML as a clean navigation response offline (1.505364ms)
+✔ service worker installs complete resources without forced activation and refuses multi-tab update (1.93558ms)
+✔ update client blocks new work synchronously before delayed activation acknowledgment (1.320721ms)
+✔ vendored library and license bytes match recorded SHA-256 integrity (5.681383ms)
+✔ actual worker retains every source pixel for full color crop and maps 90-degree rotation (1.906266ms)
+✔ actual worker rejects invalid corners instead of emitting a cropped image (0.52766ms)
+✔ zip preflight accepts own archive and rejects traversal, huge declared expansion and missing manifest (1.866518ms)
+✔ duplicate ZIP entry paths are rejected before a ZIP library can overwrite them (0.775606ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 597.996426

@@ -3,6 +3,7 @@ import { mkdir,writeFile,readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { resolve,extname } from 'node:path';
 import assert from 'node:assert/strict';
+import { loadPlaywright } from './playwright.mjs';
 const require=createRequire(import.meta.url);
 const live=Boolean(process.env.DOCSCAN_E2E_URL),base=process.env.DOCSCAN_E2E_URL || 'https://docscan.test';
 const results=[],errors=[],external=[];
@@ -10,7 +11,7 @@ let browser,context,page;
 async function check(name,action){const start=Date.now();try{await action();results.push({name,status:'PASS',ms:Date.now()-start});console.log('PASS '+name);}catch(error){results.push({name,status:'FAIL',message:error.message});throw error;}}
 await mkdir('evidence',{recursive:true});
 try{
-  let playwright;try{playwright=require('playwright');}catch{playwright=require('/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');}
+  const playwright=loadPlaywright();
   const {chromium}=playwright;
   browser=await chromium.launch({executablePath:process.env.DOCSCAN_CHROMIUM || (existsSync('/usr/bin/chromium')?'/usr/bin/chromium':undefined),headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
   context=await browser.newContext({viewport:{width:390,height:844},acceptDownloads:true});

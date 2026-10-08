@@ -46,3 +46,10 @@ ADR24 decided: 本人はAndroidのみ利用可能。Androidから検査しiPhone
 ADR26 decided（2026-10-06）: 本人が公開判断カードに「おｋ」と回答。build 87b14b90678791ddの静的アプリ29ファイルをCloudflare Pages Freeの検証専用新規プロジェクトへ公開することを承認。一般提供・課金・文書アップロードは対象外。Cloudflareログイン画面を開き、本人のログイン待ち。
 
 ADR27 decided（2026-10-07）: 承認済み検証範囲内でCloudflare固有のリダイレクトとService Worker応答の不具合を修正し同URLへ再配信。保存形式は不変。URL https://docscan-v2-test.pages.dev/ 、build 93e093055e8d0ad7。一般提供の承認ではない。
+
+## 2026-10-08 LINE版docPDFの分岐
+ユーザーは本線に影響を与えない別案として企画・設計・製作を依頼。公式アカウントdocPDFとRプロジェクトプロバイダー、LINEログインチャネルdocPDFを本人が作成。業務報告書に顧客住所/名前、個人スマホ利用という条件から、LINEを起動の入口に限定し、通常ウェブURL+openExternalBrowser=1で外部ブラウザーの端末内処理へ進める案を説明し、本人「OK」「お願いします」で製作を開始。
+LIFF/LINEログイン/プロフィール取得/トークへ書類送信/サーバー変換は導入しない。LINE内UA判定は撮影前の案内用でありOS保証ではない。実機でLINEからの起動を確認する。本線GitHub/既存公開は変更しない。新規専用originは配信条件。ローカル製作を新規サイト公開や一般提供、勤務先の業務承認と同一視しない。公開判断はdocs/DOCPDF_LINE_RELEASE.md。
+
+## 2026-10-08 docPDF検証公開と独立GitHub保存の承認
+ユーザー「おっけー」でdocs/DOCPDF_LINE_RELEASE.mdの具体的範囲を承認。新規Cloudflare静的検証サイト（候補docpdf-line-test）、静的34ファイルのbuild 9bc8137a41c23e08、GitHub lupisflora-n/Rの新規codex/docpdf-lineへの保存。本線や既存サイトを変更しない。一般提供、費用追加、実書類の送信、LINEメッセージ配信は含めない。公開時に本人操作が必要でも、同じ公開許可を取り直さない。

@@ -1,4 +1,30 @@
 # STATE｜再開点
+## 最新：2026-10-08 docPDF検証公開・GitHub分岐の承認を受領
+
+本人の「おっけー」で、前回示した静的34ファイルのZIPを新規Cloudflare検証サイト（候補docpdf-line-test）へ公開し、lupisflora-n/Rの独立ブランチcodex/docpdf-lineへ保存することを承認済み。許可を取り直さない。本線codex/docscan-v2・既存docscan-v2-test・mainは対象外。顧客書類の送信、一般提供、有料化、LINEトークへのメッセージ送信は承認範囲外。
+
+- 公開物はbuild 9bc8137a41c23e08、ZIP SHA-256 6747ec4856f00b6a83836f819ad13d949b84c61b75a08aa6129992e7f62f9330。前回検査済みでコード変更なし。
+- GitHub読取りで本線先端8fe715f1504f3f47415b8c33c8e32896cec0b6ceと分岐ref不存在を確認。基準tree 873667cc3794561766da399368e556098590032dを使い、旧証拠を保持したまま差分だけ新しい分岐へ反映する。ローカルの復元履歴をforce pushしない。
+- 現時点は外部反映の準備中。成功はAPI結果とリモートref/ファイルの再読取りで確認し、結果を追加記録する。
+- Cloudflare/LINE画面操作接続・認証は環境にない。既存の公開許可や本人ログインを今回の環境で使える認証と決めつけない。GitHub保存後に本人のCloudflare管理画面操作を案内する。
+
+## 最新：2026-10-08 docPDFのLINE入口を隔離製作
+
+- ユーザー依頼: 本線に影響させずLINEから使えるものを企画・設計・製作。本人が公式アカウントdocPDF、Rプロジェクトプロバイダー、docPDF LINEログインチャネルを作成。顧客住所・名前がある業務報告書を個人スマホで扱う。勤務先の取扱承認は未確認、開発・検査は合成のみ。
+- 採用: LINEのURL入口→外部ブラウザー→端末内の撮影/補正/保存/PDF/共有。LIFF・LINEログイン・プロフィール取得・トーク投稿・処理サーバーは導入しない。実LINEでの外部起動は未検証。
+- 作業フォルダー `/workspace/R-line`、ローカルブランチ `codex/docpdf-line`。通常cloneはプロキシ接続失敗。GitHub連携で本線固定SHA `8fe715f1504f3f47415b8c33c8e32896cec0b6ce` の90コード/資料/試験blobを復元し全SHA照合。復元基点はローカルroot commit `77bd891` で、リモートの履歴と同一ではない。旧証拠は本線リモートに保持し、コピーしなかった。出自はSOURCE_BASE.json。
+- 本線のGitHub先端は最後に同じSHAで確認。リモート書込み・本線/既存サイト変更なし。新規GitHub分岐への反映は未実施。公開する場合は専用の新origin・ルート配信が必須。
+- 実装: 文書import/DB開始前のLINE判定、クエリでは解除不可、書類入力なしの切替画面、同一originのルートURLへ個人情報/クエリ/fragmentを除去、コピー救済、docPDF表示、使い方/保存/安全説明。DB schema・処理コアは継承。Service Workerをhelp/lineとCloudflareの拡張子なし経路へ対応。作業中更新の制御は維持。
+- 検査: 合成27 PASS（evidence/line/unit-tests.txt）、構文17モジュールPASS（完全な型検査ではない）、静的4項目PASS、build `9bc8137a41c23e08`。別担当1名の読取りレビューでcanonical経路とハーネス状態記録を指摘・修正。docs/DOCPDF_LINE_REVIEW.md。
+- ブラウザー: `npm run test:line` はChromium startup/IPC拒否でBLOCKED、実行済みブラウザー検査0。evidence/line/browser-results.json。空errors/external/writesは通信安全の合格証拠ではない。新entryでの既存文書E2Eは、同じ起動失敗のため実行しなかった。本線の過去8件PASSを新変更の合格として数えない。
+- 配布候補: `release/docpdf-line-preview-9bc8137a41c23e08.zip`、静的34ファイル、1002647 bytes。SHA-256 `6747ec4856f00b6a83836f819ad13d949b84c61b75a08aa6129992e7f62f9330`。全ZIP内容の再読込ハッシュ一致。台帳evidence/preview-package.json。文書/PDF/証拠/認証情報は公開ZIPへ入れていない。
+- LINEメニュー素材: design/line/rich-menu.png、左右2区画、2500×843、64702 bytes、PNG。公開資源へは同梱しない。企画docs/DOCPDF_LINE_DESIGN.md、設定/実機docs/DOCPDF_LINE_SETUP.md、公開判断カードdocs/DOCPDF_LINE_RELEASE.md。
+- 公開/LINEメニュー反映/アカウント接続は未実施。新規検証サイト名docpdf-line-testは候補、URLは未取得。Cloudflare・LINE画面操作接続なし、シェルのproxyが接続不能。本人の管理画面操作が必要な場合は案内する。秘密をチャットへ求めない。
+- 状態: ISOLATED_LOCAL_IMPLEMENTED / 27_SYNTHETIC_PASS / STATIC_PACKAGE_PASS / BROWSER_BLOCKED / NEEDS_HUMAN_TEST / PUBLICATION_NOT_DONE。一般提供・実務利用NO-GO。
+- 未検証: 実LINE→外部起動、ブラウザー画面と通信、配信ヘッダー、Android/iPhoneカメラ・メール添付、10枚性能、旧→新20原本、Quota/中断など本線の残ゲート。勤務先が認める端末・保存/送信先・保存期間の確認前は実データを使わない。
+- 次の1作業: docs/DOCPDF_LINE_RELEASE.mdの具体的範囲で新規の検証配信/必要な独立GitHub反映の承認を確認し、本人ログインの手段を案内。配信後にbuild/ヘッダー/E2Eを検査してからdocPDFメニュー、Android架空1枚の実機へ。
+- 終了コミットは、この記録を含む `git log -1 --oneline` で確認。ブランチを作り直さず、このフォルダー/状態を継続する。実行中サーバー・ブラウザー・処理ジョブなし。
+
 ## 最新：2026-10-07 検証用HTTPS公開完了
 
 - URL: https://docscan-v2-test.pages.dev/ 。本人承認・ログインを受け、新規検証専用Cloudflare Pagesへ静的29資源をDirect Upload。既存サイトの変更、文書アップロード、有料サービス追加なし。画面のProductionは検証専用サイト内の環境名で、一般提供の承認ではない。

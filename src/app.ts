@@ -18,9 +18,12 @@ function field(label:string,input:HTMLElement):HTMLElement {
   const wrap=el('div','','field');const l=el('label',label);if(input.id)l.htmlFor=input.id;wrap.append(l,input);return wrap;
 }
 const app=document.querySelector('#app')!;
-const header=el('header'),brand=el('div','','brand'),icon=el('img');icon.src='./icon.svg';icon.alt='';brand.append(icon,el('strong','日付スキャン'));
+const header=el('header'),brand=el('div','','brand'),icon=el('img');icon.src='./icon.svg';icon.alt='';brand.append(icon,el('strong','docPDF'));
 const offlinePill=el('span','準備中','pill');header.append(brand,offlinePill);
 const main=el('main','','wrap');main.append(el('div','DAILY DOCUMENTS','eyebrow'),el('h1','その日の紙を、ひとつに。'),el('p','写真を整えて、日付ごとに保存。必要な分だけPDFにして送れます。','subtitle'));
+const trialNotice=el('div','検証版：架空の書類で試してください。実務での利用は勤務先の確認後に。写真やPDFをdocPDFのLINEトークへ送らないでください。','notice warning');
+const helpLink=el('a','使い方・保存と安全の説明','text-link');helpLink.href='/help.html';helpLink.target='_blank';helpLink.rel='noopener noreferrer';
+trialNotice.append(el('br'),helpLink);main.append(trialNotice);
 const datebar=el('div','','datebar'),dateInput=el('input');dateInput.type='date';dateInput.id='document-date';dateInput.value=localDate();
 const recent=el('select');recent.id='recent-days';recent.setAttribute('aria-label','保存済みの日付');
 const todayButton=button('今日',()=>{if(busy || editing || pendingCapture)return;dateInput.value=localDate();void changeDate();},'quiet');
@@ -47,7 +50,7 @@ const backupButton=button('この日付の復元用ZIPを作る',()=>void backup
 const restoreButton=button('復元用ZIPを読み込む',()=>restoreInput.click()),backupFiles=el('div','','backups');
 backupCard.append(backupHead,el('p','PDFは読む・送るためのファイル。復元用ZIPには原本・現在の編集・日付・完成PDFが入ります。ZIPは暗号化されず、原本の撮影位置なども含む場合があります。','muted'),backupButton,restoreButton,restoreInput,backupFiles);
 const storageDetail=el('p','','muted small'),persistButton=button('端末に保存の保持を依頼',()=>void persist());backupCard.append(storageDetail,persistButton);main.append(backupCard);
-main.append(el('footer','日付スキャン v2 · 開発検証版\n文書の外部アップロード・自動メール送信は行いません。'));
+main.append(el('footer','docPDF · LINE入口の開発検証版\n文書の外部アップロード・自動メール送信は行いません。'));
 const status=el('div','','status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');main.append(status);app.append(header,main);
 
 let currentDay:Day,currentPages:Page[]=[],selected:string[]=[],intent:IngestIntent|undefined,captureTarget:IngestIntent|undefined;

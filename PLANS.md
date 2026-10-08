@@ -87,3 +87,16 @@ Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）
 
 ## 2026-10-07 HTTPS検証開始
 検証専用URL https://docscan-v2-test.pages.dev/ を配信し公開後E2E8件PASS。次はAndroid本人の1枚撮影→PDF→メール添付。実機結果待ち。一般提供NO-GO。
+
+## 2026-10-08 docPDF LINE分岐（本線への反映なし）
+本線の固定SHA 8fe715fから別作業領域/ローカルブランチcodex/docpdf-lineを製作。仕様はdocs/DOCPDF_LINE_DESIGN.md。LINEはURL入口のみ、文書は外部ブラウザーで端末内処理。27合成検査・構文17モジュール・静的4項目・ZIP整合性PASS。ブラウザー起動はBLOCKED、実LINE/Android/iPhoneはNEEDS_HUMAN_TEST。本線の既存公開/E2Eを新変更の合格と数えない。
+
+1. [x] 固定blobの復元・SHA検証、隔離したローカルブランチと出自記録。
+2. [x] 入口/LINE判定/コピー救済/docPDF/使い方/安全案内と経路キャッシュを実装。
+3. [x] 合成検査・ビルド・ソース点検・別担当レビュー修正・配布ZIP/メニュー素材。
+4. [ ] 具体的範囲の承認後、新規専用originへ検証配信。既存サイトへはアップロードしない。
+5. [ ] 配信build/ヘッダー/E2Eと実通信、本人のdocPDFメニュー反映。
+6. [ ] Androidの架空1枚→PDF→保存→メール添付/受信、再起動保持。
+7. [ ] iPhone/10枚/復元/オフライン/旧→新、勤務先の取扱確認後の実務利用判断。
+
+次の1作業はdocs/DOCPDF_LINE_RELEASE.mdの承認確認。公開・LINE設定を代行できる画面接続は現環境にはないので、必要な本人操作を案内する。

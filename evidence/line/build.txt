@@ -1,0 +1,7 @@
+
+> daily-docscan-v2@0.2.0 build
+> node scripts/build.mjs
+
+(node:1970) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Built 32 local assets, build 9bc8137a41c23e08. No network used.

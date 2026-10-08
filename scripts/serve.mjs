@@ -10,7 +10,8 @@ const server = createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-store' });
       res.end(await readFile(new URL('./mobile-preview.html', import.meta.url))); return;
     }
-    const file = resolve(root, '.' + pathname);
+    const staticPath = ['/line','/help','/index'].includes(pathname) ? pathname + '.html' : pathname;
+    const file = resolve(root, '.' + staticPath);
     if (file !== root && !file.startsWith(root + sep)) { res.writeHead(403); res.end(); return; }
     const target = (await stat(file)).isDirectory() ? file + '/index.html' : file;
     const data = await readFile(target);

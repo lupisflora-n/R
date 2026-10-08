@@ -13,7 +13,7 @@ async function compile(path) {
     const target = new URL(rel.replace(/\.ts$/, '.js'), out);
     await mkdir(new URL('./', target), { recursive: true });
     const source = await readFile(new URL(rel, root), 'utf8');
-    const js = stripTypeScriptTypes(source).replace(/(from\s*['"][^'"]+)\.ts(['"])/g, '$1.js$2').replace(/(new URL\(['"][^'"]+)\.ts(['"])/g, '$1.js$2');
+    const js = stripTypeScriptTypes(source).replace(/(from\s*['"][^'"]+)\.ts(['"])/g, '$1.js$2').replace(/(new URL\(['"][^'"]+)\.ts(['"])/g, '$1.js$2').replace(/(import\(\s*['"][^'"]+)\.ts(['"])/g, '$1.js$2');
     await writeFile(target, js);
   }
 }

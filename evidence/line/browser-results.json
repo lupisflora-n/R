@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-08T05:45:16.062Z",
+  "status": "BLOCKED",
+  "results": [
+    {
+      "name": "browser startup",
+      "status": "BLOCKED",
+      "reason": "Operating-system sandbox denied Chromium startup/IPC; no browser checks ran."
+    },
+    {
+      "name": "real LINE external-browser handoff, camera, mail, and iPhone WebKit",
+      "status": "NEEDS_HUMAN_TEST",
+      "reason": "User-agent simulation does not test LINE/OS behavior or Safari."
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "writes": []
+}

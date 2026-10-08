@@ -87,3 +87,14 @@ P0/P1の未解決が1件でもあれば一般配布しない。共有の代替�
 
 ## 2026-10-07 公開先での回帰修正
 Cloudflareのindex.html転送により初回E2Eの2画面目でERR_FAILEDを検出・修正。修正版93e093055e8d0ad7: 合成22件PASS、公開URLのE2E8件PASS。初回失敗と再試験はevidence/public-browser-first-run.json / public-browser-results.json。公開URLのbuild一致、HTTPSとセキュリティヘッダー確認済み。実機共有・旧新版更新の全試験は未合格。
+
+## 2026-10-08 docPDF LINE入口の分岐検査
+- 本線固定8fe715fの90ファイルblob SHA一致で復元。終了前も本線先端一致、リモート書込みなし。
+- 27合成検査PASS: LINE bootstrapで文書import/DBゼロ、URLからクエリ/fragment除去、切替URL、コピー拒否の救済、canonical HTMLの別経路キャッシュ、本線サイトURLの設定拒否、既存22回帰。evidence/line/unit-tests.txt。
+- 構文17モジュール・安全パターンPASS。完全なTypeScript型検査ではない。evidence/line/syntax-check.txt。
+- build 9bc8137a41c23e08、32ビルド資源+SW/build.json=配布34ファイル。evidence/line/build.txt。
+- 静的4項目PASS: 動的importのJS化、guard前の文書scriptなし、src/HTMLに外部URL/HTTP書込み/LINE SDKなし、制限ヘッダー宣言。実通信や実ホスト適用を証明する検査ではない。evidence/line/static-checks.json。
+- ブラウザー起動BLOCKED（IPC）。npm run test:lineの実行済みブラウザー検査0。新入口経由の文書E2E・画面・実通信は未実施。evidence/line/browser-results.json。空のerrors/external/writesを合格としない。
+- 別エージェント1名の読取りレビュー実施、指摘修正。Node VMのJSZip ES module/合成ZIP確認でありブラウザー確認ではない。docs/DOCPDF_LINE_REVIEW.md。
+- 34ファイルのZIP再読込SHA一致。約1MB、書類/PDF/秘密/検査証拠なし。evidence/preview-package.json。メニューPNGは2500×843/64702 bytes、表示素材の目視確認のみ。
+- L01〜L07、iPhone/Android、共有/受信、旧→新20原本、Quota/中断/10枚等は未合格。一般提供・実務利用NO-GO。

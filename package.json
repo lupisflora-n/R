@@ -10,6 +10,8 @@
     "preview": "node scripts/serve.mjs",
     "test": "node --experimental-strip-types --test --test-isolation=none tests/*.test.ts",
     "test:e2e": "node tests/browser.mjs",
+    "test:line": "node tests/line-browser.mjs",
+    "package:preview": "node scripts/package-preview.mjs",
     "test:mobile-quality": "node tests/mobile-quality.mjs",
     "verify:mobile": "node scripts/verify-mobile.mjs",
     "lint": "node scripts/check.mjs",
