@@ -1,4 +1,14 @@
 # STATE｜再開点
+## 最新：2026-10-08 docPDF独立ブランチへのGitHub保存完了
+
+- 本人承認済みの範囲でGitHub lupisflora-n/Rの新規codex/docpdf-lineを作成。実装commit `729a6de3cc298a7a82c2e4656090fa10aa1b67a8`、tree `8feaa52dca2abe9e56a305702c5a33d6c0eb9ded`、親は本線固定8fe715f。ローカル復元履歴はpushせず、GitHub基準treeへ43ファイルの変更を適用した。
+- 元treeの117ファイルを保持、削除0。変更43ファイルはローカルblob SHAとリモートtreeを照合済み。分岐先端が729a6deであること、src/entry.tsとpackage.jsonの再読取りを確認。本線codex/docscan-v2は8fe715fのまま、main/既存サイトを更新していない。
+- 実装/依存/配布物は前回と同じ。承認済みZIP 9bc8137a41c23e08（34ファイル）のSHA-256と全資源ハッシュを再照合し一致。ローカルGitのSHAはリモートSHAと異なる。最後のローカル記録commitはgit log -1で確認し、これをリモートへforce pushしない。
+- Cloudflare新規公開はまだ未実施。cloud環境は認証/Cloudflare接続/画面操作ツールなし。Cloudflare公式のDirect Upload手順を確認したので、本人が新規Pagesを作成し、この検証ZIPをアップロードする。公開承認は取得済み、再度質問しない。既存docscan-v2-testを選ばない。
+- 次の1作業: 本人がCloudflare管理画面のWorkers & Pages→Create application→Get started→Drag and drop your filesを開き、docpdf-line-test（候補）で新規作成・ZIP配信。公式画面で別の表記なら画面を確認して案内する。実際の公開URLを受け取るまで存在/配信を断定しない。
+- 公開後: build.json/ヘッダーを照合、ブラウザー検査を実行できる環境で新entryの文書E2Eと入口検査、docPDFメニュー設定、Android架空1枚。ブラウザー0検査/BLOCKEDと実機NEEDS_HUMAN_TEST、一般提供/実務NO-GOを維持。
+- 終了時のジョブなし。Cloudflare/LINEの資格情報をチャットへ要求しない。
+
 ## 最新：2026-10-08 docPDF検証公開・GitHub分岐の承認を受領
 
 本人の「おっけー」で、前回示した静的34ファイルのZIPを新規Cloudflare検証サイト（候補docpdf-line-test）へ公開し、lupisflora-n/Rの独立ブランチcodex/docpdf-lineへ保存することを承認済み。許可を取り直さない。本線codex/docscan-v2・既存docscan-v2-test・mainは対象外。顧客書類の送信、一般提供、有料化、LINEトークへのメッセージ送信は承認範囲外。

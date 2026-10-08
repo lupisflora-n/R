@@ -100,3 +100,6 @@ Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）
 7. [ ] iPhone/10枚/復元/オフライン/旧→新、勤務先の取扱確認後の実務利用判断。
 
 次の1作業はdocs/DOCPDF_LINE_RELEASE.mdの承認確認。公開・LINE設定を代行できる画面接続は現環境にはないので、必要な本人操作を案内する。
+
+## 2026-10-08 docPDFの共有完了・Cloudflare本人操作待ち
+公開と独立GitHub保存は承認済み。codex/docpdf-lineの実装commit729a6de、既存117ファイル保持/削除0/変更43 blob一致、ref/再読取り/本線不変を確認。ZIP34ファイルのハッシュ一致を再確認。Cloudflare管理画面の操作接続がないため配信は本人操作待ち。docs/DOCPDF_LINE_SETUP.mdの公式Direct Upload手順で新規サイトへ配信し、実際のURLを受け取ったらbuild/ヘッダー/E2E→LINEメニュー→Android架空1枚へ進む。公開許可を取り直さない。

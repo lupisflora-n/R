@@ -1,6 +1,6 @@
 # docPDF｜公開後のLINE設定と実機確認
 
-2026-10-08。この手順は準備資料。サイト公開・LINEメニュー反映は未実施。
+2026-10-08。公開と独立GitHub保存は本人承認済み。GitHub codex/docpdf-lineへ保存完了、サイト公開・LINEメニュー反映は未実施。
 
 ## いま本人側で済んでいること
 
@@ -48,3 +48,7 @@
 docPDFのメニューを下書き／非表示へ戻すか、入口リンクを外す。本線のサイトや端末DBを削除しない。試作データの保存・削除は本人が内容を確認して行う。ホストを戻すことと端末内データの巻き戻しは別。
 
 根拠: [LINE公式のリッチメニュー手順](https://www.lycbiz.com/jp/manual/OfficialAccountManager/rich-menus/)、[LINE外部ブラウザー指定](https://developers.line.biz/ja/docs/messaging-api/using-line-url-scheme/)。
+
+## 確認済みのCloudflare画面手順（2026-10-08）
+
+[Cloudflare公式Direct Upload](https://developers.cloudflare.com/pages/get-started/direct-upload/)に基づく。本人がアカウントへログインし、Workers & Pages→Create application→Get started→Drag and drop your filesを選ぶ。新規プロジェクト名docpdf-line-test（候補）を入力し、検証用ZIPを選択、Deploy siteで配信する。ZIPは展開せずアップロードできる。画面が違う場合は実画面の項目を確認する。既存docscan-v2-testへの新デプロイは実行しない。配信完了画面の実URLだけを返し、アカウント番号・トークン・顧客文書を送る必要はない。

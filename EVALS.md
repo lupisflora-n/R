@@ -98,3 +98,6 @@ Cloudflareのindex.html転送により初回E2Eの2画面目でERR_FAILEDを検�
 - 別エージェント1名の読取りレビュー実施、指摘修正。Node VMのJSZip ES module/合成ZIP確認でありブラウザー確認ではない。docs/DOCPDF_LINE_REVIEW.md。
 - 34ファイルのZIP再読込SHA一致。約1MB、書類/PDF/秘密/検査証拠なし。evidence/preview-package.json。メニューPNGは2500×843/64702 bytes、表示素材の目視確認のみ。
 - L01〜L07、iPhone/Android、共有/受信、旧→新20原本、Quota/中断/10枚等は未合格。一般提供・実務利用NO-GO。
+
+## 2026-10-08 docPDF GitHub保存確認
+APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit729a6deを作成、新規codex/docpdf-lineへ登録。元treeの117ファイル保持、削除0、変更43のblob SHA一致。refの先端一致とsrc/entry.ts/package.json再読取り成功。本線refは8fe715fのまま。承認済みZIPのアーカイブSHA-256と34全資源ハッシュ一致。アプリ変更なしのため合成検査を無意味に繰り返していない。Cloudflare未公開・公開URLなし・実ブラウザー/LINE/実機未検証。
