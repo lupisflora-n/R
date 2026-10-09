@@ -8,6 +8,7 @@
 - 既存UX担当エージェントが読取りレビュー。画像上のラベル重なりをヘッダーへ移して解消し、タブ別案内/処理中の比較無効表示を修正。人の実機評価とは区別する。
 - 合成40 PASS、構文20モジュールPASS（完全型検査なし）、配布静的4 PASS、ZIP全資源/ハッシュ一致。ブラウザーはIPC拒否でBLOCKED/0 PASS。連続ドラッグ/スクロール不要/キーボードの実表示を検査するブラウザー試験は更新したが未実行。
 - 新しい配布候補: build `6dc49a208f65eb40` / build.json files35 / ZIP 37ファイル、`release/docpdf-line-preview-6dc49a208f65eb40.zip`、SHA-256 `3cfe411e37db82e899a9b7fc6fe82e2b12217419808dfe8f83c066b3f8a68be5`。この版の公開はまだ未更新。
+- GitHub保存・再読取り確認済み: 実装commit `afb66f7ea46f03576c7937ccb0946eb19bba8932`、tree `47f5d1acdb97ff67d6f35eaf1f3fa5450d6757ab`。既存148ファイル保持、18変更blob一致、削除0、期待SHA付きforce=false更新。本線/mainの先端不変。後続記録commitが付くので再開時は分岐refを読む。
 - codex/docpdf-lineのみ。前回の公開URL docpdf-line-test.pages.devを維持。本線/main/既存docscan-v2-testは対象外。新しい顧客データの操作・外部送信・DB初期化はしていない。
 - 次の1作業: 同じCloudflare docpdf-line-testのCreate deploymentへ新ZIPをアップロードし固定URLのbuild.jsonを照合。本人操作が必要（Cloudflare管理画面の操作接続・認証なし）。LINEリンクの変更不要。編集中/処理中は更新を適用しない。
 - 実機では架空1枚をドラッグ→四隅決定→文書化/カラー切替→原本比較→保存し、スクロールせず各操作へ届くかを確認。端末OS/ブラウザー/キーボード/横向きの確認は残る。
