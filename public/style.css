@@ -134,3 +134,54 @@ input[type=checkbox],input[type=range]{accent-color:#184b39}
 .page-info{min-width:0;overflow-wrap:anywhere}.page-actions{display:flex;flex-direction:column;gap:6px}.page-actions button{min-width:48px}.trash-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}.trash-row>div:first-child{min-width:0;overflow-wrap:anywhere}.trash-actions{display:flex;flex-wrap:wrap;gap:8px}
 button.danger,button.quiet.danger{color:#9a341f}.pdf-row>div:first-child,.orderrow span{min-width:0;overflow-wrap:anywhere}.pdf-row button{flex-shrink:0}
 .safety-details{margin:12px 0;color:#657264;font-size:12px;line-height:1.7}.safety-details summary{cursor:pointer;min-height:44px;padding:10px 4px}.safety-details summary:focus-visible{outline:3px solid #184b39;outline-offset:3px}.safety-details .notice{margin-bottom:8px}
+
+/* Fixed editor: the image and the current tools share the visible viewport. */
+body.editor-open{overflow:hidden;overscroll-behavior:none}
+.fixed-editor.overlay{display:block;padding:0;inset:0 0 auto;height:100dvh;overflow:hidden;overscroll-behavior:none}
+.fixed-editor .dialog{width:100%;max-width:none;height:100%;max-height:none;border-radius:0;overflow:hidden;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
+.fixed-editor .dialoghead{position:static;padding:8px 12px;border-radius:0;gap:8px}
+.fixed-editor .dialoghead h2{font-size:15px;line-height:1.3}
+.fixed-editor .dialoghead button{min-height:44px;padding:8px 12px;font-size:13px}
+.fixed-editor .editor-controls{max-width:none;margin:0}
+.fixed-editor .dialogbody{min-height:0;overflow:hidden;padding:8px 12px;display:grid;grid-template-rows:44px minmax(0,1fr) 92px 38px;gap:8px}
+.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-rows:44px minmax(0,1fr) 64px 38px}
+.fixed-editor .editor-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.fixed-editor .editor-toolbar button{min-height:44px;padding:6px 2px;font-size:13px}
+.fixed-editor .editor-toolbar .selected{background:#184b39;border-color:#184b39;color:#fff}
+.fixed-editor .editor-image-area{position:relative;min-height:0;min-width:0;overflow:hidden;background:#263f32;border-radius:10px;display:grid;place-items:center}
+.fixed-editor .editor-stage{max-width:none;min-width:0;margin:0;overflow:visible;background:white;border-radius:0;box-shadow:none}
+.fixed-editor .editor-stage canvas{width:100%;height:100%;border-radius:0;display:block;touch-action:none}
+.fixed-editor .editor-view-title{flex:1;min-width:0}
+.fixed-editor .editor-compare{position:static;min-height:44px;min-width:58px;padding:4px 8px;font-size:12px}
+.fixed-editor .handle,.fixed-editor .handle.active{width:44px;height:44px;min-width:44px;min-height:44px;padding:0;background:transparent;border:0;box-shadow:none;color:white;overflow:visible}
+.fixed-editor .handle::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;border:2px solid white;border-radius:50%;box-shadow:0 0 0 1px #184b39;z-index:1}
+.fixed-editor .handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;background:linear-gradient(90deg,transparent 46%,white 46%,white 54%,transparent 54%),linear-gradient(transparent 46%,white 46%,white 54%,transparent 54%);filter:drop-shadow(0 0 1px #122e22)}
+.fixed-editor .handle.active::before{border-color:#ffe082}.fixed-editor .handle.active::after{background:linear-gradient(90deg,transparent 46%,#ffe082 46%,#ffe082 54%,transparent 54%),linear-gradient(transparent 46%,#ffe082 46%,#ffe082 54%,transparent 54%)}
+.fixed-editor .corner-badge{position:absolute;top:0;left:0;width:15px;height:15px;border-radius:4px;background:#184b39;border:1px solid white;color:white;font-size:10px;line-height:13px;text-align:center;z-index:2}
+.fixed-editor .handle.active .corner-badge{background:#ffe082;color:#184b39}
+.fixed-editor .editor-tool-panels{min-height:0;min-width:0}
+.fixed-editor .cornerbuttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.fixed-editor .cornerbuttons button{min-height:44px;padding:4px 2px;font-size:12px;border-width:1px}
+.fixed-editor .fixed-corner-adjustments{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-top:4px}
+.fixed-editor .fixed-corner-adjustments button{min-width:0;min-height:44px;padding:4px 0;font-size:14px}
+.fixed-editor .fixed-tone-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+.fixed-editor .fixed-tone-tools button{min-height:44px;padding:6px 10px;font-size:13px}
+.fixed-editor .fixed-light-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fixed-editor .field{margin:0;gap:3px;min-width:0}
+.fixed-editor .field label{font-size:11px;font-weight:600;line-height:16px}
+.fixed-editor input,.fixed-editor select{min-height:44px;height:44px;width:100%;padding:6px 10px;font-size:14px}
+.fixed-editor input[type=range]{padding:0;min-height:44px}
+.fixed-editor .editor-message{margin:0;padding:0 3px;border:0;background:transparent;border-radius:0;color:#425940;font-size:12px;line-height:19px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.fixed-editor .editor-message.warning{color:#9a341f}
+.fixed-editor .dialogfooter{position:static;padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));box-shadow:none}
+.fixed-editor .fixed-editor-actions{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.7fr);gap:6px}
+.fixed-editor-actions button{min-width:0;min-height:44px;padding:6px 4px;font-size:13px}
+.fixed-editor-actions .corner-confirm,.fixed-editor-actions .editor-save{background:#184b39;color:#fff;border-color:#184b39}
+.fixed-editor-actions .editor-cancel-processing{grid-column:1/-1;min-height:36px;height:36px;margin:0;background:#fff8dc;color:#745725}
+@media(max-height:480px) and (min-width:600px){
+  .fixed-editor .dialogbody,.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-columns:minmax(0,1fr) 280px;grid-template-rows:44px minmax(0,1fr) 38px;gap:6px}
+  .fixed-editor .editor-image-area{grid-column:1;grid-row:1/4}
+  .fixed-editor .editor-toolbar{grid-column:2;grid-row:1}
+  .fixed-editor .editor-tool-panels{grid-column:2;grid-row:2;align-self:center}
+  .fixed-editor .editor-message{grid-column:2;grid-row:3}
+}

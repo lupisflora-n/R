@@ -34,13 +34,19 @@ try{
   const sample=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=900;c.height=1280;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#172e2b';x.font='bold 44px sans-serif';x.fillText('SYNTHETIC DOCUMENT',72,110);x.font='22px sans-serif';x.fillText('TEST ONLY / 2026-10-03',72,158);x.font='16px sans-serif';for(let i=0;i<32;i++){x.fillText(`Line ${i+1}  123.45  0.05  8pt/10pt  sample`,72,240+i*25);x.fillRect(72,248+i*25,740,.5);}x.strokeStyle='#bb5544';x.lineWidth=3;x.strokeRect(650,80,140,90);x.font='26px sans-serif';x.fillStyle='#bb5544';x.fillText('FAKE',675,136);return Array.from(Uint8Array.from(atob(c.toDataURL('image/png').split(',')[1]),c=>c.charCodeAt(0)));}));
   await check('capture -> committed draft -> manual crop -> filter -> revision',async()=>{
     const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真から選ぶ',exact:true}).click();await(await chooser).setFiles({name:'synthetic.png',mimeType:'image/png',buffer:sample});
-    await page.getByRole('dialog',{name:'四隅と見やすさを確認'}).waitFor();await page.getByRole('button',{name:'次へ：白黒・カラー',exact:true}).click();await page.getByRole('button',{name:'加工後を確認',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.editor-message')?.textContent?.startsWith('確認用の縮小画像です'));
+    const editor=page.getByRole('dialog',{name:'四隅と見やすさを確認'});await editor.waitFor();
+    const stage=await editor.locator('.editor-stage').boundingBox(),handle=editor.locator('.handle').first(),box=await handle.boundingBox();
+    await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+stage.width*.2,box.y+box.height/2+stage.height*.15,{steps:12});await page.mouse.up();
+    const point=await handle.evaluate(e=>({x:parseFloat(e.style.left)/100,y:parseFloat(e.style.top)/100}));assert.ok(Math.abs(point.x-.2)<.01 && Math.abs(point.y-.15)<.01,'corner must follow the full drag, not just the first move');
+    await editor.getByRole('button',{name:'全体',exact:true}).click();
+    assert.equal(await editor.getByRole('button',{name:'編集を保存',exact:true}).isDisabled(),true);
+    await editor.getByRole('button',{name:'四隅を決定',exact:true}).click();await editor.getByText('文書化後',{exact:true}).waitFor();
     await page.screenshot({path:'evidence/editor.png',fullPage:true});
-    await page.getByRole('button',{name:'色調を調整する',exact:true}).click();
-    await page.getByRole('button',{name:'カラー',exact:true}).click();
-    assert.equal(await page.getByRole('button',{name:'編集を保存',exact:true}).isVisible(),false,'changed recipe must be reviewed again');
-    await page.getByRole('button',{name:'加工後を確認',exact:true}).click();
-    await page.waitForFunction(()=>document.querySelector('.editor-message')?.textContent?.startsWith('確認用の縮小画像です'));
+    await editor.getByRole('button',{name:'四隅へ戻る',exact:true}).click();await editor.getByRole('button',{name:'選択中の四隅を下へ少し動かす',exact:true}).click();
+    assert.equal(await editor.getByRole('button',{name:'編集を保存',exact:true}).isDisabled(),true,'changed crop must be rendered again');
+    await editor.getByRole('button',{name:'全体',exact:true}).click();await editor.getByRole('button',{name:'文書化',exact:true}).click();await editor.getByText('文書化後',{exact:true}).waitFor();
+    await editor.locator('#editor-filter').selectOption('color');
+    await page.waitForFunction(()=>document.querySelector('.editor-view-title')?.textContent==='文書化後' && !document.querySelector('.editor-save').disabled);
     await page.getByRole('button',{name:'編集を保存',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
     await page.waitForFunction(()=>!document.querySelector('.page-row input').disabled);
     const state=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');const pages=await db.list('pages');const original=await db.get('assets',pages[0].originalAssetId);return{pages:pages.length,state:pages[0].state,originalSize:original.byteCount,hash:original.sha256};});

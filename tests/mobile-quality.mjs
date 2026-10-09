@@ -28,9 +28,11 @@ try {
       await check('editor remains within viewport',async()=>{
         const b=await dialog.boundingBox();assert.ok(b.x>=-1 && b.y>=-1 && b.x+b.width<=width+1 && b.y+b.height<=height+1);
         assert.ok(await dialog.evaluate(e=>e.scrollWidth<=e.clientWidth+1));
+        assert.ok(await dialog.evaluate(e=>e.scrollHeight<=e.clientHeight+1),'editor must not require scrolling');
+        assert.ok(await dialog.locator('.dialogbody').evaluate(e=>e.scrollHeight<=e.clientHeight+1));
       });
       await check('current editor action is reachable by touch',async()=>{
-        const b=dialog.getByRole('button',{name:'次へ：白黒・カラー',exact:true});
+        const b=dialog.getByRole('button',{name:'四隅を決定',exact:true});
         await b.scrollIntoViewIfNeeded();await b.click({trial:true});
         const r=await b.boundingBox();assert.ok(r.height>=44 && r.width>=44);
       });

@@ -1,10 +1,10 @@
 {
-  "build": "c9bba312e31d048d",
-  "output": "release/docpdf-line-preview-c9bba312e31d048d.zip",
-  "archiveBytes": 1011306,
-  "archiveSha256": "8618c9361b9d301a0e797c8f4eb74a8798b3d1abb5f5725e702ede17a528a053",
-  "fileCount": 36,
-  "totalBytes": 4169495,
+  "build": "6dc49a208f65eb40",
+  "output": "release/docpdf-line-preview-6dc49a208f65eb40.zip",
+  "archiveBytes": 1013147,
+  "archiveSha256": "3cfe411e37db82e899a9b7fc6fe82e2b12217419808dfe8f83c066b3f8a68be5",
+  "fileCount": 37,
+  "totalBytes": 4175370,
   "published": false,
   "files": [
     {
@@ -15,12 +15,12 @@
     {
       "path": "build.json",
       "bytes": 39,
-      "sha256": "01ea6fa052f1ab81b784c5ac4a14b1e32e2eb3a504af253164c6e84629d39aaa"
+      "sha256": "66971e21ee47811b861d4b5fd59d4b092be50c9d0cab61b627e92f7b7247efcf"
     },
     {
       "path": "help.html",
-      "bytes": 5488,
-      "sha256": "0e47997ae8056aa981b7f22751af826ace671a5dd16756238907fd631ff16f46"
+      "bytes": 5547,
+      "sha256": "b5989953023e5a0dda06886ca3d7a3f844141f8def30e19ed39a11dac6a592ca"
     },
     {
       "path": "icon.svg",
@@ -44,8 +44,8 @@
     },
     {
       "path": "src/app.js",
-      "bytes": 46632,
-      "sha256": "e0660f770980c58b80ae784503e872150403b828116a6f6586b014a4cdf401bc"
+      "bytes": 46001,
+      "sha256": "06db48c81c3293c5862a7ebba73c0c1d665097d0a37eff76ec3aca196d56ee09"
     },
     {
       "path": "src/backup/backup.js",
@@ -61,6 +61,11 @@
       "path": "src/core.js",
       "bytes": 3798,
       "sha256": "0be2e99d55bca30d55a1143b9840a3e89e3296077162d32637b9aaf59a0db39b"
+    },
+    {
+      "path": "src/editor/interaction.js",
+      "bytes": 889,
+      "sha256": "0692813dbcbc5fb4932d3fbc32b2d4c1763bee34eb94eb035e9075b88759ec9f"
     },
     {
       "path": "src/entry.js",
@@ -139,13 +144,13 @@
     },
     {
       "path": "style.css",
-      "bytes": 18093,
-      "sha256": "5dfb65a6688421fdd3016059fc7662663c752def662b6d7c3db48fe8d9cd8c1a"
+      "bytes": 23621,
+      "sha256": "449a37583f04961909f015c92cb72165f9f2bcdea00c7a7d1d548b2b880d8be7"
     },
     {
       "path": "sw.js",
-      "bytes": 3577,
-      "sha256": "bc52789f0dc377e98f9a135819795b6ab07d4d74cd77391f11accb1d33b20339"
+      "bytes": 3607,
+      "sha256": "50f85b2d95da47814809d1ce0da8525a21cdc79b0a98c310fdadbf52980381bb"
     },
     {
       "path": "vendor/INTEGRITY.json",

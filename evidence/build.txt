@@ -2,4 +2,6 @@
 > daily-docscan-v2@0.2.0 build
 > node scripts/build.mjs
 
-Built 34 local assets, build c9bba312e31d048d. No network used.
+Built 35 local assets, build 6dc49a208f65eb40. No network used.
+(node:8074) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

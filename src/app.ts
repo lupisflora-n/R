@@ -8,6 +8,7 @@ import { createPdf, download, handOff, logShare, preparedFile } from './exports/
 import { openPdf } from './exports/viewer.ts';
 import { exportDay, inspectBackup, restoreBackup } from './backup/backup.ts';
 import { initializeUpdates } from './update/client.ts';
+import { dragCorner, fitEditorImage } from './editor/interaction.ts';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K] {
   const node=document.createElement(tag);if(text)node.textContent=text;if(className)node.className=className;return node;
@@ -76,7 +77,7 @@ function controls():void {
   for(const check of pagesArea.querySelectorAll<HTMLInputElement>('input[type=checkbox]'))check.disabled=busy || editing || !writable || check.dataset.ready!=='true';
   for(const editButton of pagesArea.querySelectorAll<HTMLButtonElement>('button'))editButton.disabled=busy || editing || !writable;
   for(const action of document.querySelectorAll<HTMLButtonElement>('.trash-actions button'))action.disabled=busy || !writable || action.dataset.uiDisabled==='true';
-  for(const node of document.querySelectorAll<HTMLInputElement|HTMLButtonElement>('.editor-controls button,.editor-controls input,#page-title'))node.disabled=busy || node.dataset.uiDisabled==='true';
+  for(const node of document.querySelectorAll<HTMLInputElement|HTMLButtonElement|HTMLSelectElement>('.editor-controls button,.editor-controls input,.editor-controls select,.fixed-editor .editor-compare,#page-title'))node.disabled=busy || node.dataset.uiDisabled==='true';
   for(const cancel of document.querySelectorAll<HTMLButtonElement>('.editor-cancel-processing')){cancel.classList.toggle('hidden',!busy);cancel.disabled=!busy;}
 }
 async function run(action:()=>Promise<void>):Promise<void> {
@@ -208,114 +209,126 @@ async function renderPdfs():Promise<void> {
 }
 async function edit(page:Page):Promise<void> {
   if(busy || editing || !writable)return;
-  editing=true;controls();
-  let abort:AbortController|undefined,removed=false;
-  const closeEditor=()=>{removed=true;abort?.abort();modal.close();editing=false;controls();};
-  const modal=dialog('四隅と見やすさを確認',()=>{removed=true;abort?.abort();editing=false;controls();});
-  modal.overlay.classList.add('editor-overlay');
+  editing=true;controls();document.body.classList.add('editor-open');
+  let abort:AbortController|undefined,removed=false,resizeObserver:ResizeObserver|undefined;
+  let detachViewport=()=>{};
+  const cleanup=()=>{removed=true;abort?.abort();resizeObserver?.disconnect();detachViewport();document.body.classList.remove('editor-open');editing=false;controls();};
+  const modal=dialog('四隅と見やすさを確認',cleanup);modal.overlay.classList.add('editor-overlay','fixed-editor');
+  const closeEditor=()=>{cleanup();modal.close();};
   try {
     const original=await db.get('assets',page.originalAssetId);if(!original)throw new Error('原本がありません。');
     const previous=page.activeRevisionId?await db.get('revisions',page.activeRevisionId):undefined;
-    let recipe:Recipe=structuredClone(previous?.recipe || defaultRecipe()),active=0,step=0,previewRecipe:string|undefined;
+    let recipe:Recipe=structuredClone(previous?.recipe || defaultRecipe()),active=0,mode='crop',previewRecipe:string|undefined,processed:ImageData|undefined,showOriginal=false;
     const history:Recipe[]=[],cornerNames=['左上','右上','右下','左下'];
     const decoded=await decode(original.blob,1000);if(removed)return;
-    const controlsArea=el('div','','editor-controls');
-    const progress=el('ol','','editor-progress'),stepLabels=['四隅を合わせる','白黒・カラー','加工後を確認'];
-    const progressItems=stepLabels.map((label,i)=>{const item=el('li');item.append(el('span',String(i+1),'step-number'),el('span',label));progress.append(item);return item;});
-    progress.setAttribute('aria-label','写真編集の手順');
-    const stepTitle=el('h3','','editor-step-title'),stepInstruction=el('p','','editor-instruction');
-    stepTitle.id='editor-step-title';stepTitle.tabIndex=-1;stepInstruction.id='editor-step-instruction';
-    const editorMessage=el('p','','notice editor-message');editorMessage.setAttribute('role','status');editorMessage.setAttribute('aria-live','polite');
-    controlsArea.append(progress,stepTitle,stepInstruction);
-    const workspace=el('div','','editor-workspace'),stage=el('div','','editor-stage'),canvas=el('canvas');
-    canvas.width=decoded.pixels.width;canvas.height=decoded.pixels.height;
-    canvas.setAttribute('aria-label','原本の写真。番号のつまみで紙の四隅を合わせます。');
-    const handles=el('div','','handles');stage.append(canvas,handles);workspace.append(stage);controlsArea.append(workspace);
-    const cropPane=el('section','','editor-pane crop-pane'),tonePane=el('section','','editor-pane tone-pane hidden'),previewPane=el('section','','editor-pane preview-pane hidden');
+    const toolbar=el('div','','editor-toolbar'),tabs=new Map<string,HTMLButtonElement>();
+    for(const [key,label] of [['crop','四隅'],['tone','色調'],['light','明るさ'],['name','名前']]){
+      const b=button(label,()=>{if(busy)return;mode=key;showOriginal=false;syncMode();setMessage(key==='crop'?'角を合わせて「四隅を決定」。':key==='tone'?'色調を選ぶと反映します。「文書化」でも確認できます。':key==='light'?'スライダーから指を離すと反映します。': '名前の変更は「保存」で確定します。');});b.setAttribute('aria-pressed','false');toolbar.append(b);tabs.set(key,b);
+    }
+    const workspace=el('div','','editor-image-area'),stage=el('div','','editor-stage'),canvas=el('canvas'),handles=el('div','','handles');
+    stage.append(canvas,handles);workspace.append(stage);
+    const viewLabel=modal.overlay.querySelector('h2')!,compare=button('原本',()=>{if(busy || !processed || previewRecipe!==JSON.stringify(recipe))return;showOriginal=!showOriginal;renderView();},'editor-compare');viewLabel.classList.add('editor-view-title');
+    const head=modal.overlay.querySelector('.dialoghead')!;head.insertBefore(compare,head.lastElementChild);compare.setAttribute('aria-label','原本を表示して比較');
+    const tools=el('div','','editor-tool-panels'),cropPane=el('div','','fixed-crop-tools'),tonePane=el('div','','fixed-tone-tools hidden'),lightPane=el('div','','fixed-light-tools hidden'),namePane=el('div','','fixed-name-tools hidden');
+    tools.append(cropPane,tonePane,lightPane,namePane);
+    const message=el('p','角を合わせて「四隅を決定」。そのまま「文書化」もできます。','editor-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
+    modal.body.classList.add('editor-controls');modal.body.replaceChildren(toolbar,workspace,tools,message);
     const pointButtons=el('div','','cornerbuttons'),handleButtons:HTMLButtonElement[]=[],cornerButtons:HTMLButtonElement[]=[];
-    const activeCorner=el('p','','active-corner');activeCorner.setAttribute('aria-live','polite');
+    type Drag={index:number;pointerId:number;point:{x:number;y:number};start:{x:number;y:number};frame:{width:number;height:number}};
+    let drag:Drag|undefined;
     function checkpoint(){history.push(structuredClone(recipe));if(history.length>50)history.shift();}
-    function invalidatePreview(){previewRecipe=undefined;comparison.classList.add('hidden');editorMessage.textContent='変更を反映するには「加工後を確認」を押してください。';syncStep();}
-    function paint(){
-      const context=canvas.getContext('2d')!;context.putImageData(decoded.pixels,0,0);
-      if(step===0){
+    function setMessage(value:string,error=false){message.textContent=value;message.classList.toggle('warning',error);message.title=value;}
+    function hasPreview(){return Boolean(processed && previewRecipe===JSON.stringify(recipe));}
+    function invalidatePreview(){previewRecipe=undefined;showOriginal=false;setMessage(mode==='crop'?'位置を反映するには「四隅を決定」か「文書化」。':'「文書化」で変更を反映します。');renderView();syncActions();}
+    function fitStage(){
+      if(removed)return;
+      const pixels=mode==='crop' || showOriginal || !hasPreview()?decoded.pixels:processed!;
+      const fitted=fitEditorImage(pixels,{width:workspace.clientWidth,height:workspace.clientHeight});
+      stage.style.width=`${fitted.width}px`;stage.style.height=`${fitted.height}px`;
+    }
+    function renderView(){
+      const pixels=mode==='crop' || showOriginal || !hasPreview()?decoded.pixels:processed!;
+      canvas.width=pixels.width;canvas.height=pixels.height;const context=canvas.getContext('2d')!;context.putImageData(pixels,0,0);
+      if(mode==='crop'){
         context.beginPath();context.rect(0,0,canvas.width,canvas.height);
-        recipe.points.forEach((point,i)=>{const x=point.x*canvas.width,y=point.y*canvas.height;if(i)context.lineTo(x,y);else context.moveTo(x,y);});context.closePath();
-        context.fillStyle='rgba(9,22,18,.42)';context.fill('evenodd');
-        context.beginPath();recipe.points.forEach((point,i)=>{const x=point.x*canvas.width,y=point.y*canvas.height;if(i)context.lineTo(x,y);else context.moveTo(x,y);});context.closePath();
-        context.strokeStyle='#ffffff';context.lineWidth=Math.max(5,canvas.width/100);context.stroke();
-        context.strokeStyle='#19342d';context.lineWidth=Math.max(2,canvas.width/250);context.stroke();
+        recipe.points.forEach((point,i)=>{if(i)context.lineTo(point.x*canvas.width,point.y*canvas.height);else context.moveTo(point.x*canvas.width,point.y*canvas.height);});context.closePath();
+        context.fillStyle='rgba(9,22,18,.4)';context.fill('evenodd');context.strokeStyle='#fff';context.lineWidth=canvas.width/180;context.stroke();context.strokeStyle='#184b39';context.lineWidth=canvas.width/450;context.stroke();
       }
+      handles.classList.toggle('hidden',mode!=='crop');
       handleButtons.forEach((b,i)=>{b.style.left=`${recipe.points[i].x*100}%`;b.style.top=`${recipe.points[i].y*100}%`;b.classList.toggle('active',active===i);b.setAttribute('aria-pressed',String(active===i));cornerButtons[i].classList.toggle('selected',active===i);cornerButtons[i].setAttribute('aria-pressed',String(active===i));});
-      activeCorner.textContent=`選択中：${active+1} ${cornerNames[active]} · 矢印で少しずつ動かせます`;
+      viewLabel.textContent=mode==='crop'?`原本 · ${active+1} ${cornerNames[active]}を調整`:showOriginal || !hasPreview()?'原本':'文書化後';
+      canvas.setAttribute('aria-label',viewLabel.textContent);compare.classList.toggle('hidden',mode==='crop' || !hasPreview());compare.textContent=showOriginal?'加工後':'原本';compare.setAttribute('aria-label',showOriginal?'加工後を表示':'原本を表示して比較');compare.setAttribute('aria-pressed',String(showOriginal));fitStage();
     }
-    for(let i=0;i<4;i++) {
-      const b=button(String(i+1),()=>{if(busy)return;active=i;paint();},'handle');b.setAttribute('aria-label',`${i+1} ${cornerNames[i]}の四隅`);handles.append(b);handleButtons.push(b);
-      const move=(event:PointerEvent)=>{const rect=canvas.getBoundingClientRect();recipe.points[i]={x:Math.min(1,Math.max(0,(event.clientX-rect.left)/rect.width)),y:Math.min(1,Math.max(0,(event.clientY-rect.top)/rect.height))};invalidatePreview();paint();};
-      b.addEventListener('pointerdown',event=>{if(busy)return;event.preventDefault();checkpoint();active=i;b.setPointerCapture(event.pointerId);paint();});
-      b.addEventListener('pointermove',event=>{if(b.hasPointerCapture(event.pointerId) && !busy)move(event);});
-      b.addEventListener('pointerup',event=>{if(b.hasPointerCapture(event.pointerId))b.releasePointerCapture(event.pointerId);});
-      const selector=button(`${i+1} ${cornerNames[i]}`,()=>{if(busy)return;active=i;paint();});pointButtons.append(selector);cornerButtons.push(selector);
+    function movePointer(event:PointerEvent){
+      if(!drag || drag.pointerId!==event.pointerId || busy)return;
+      recipe.points[drag.index]=dragCorner(drag.point,drag.start,{x:event.clientX,y:event.clientY},drag.frame);invalidatePreview();
     }
-    cropPane.append(pointButtons,activeCorner);
-    const nudge=el('div','','nudge');
-    for(const [label,dx,dy,direction] of [['←',-1,0,'左'],['↑',0,-1,'上'],['↓',0,1,'下'],['→',1,0,'右']] as const){const b=button(label,()=>{if(busy)return;checkpoint();recipe.points[active]={x:Math.min(1,Math.max(0,recipe.points[active].x+dx*0.002)),y:Math.min(1,Math.max(0,recipe.points[active].y+dy*0.002))};invalidatePreview();paint();});b.setAttribute('aria-label',`選択中の四隅を${direction}へ少し動かす`);nudge.append(b);}cropPane.append(nudge);
-    cropPane.append(button('原本の全画角へ',()=>{if(busy)return;checkpoint();recipe.points=defaultRecipe().points;invalidatePreview();paint();},'quiet'));
-    const rotationText=el('p','','muted small');
-    tonePane.append(el('p','「読みやすい白黒」は階調を残します。「強い白黒」は薄い文字が消える場合があります。薄字や印影にはカラーも試してください。','muted small'));
-    const filters=el('div','','filterbuttons'),filterButtons=new Map<string,HTMLButtonElement>();
-    for(const [value,label] of [['readable','読みやすい白黒'],['gray','グレー'],['color','カラー'],['binary','強い白黒']] as const){const b=button(label,()=>{if(busy)return;checkpoint();recipe.filter=value;invalidatePreview();syncParams();});filters.append(b);filterButtons.set(value,b);}tonePane.append(filters);
+    for(let i=0;i<4;i++){
+      const b=button('',()=>{active=i;renderView();},'handle');const badge=el('span',String(i+1),'corner-badge');badge.setAttribute('aria-hidden','true');b.append(badge);b.setAttribute('aria-label',`${i+1} ${cornerNames[i]}の四隅`);handles.append(b);handleButtons.push(b);
+      b.addEventListener('pointerdown',event=>{if(busy || drag)return;event.preventDefault();checkpoint();active=i;const rect=canvas.getBoundingClientRect();drag={index:i,pointerId:event.pointerId,point:{...recipe.points[i]},start:{x:event.clientX,y:event.clientY},frame:{width:rect.width,height:rect.height}};b.setPointerCapture(event.pointerId);renderView();});
+      b.addEventListener('pointermove',movePointer);
+      b.addEventListener('pointerup',event=>{if(!drag || drag.pointerId!==event.pointerId)return;movePointer(event);drag=undefined;if(b.hasPointerCapture(event.pointerId))b.releasePointerCapture(event.pointerId);});
+      for(const name of ['pointercancel','lostpointercapture'])b.addEventListener(name,()=>{drag=undefined;});
+      b.addEventListener('keydown',event=>{const delta:{[key:string]:[number,number]}={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};if(delta[event.key] && !busy){event.preventDefault();active=i;nudge(...delta[event.key]);}});
+      const selector=button(`${i+1} ${cornerNames[i]}`,()=>{active=i;renderView();});pointButtons.append(selector);cornerButtons.push(selector);
+    }
+    cropPane.append(pointButtons);
+    function nudge(dx:number,dy:number){if(busy)return;checkpoint();const rect=canvas.getBoundingClientRect();recipe.points[active]=dragCorner(recipe.points[active],{x:0,y:0},{x:dx*2,y:dy*2},rect);invalidatePreview();}
+    const adjustments=el('div','','fixed-corner-adjustments');
+    for(const [label,dx,dy,direction] of [['←',-1,0,'左'],['↑',0,-1,'上'],['↓',0,1,'下'],['→',1,0,'右']] as const){const b=button(label,()=>nudge(dx,dy));b.setAttribute('aria-label',`選択中の四隅を${direction}へ少し動かす`);adjustments.append(b);}
+    adjustments.append(button('戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();syncParams();},'quiet'),button('全体',()=>{if(busy)return;checkpoint();recipe.points=defaultRecipe().points;invalidatePreview();},'quiet'));cropPane.append(adjustments);
+    const filter=el('select');filter.id='editor-filter';
+    for(const [value,label] of [['readable','読みやすい白黒'],['gray','グレー'],['color','カラー'],['binary','強い白黒']]){const option=el('option',label);option.value=value;filter.append(option);}
+    const rotation=button('90°回転',()=>{if(busy)return;checkpoint();recipe.rotation=((recipe.rotation+90)%360) as Recipe['rotation'];invalidatePreview();void documentify();});
+    tonePane.append(field('色調',filter),rotation);
     const brightness=el('input');brightness.id='brightness';brightness.type='range';brightness.min='-40';brightness.max='40';brightness.step='1';
     const contrast=el('input');contrast.id='contrast';contrast.type='range';contrast.min='0.7';contrast.max='1.5';contrast.step='0.05';
-    brightness.addEventListener('input',()=>{if(busy)return;invalidatePreview();});contrast.addEventListener('input',()=>{if(busy)return;invalidatePreview();});
-    brightness.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.brightness=Number(brightness.value);invalidatePreview();});contrast.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.contrast=Number(contrast.value);invalidatePreview();});
-    tonePane.append(field('明るさ',brightness),field('コントラスト',contrast),button('90°回転',()=>{if(busy)return;checkpoint();recipe.rotation=((recipe.rotation+90)%360) as Recipe['rotation'];invalidatePreview();syncParams();}),rotationText);
-    function syncParams(){brightness.value=String(recipe.brightness);contrast.value=String(recipe.contrast);rotationText.textContent=`加工後の回転: ${recipe.rotation}°（確認用画像で反映）`;for(const [key,b]of filterButtons){b.classList.toggle('selected',key===recipe.filter);b.setAttribute('aria-pressed',String(key===recipe.filter));}}
-    const comparison=el('canvas','','pdfcanvas hidden');comparison.setAttribute('aria-label','加工後の確認用画像');
-    const originalToggle=button('原本を表示して比較',()=>{if(busy)return;workspace.classList.toggle('hidden');const shown=!workspace.classList.contains('hidden');originalToggle.setAttribute('aria-pressed',String(shown));originalToggle.textContent=shown?'原本を閉じる':'原本を表示して比較';});originalToggle.setAttribute('aria-pressed','false');
-    const title=el('input');title.value=page.title;title.id='page-title';title.maxLength=100;
-    const previewNotice=el('p','細字・小数点・印影が残り、紙の端が切れていないか確認してください。','notice');previewPane.append(comparison,originalToggle,previewNotice,field('文書の名前',title));
-    controlsArea.append(cropPane,tonePane,previewPane,editorMessage);modal.body.append(controlsArea);
-    const cropNext=button('次へ：白黒・カラー',()=>{if(busy)return;try{validateCorners(recipe.points);step=1;editorMessage.textContent='色調を選び、下の「加工後を確認」を押してください。';syncStep(true);}catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');}},'primary');
-    const previewButton=button('加工後を確認',()=>void run(async()=>{
-      try {
-        validateCorners(recipe.points);editorMessage.classList.remove('warning');editorMessage.textContent='確認用の画像を処理しています…';const snapshot=structuredClone(recipe);abort=new AbortController();
-        const result=await processImage(original.blob,snapshot,abort.signal,true),preview=await decode(result.blob);if(removed || abort.signal.aborted)throw new DOMException('取消しました','AbortError');
-        comparison.width=preview.pixels.width;comparison.height=preview.pixels.height;comparison.getContext('2d')!.putImageData(preview.pixels,0,0);
-        previewRecipe=JSON.stringify(snapshot);comparison.classList.remove('hidden');step=2;editorMessage.textContent='確認用の縮小画像です。保存時は原本から処理します。内容を確認してから「編集を保存」を押してください。';syncStep(true);
-      }catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');throw error;}
-    }),'primary');
-    const saveButton=button('編集を保存',()=>{
-      if(previewRecipe!==JSON.stringify(recipe)){editorMessage.textContent='現在の編集内容を「加工後を確認」で確認してから保存してください。';return;}
-      void run(async()=>{
-        try {
-          validateCorners(recipe.points);editorMessage.classList.remove('warning');editorMessage.textContent='原本から編集版を作成・保存しています…';const fence=db.currentToken(),snapshot=structuredClone(recipe),titleSnapshot=title.value.trim();abort=new AbortController();
-          const result=await processImage(original.blob,snapshot,abort.signal),asset=await db.makeAsset(result.blob,'rendered',result.width,result.height);
-          if(abort.signal.aborted)throw new DOMException('取消しました','AbortError');
-          const revision:Revision={id:id(),pageId:page.id,originalHash:original.sha256,recipe:snapshot,filterVersion:1,renderedAssetId:asset.id,createdAt:now()};
-          await db.saveRevision(page,revision,asset,fence,titleSnapshot,abort.signal);
-          removed=true;modal.close();editing=false;tell(`編集を保存しました（${result.width} × ${result.height}画素）。原本は保持しています。`);await refresh();
-        }catch(error){editorMessage.textContent=safeError(error);editorMessage.classList.add('warning');throw error;}
-      });
-    },'primary');
-    const backButton=button('四隅へ戻る',()=>{if(busy)return;step=Math.max(0,step-1);syncStep(true);});
-    const undoButton=button('ひとつ戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();paint();syncParams();},'quiet');cropPane.append(undoButton);
-    tonePane.append(button('ひとつ戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();paint();syncParams();},'quiet'));
-    const cancelButton=button('編集を閉じる',()=>{if(!busy)closeEditor();},'quiet'),cancelProcessing=button('処理を取消',()=>abort?.abort());
-    const footerActions=el('div','','editor-footer-actions editor-controls');footerActions.append(backButton,cropNext,previewButton,saveButton,cancelButton);modal.footer.append(footerActions,cancelProcessing);
-    cancelProcessing.className='editor-cancel-processing';
-    function syncStep(announce=false){
-      const titles=['1. 紙の四隅を合わせる','2. 白黒・カラーを選ぶ','3. 加工後の内容を確認する'];
-      const instructions=['番号のつまみを紙の角に動かします。番号ボタンと矢印でも調整できます。','この写真は原本です。選んだ色調と回転は「加工後を確認」で表示します。','文字・小数点・印影と紙の端を確認して、編集を保存します。'];
-      stepTitle.textContent=titles[step];stepInstruction.textContent=instructions[step];
-      if(step===2)previewPane.insertBefore(workspace,previewNotice);else controlsArea.insertBefore(workspace,cropPane);
-      progressItems.forEach((item,i)=>{item.classList.toggle('current',i===step);if(i===step)item.setAttribute('aria-current','step');else item.removeAttribute('aria-current');});
-      cropPane.classList.toggle('hidden',step!==0);tonePane.classList.toggle('hidden',step!==1);previewPane.classList.toggle('hidden',step!==2);workspace.classList.toggle('hidden',step===2);handles.classList.toggle('hidden',step!==0);canvas.setAttribute('aria-label',step===0?'原本の写真。番号のつまみで紙の四隅を合わせます。':'原本の写真（加工前）。');originalToggle.setAttribute('aria-pressed','false');originalToggle.textContent='原本を表示して比較';
-      cropNext.classList.toggle('hidden',step!==0);previewButton.classList.toggle('hidden',step!==1);saveButton.classList.toggle('hidden',step!==2);backButton.classList.toggle('hidden',step===0);backButton.textContent=step===2?'色調を調整する':'四隅へ戻る';
-      saveButton.dataset.uiDisabled=String(previewRecipe!==JSON.stringify(recipe));paint();controls();
-      if(announce){stepTitle.focus({preventScroll:true});const panel=modal.overlay.querySelector<HTMLElement>('.dialog');if(panel)panel.scrollTop=0;}
+    for(const [input,key] of [[brightness,'brightness'],[contrast,'contrast']] as const){
+      input.addEventListener('input',()=>{if(busy)return;checkpoint();recipe[key]=Number(input.value);invalidatePreview();});
+      input.addEventListener('change',()=>{if(!busy)void documentify();});
     }
-    syncParams();paint();editorMessage.textContent='写真の原本は保存済みです。閉じても、保存済みの写真から編集を再開できます。';syncStep();
+    lightPane.append(field('明るさ',brightness),field('コントラスト',contrast));
+    const title=el('input');title.value=page.title;title.id='page-title';title.maxLength=100;namePane.append(field('文書の名前',title));
+    function syncParams(){filter.value=recipe.filter;brightness.value=String(recipe.brightness);contrast.value=String(recipe.contrast);}
+    filter.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.filter=filter.value as Recipe['filter'];invalidatePreview();void documentify();});
+    async function documentify(){
+      await run(async()=>{
+        try{
+          validateCorners(recipe.points);setMessage('文書化しています…');const snapshot=structuredClone(recipe);abort=new AbortController();
+          const result=await processImage(original.blob,snapshot,abort.signal,true),preview=await decode(result.blob);
+          if(removed || abort.signal.aborted)throw new DOMException('取消しました','AbortError');
+          processed=preview.pixels;previewRecipe=JSON.stringify(snapshot);showOriginal=false;if(mode==='crop')mode='tone';syncMode();
+          setMessage(recipe.filter==='binary'?'薄い文字が消えていないか確認して保存してください。':'文書化を反映しました。文字と紙の端を確認して保存。');
+        }catch(error){if(!removed)setMessage(safeError(error),true);throw error;}
+      });
+    }
+    const confirmCorners=button('四隅を決定',()=>void documentify(),'corner-confirm');
+    const back=button('四隅へ戻る',()=>{if(busy)return;mode='crop';showOriginal=false;syncMode();});
+    const documentButton=button('文書化',()=>void documentify(),'primary');
+    const save=button('保存',()=>{
+      if(!hasPreview()){setMessage('「文書化」で仕上がりを確認してから保存してください。');return;}
+      void run(async()=>{
+        try{
+          validateCorners(recipe.points);setMessage('原本から編集版を保存しています…');const fence=db.currentToken(),snapshot=structuredClone(recipe),titleSnapshot=title.value.trim();abort=new AbortController();
+          const result=await processImage(original.blob,snapshot,abort.signal),asset=await db.makeAsset(result.blob,'rendered',result.width,result.height);
+          if(abort.signal.aborted || removed)throw new DOMException('取消しました','AbortError');
+          const revision:Revision={id:id(),pageId:page.id,originalHash:original.sha256,recipe:snapshot,filterVersion:1,renderedAssetId:asset.id,createdAt:now()};
+          await db.saveRevision(page,revision,asset,fence,titleSnapshot,abort.signal);closeEditor();tell(`編集を保存しました（${result.width} × ${result.height}画素）。原本は保持しています。`);await refresh();
+        }catch(error){if(!removed)setMessage(safeError(error),true);throw error;}
+      });
+    },'editor-save');save.setAttribute('aria-label','編集を保存');
+    const footer=el('div','','fixed-editor-actions editor-controls'),cancelProcessing=button('処理を取消',()=>abort?.abort(),'editor-cancel-processing hidden');footer.append(confirmCorners,back,documentButton,save,cancelProcessing);modal.footer.append(footer);
+    function syncActions(){save.dataset.uiDisabled=String(!hasPreview());controls();}
+    function syncMode(){
+      modal.overlay.dataset.editorMode=mode;
+      tabs.forEach((b,key)=>{b.classList.toggle('selected',key===mode);b.setAttribute('aria-pressed',String(key===mode));});
+      for(const [key,pane] of [['crop',cropPane],['tone',tonePane],['light',lightPane],['name',namePane]] as const)pane.classList.toggle('hidden',mode!==key);
+      confirmCorners.classList.toggle('hidden',mode!=='crop');back.classList.toggle('hidden',mode==='crop');renderView();syncParams();syncActions();
+    }
+    const viewport=window.visualViewport;
+    const resize=()=>{if(viewport){modal.overlay.style.height=`${viewport.height}px`;modal.overlay.style.top=`${viewport.offsetTop}px`;}fitStage();};
+    viewport?.addEventListener('resize',resize);viewport?.addEventListener('scroll',resize);detachViewport=()=>{viewport?.removeEventListener('resize',resize);viewport?.removeEventListener('scroll',resize);};
+    resizeObserver=new ResizeObserver(()=>fitStage());resizeObserver.observe(workspace);syncMode();resize();
   }catch(error){fail(error);modal.body.append(el('p',safeError(error),'notice warning'));}
 }
 async function generate():Promise<void> {
