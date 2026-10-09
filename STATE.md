@@ -1,4 +1,10 @@
 # STATE｜再開点
+## 最新：GitHubリポジトリ公開を確認、Pages有効化待ち
+
+- 本人「公開した」を受け、GitHub APIでlupisflora-n/Rのprivate=falseを確認。ソース公開は完了。has_pages=falseなのでアプリ公開はまだ未完了。既存Pages workflow runはskippedのまま。
+- 次の1作業: 本人が https://github.com/lupisflora-n/R/settings/pages のBuild and deployment→SourceをGitHub Actionsへ設定する。既に専用ブランチにworkflowがあるため、mainへのテンプレート作成/Configureは不要。現在の接続はPages管理設定変更非対応。公開承認の再取得は不要。
+- 設定後はCodexが専用codex/docpdf-lineの対象ファイルpushで配信→Actions/build/files確認→LINEメニューの新URLへ変更案内。未有効のPagesへ失敗すると分かっている配信は起動しない。本線/旧サイト/書類保存領域は変更しない。
+
 ## 最新：2026-10-09 GitHub Pagesへの切替え
 
 - 本人がGitHub Pagesでの公開を希望し、確認質問へ「コードも公開してよい」と明示回答。Rソース公開とLINE版配信の承認済み。旧Cloudflare認証案内を中止、Cloudflare自動配信workflowを削除。旧サイト/保存領域は残す。
