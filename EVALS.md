@@ -125,3 +125,7 @@ APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit72
 合成47 PASS（既存43＋GitHub経路4）：/R/を保持し個人情報クエリを除去、実module URLからbase計算、project scopeのoffline応答と別app非捕捉、GitHub URLへのbuild照合。模擬URL/HTTP/SWで実公開ではない。evidence/line/github-pages-unit-tests.txt。構文20・静的4・HTML/manifest資源/CSP/no-referrer・YAML branch/public限定/依存/権限/SHA/配信URL確認・37資源ZIPhash一致PASS。build5e8b035ee28cea55/files35。ブラウザー/実Actions配信/LINE/実機は未検証。GitHub Pagesが_headersを強制するとの主張なし。
 
 GitHub commit426546c: 21差分blob一致、旧Cloudflare workflowのみ削除、他既存ファイル保持/計160、専用ref/新workflow再読取り一致、本線2ref不変。private=true/has_pages=false、新workflow run37891555602はcompleted/skipped。公開/CI検査/実機の合格として数えない。
+
+## 2026-10-09 GitHub Pages初回CI実行
+
+R private=false/has_pages=trueをAPIで確認。起動commit f2798d3、run37901975060。build113726402009 success、実ログで合成47/pass47、build5e8b035ee28cea55/files35、GitHub /R/資源確認PASS、static artifact upload成功。deploy113726486048はsteps空/runner未起動failure、ログ取得BlobNotFound。公開job HTMLのAnnotationsで専用branchがgithub-pages Environment protectionにより拒否されたことを確認。CIビルド成功と公開成功は別。既存保護を回避せず、本人の許可branch追加待ち。固定URL/LINE/実機は未検証。

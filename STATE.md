@@ -1,4 +1,11 @@
 # STATE｜再開点
+## 最新：2026-10-09 Pages公開ジョブのブランチ許可待ち
+
+- 本人「おっけ」を受け再確認: R private=false/has_pages=true。Pages有効化済み。専用workflowへ起動コメントを保存しcommit f2798d3da1e0916fa0fa31e625a9d879892f873cで初回配信を開始。本線/mainを変更しない。
+- Actions run https://github.com/lupisflora-n/R/actions/runs/37901975060 。build job113726402009はsuccess。実CIログでtests47/pass47、build5e8b035ee28cea55/files35、/R/資源確認PASSを確認。検査/ビルド/静的artifact uploadまで完了。
+- deploy job113726486048はrunner開始前にfailure/steps空。ログ取得はBlobNotFoundなので保護設定を推測だけで変更しない。公開job画面のAnnotationsで実エラー「Branch \"codex/docpdf-line\" is not allowed to deploy to github-pages due to environment protection rules.」を確認。公開は未完了、固定URL/LINE変更は未実施。
+- 次の1作業: 本人が https://github.com/lupisflora-n/R/settings/environments → github-pages → Deployment branches and tagsへcodex/docpdf-lineを許可する。既存ルールを迂回/無効化せず、必要な専用ブランチだけを追加。現接続はEnvironment管理設定変更非対応で本人操作。変更後Codexがrun37901975060のfailed deployだけrerunし、固定URLbuild一致→架空書類→LINEメニューのリンク変更へ進む。公開許可の再取得やmainへのマージは不要。
+
 ## 最新：GitHubリポジトリ公開を確認、Pages有効化待ち
 
 - 本人「公開した」を受け、GitHub APIでlupisflora-n/Rのprivate=falseを確認。ソース公開は完了。has_pages=falseなのでアプリ公開はまだ未完了。既存Pages workflow runはskippedのまま。
