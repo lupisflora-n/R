@@ -118,3 +118,4 @@ APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit72
 - PyYAML BaseLoaderでworkflow解析: push専用branch、初期無効化スイッチ、contents:read、各Action40桁SHA、検査後だけdist配信、既存project/Production branch、配信後固定URL照合を確認。実GitHub ActionsやCloudflare認証/課金確認は未実施。新しい独立レビューなし。
 - GitHub公式refからcheckout v6/setup-node v6/wrangler-action v4のSHAを取得、公式wrangler-action action.ymlのinputs/node24対応、workers-sdk release wrangler@4.149.0を確認。取得成功とCIの成功は別。
 - 環境credential readinessは現在観測、外部認証binding空。Cloudflare/LINEプラグイン検索0。既存public buildをクラウドから再検証できていない。新画面の実機/LINE/ブラウザーは未検証。
+- GitHub反映6c8d896: 変更10 blob一致、既存151ファイル保持/合計156/削除0、workflow再読取り一致、本線2ref不変。Actions run37889169800はcompleted/skippedで初期無効化を確認。CI検査/実配信をPASSとして数えない。

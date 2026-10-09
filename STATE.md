@@ -7,6 +7,8 @@
 - Cloudflare/LINEの利用可能プラグインは個別検索0件。環境statusはobservations_current=true/running、ネットワークunrestricted/enforcedだが資格情報/外部identity/capability空。シェルghはproxy socket EPERM、GitHubコネクターはSecrets/Variables管理に非対応。資格情報なしとGitHub保存権限なしを混同しない。Cloudflare認証設定と無料Actions枠確認だけ本人操作が必要。秘密をチャットへ求めない。
 - 新規の固定URL照合処理3件を含む合成43 PASS、構文20 PASS、静的4 PASS、build `6dc49a208f65eb40` / files35、ZIP全37資源ハッシュ一致。workflow YAMLを解析し起動branch/有効化/権限/SHA固定/配布先/検査順を検証。実Actions/Wrangler配信・固定URL照合・ブラウザー・LINE操作は未実行。独立レビューは今回追加なし。
 - 再生成した同buildのローカルZIPのSHA-256は `3ee94d52c0ddc33afdf90219f57fc62cb951a49729506b8f1f6bfa8af43f9d69`。圧縮時刻により旧ZIPとアーカイブhashは異なるが、全37資源の内容hashは再検査一致。今後の自動配信はZIPではなくdistを送る。
+- GitHub反映確認済み: commit `6c8d896117bb4e512eccd98d10c3bea6a588daf6` / tree `dafbd4da31d0954f4e2b9d362c8e14b353b7ea4f`、変更10 blob一致、既存151ファイル保持/計156/削除0、ref期待SHA付きforce=falseで更新成功、workflow再読取り一致。本線codex/docscan-v2=8fe715f/main=d387bcbのまま。ローカルcommit8a38c5eは復元履歴のためremoteへforce pushしない。
+- GitHub Actions run https://github.com/lupisflora-n/R/actions/runs/37889169800 はcompleted/skipped。設定はGitHubに認識されたが運用スイッチが未設定でpublish jobは実行していない。公開成功やテストのCI合格ではない。初回接続後は対象資源/スクリプトへのpushで起動する（資料だけのpushは対象外）。
 - 公開最新版の最終本人報告はc9bba312e31d048d/files34。固定編集版6dcは未公開。既存LINE入口からPDF生成/メールまで達成した本人報告と、今回の配信/画面検査は別の証拠。
 - 次の1作業: docs/DOCPDF_GITHUB_PUBLICATION.mdの初回接続を案内。本人がCloudflareのAPIトークン画面を開く→GitHub Secretsへ直接2値を保存→無料枠確認/運用変数true→専用ブランチpushで配信し固定URLを照合。Cloudflare/LINEへの画面操作接続なし、トークン貼付不要、公開許可の再取得不要。
 
