@@ -1,4 +1,12 @@
 # STATE｜再開点
+## 最新：2026-10-09 GitHub Pages公開完了、LINEリンク貼替え待ち
+
+- 本人がgithub-pagesの許可branchへcodex/docpdf-lineを追加して「おっけ」。既存run37901975060のfailed jobs rerun APIがsuccess。attempt2のbuild113729442278/deploy113729441203ともsuccess、公開stepと固定URL照合step完了。
+- 公開URL https://lupisflora-n.github.io/R/ 。実GitHub deployログ: Verified https://lupisflora-n.github.io/R/: build5e8b035ee28cea55/files35。Environment urlも同URL。ソースcommit f2798d3。初回の47合成PASSを含む検査済artifactを配信。公開成功と実ブラウザー/LINE/メール合格は別。
+- Web取得ツールはgithub.io/build/helpにアクセス不可でBLOCKED。固定URL到達/build一致はGitHub runnerの実fetch成功を証拠とし、クラウドの画面/HTTPヘッダー検証済みとはしない。新URLの実機/旧→新保存移行は未検証。
+- 次の1作業: 本人がLINE公式アカウントdocPDFの既存リッチメニューを編集。左アプリのリンクを https://lupisflora-n.github.io/R/?openExternalBrowser=1 、右使い方を https://lupisflora-n.github.io/R/help.html?openExternalBrowser=1 へ変更し保存。LINE管理接続なしのため本人操作。トークへ画像/PDFを送る設定やメッセージ配信は不要。貼替え後は実LINEから開き、架空書類で固定編集/PDF/メール添付を確認。
+- 旧Cloudflareサイトと保存領域は残る。必要書類は旧サイトの復元用ZIP→新サイト取込、PDF外部保存で移行。自動移行/原本削除は行わない。今後アプリの変更を専用branchへ保存するとPagesへ自動配信。main d387bcb/本線8fe715f不変を再読取り確認。
+
 ## 最新：2026-10-09 Pages公開ジョブのブランチ許可待ち
 
 - 本人「おっけ」を受け再確認: R private=false/has_pages=true。Pages有効化済み。専用workflowへ起動コメントを保存しcommit f2798d3da1e0916fa0fa31e625a9d879892f873cで初回配信を開始。本線/mainを変更しない。

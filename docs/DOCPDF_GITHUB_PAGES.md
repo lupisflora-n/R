@@ -2,6 +2,8 @@
 
 2026-10-09。本人はCloudflare配信ではなくGitHub Pagesを希望し、確認へ「コードも公開してよい」と明示回答。Rのソース公開と専用LINE版のPages配信を承認。本線コード/mainへマージ、課金、顧客書類の外部送信を含めない。
 
+最新: リポジトリ公開/Pages有効化/専用branch許可を本人が設定。Actions run37901975060 attempt2の配信成功、固定URLのbuild5e8b035ee28cea55/files35一致をGitHub runnerで確認。LINEメニュー貼替えと新URLの実機確認はまだ未完了。以下の「未配信/初回設定」は準備時の履歴。
+
 ## 公開経路
 
 codex/docpdf-line → docpdf-github-pages.yml → 検査済み静的dist → GitHub Pages → docPDFの既存LINEメニュー。

@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-09",
+  "run": "https://github.com/lupisflora-n/R/actions/runs/37901975060",
+  "attempt": 2,
+  "sourceCommit": "f2798d3da1e0916fa0fa31e625a9d879892f873c",
+  "buildJob": {
+    "id": 113729442278,
+    "conclusion": "success"
+  },
+  "deployJob": {
+    "id": 113729441203,
+    "conclusion": "success",
+    "published": true,
+    "fixedUrlFetch": "PASS",
+    "log": "Verified https://lupisflora-n.github.io/R/: build 5e8b035ee28cea55, files 35"
+  },
+  "publicUrl": "https://lupisflora-n.github.io/R/",
+  "build": "5e8b035ee28cea55",
+  "files": 35,
+  "lineMenuChanged": false,
+  "browserUi": "NOT_RUN",
+  "device": "NEEDS_HUMAN_TEST",
+  "oldDataMigration": "NOT_RUN",
+  "cloudWebFetch": "BLOCKED",
+  "limitation": "Deployment and real fixed-URL build fetch on GitHub runner; does not verify browser UI, host header enforcement, LINE or mail attachment."
+}

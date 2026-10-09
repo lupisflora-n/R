@@ -121,3 +121,5 @@ Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）
 GitHub Pages向け/R/経路対応と公式Actions配信設定を作成。47合成・構文20・静的4・資源/manifest/YAML/ZIP一致PASS。次は本人のR公開/Pages Source設定→専用branch push→配信build一致→架空書類確認→LINEリンク変更。詳細docs/DOCPDF_GITHUB_PAGES.md。Cloudflare認証は不要。
 
 初回CI run37901975060のbuildは47合成/静的資源検査を含めsuccess。deployはgithub-pages Environmentの許可branch不足で実行前に拒否。次は本人がEnvironmentへcodex/docpdf-lineを追加→failed deployのみ再実行→固定build一致確認。本線/mainを公開のために変更せず、保護ルールを迂回しない。
+
+本人の許可branch追加後attempt2のdeploy成功、GitHub runnerが公開URLのbuild5e8b035ee28cea55/files35一致を確認。次はLINEの既存メニュー2リンクをgithub.io/R/へ貼替え（本人管理画面）→実LINEの外部起動→架空書類で新編集画面/PDF/メール。旧originの必要書類はバックアップで移行し、旧DBを消さない。

@@ -129,3 +129,7 @@ GitHub commit426546c: 21差分blob一致、旧Cloudflare workflowのみ削除、
 ## 2026-10-09 GitHub Pages初回CI実行
 
 R private=false/has_pages=trueをAPIで確認。起動commit f2798d3、run37901975060。build113726402009 success、実ログで合成47/pass47、build5e8b035ee28cea55/files35、GitHub /R/資源確認PASS、static artifact upload成功。deploy113726486048はsteps空/runner未起動failure、ログ取得BlobNotFound。公開job HTMLのAnnotationsで専用branchがgithub-pages Environment protectionにより拒否されたことを確認。CIビルド成功と公開成功は別。既存保護を回避せず、本人の許可branch追加待ち。固定URL/LINE/実機は未検証。
+
+## 2026-10-09 Pages配信の再実行成功
+
+本人の許可branch追加後failed jobs rerun成功。run37901975060 attempt2、build113729442278/deploy113729441203 success。deploy実ログで固定 https://lupisflora-n.github.io/R/ のbuild5e8b035ee28cea55/files35一致を実fetchで確認。初回CIの47合成/静的配布検査成功と区別して公開到達をPASSと記録。Web取得ツールはgithub.ioへアクセス不可、ブラウザー画面/配信ヘッダー/実LINE/実機の合格ではない。main/ref d387bcb、本線/ref8fe715f不変。
