@@ -6,6 +6,8 @@
 - HTML/manifestを相対URL、LINE起動先はmodule URLから/R/を保持、SWは自身のscope内だけを扱う。DB/原本/画質不変。HTML CSP/no-referrerを設定するが、GitHub PagesではCloudflare _headersは適用されずHTTP保護が同一とは説明しない。
 - Pages workflowはpublicになるまでjobをskip、専用branch pushのみ、標準Ubuntu/job各10分/SHA固定/検査済distのみ配信。deployだけpages:write/id-token:write、配信後fixed URLのbuild/files一致を検査。本線/mainにコード変更なし。
 - 候補build5e8b035ee28cea55/files35。合成47 PASS、構文20/静的4、GitHub /R/資源・manifest・CSP確認、YAML構造、ZIP37資源hash一致PASS。証拠evidence/line/github-pages-unit-tests.txt。実Actions配信/ブラウザー/LINE/移行は未検証。今回新独立レビューなし。
+- GitHub保存確認: commit426546c745ace86a84b8f5f6bc71e53147bab3db/tree9a05850fbd7d8f0b707f3e1263006ba6ba696674、21差分blob一致、計160ファイル。削除は旧Cloudflare workflowだけ、他既存ファイル保持。ref期待SHA付きforce=false、workflow再読取り一致、本線8fe715f/main d387bcb不変。ローカルcommit6ba3e43は復元履歴のためforce push禁止。
+- リポジトリ再読取りprivate=true/has_pages=false。新Pages workflow run https://github.com/lupisflora-n/R/actions/runs/37891555602 はcompleted/skippedでまだ配信していない。GitHubプラグイン検索は既存GitHub接続と別サービスGitBookのみ、公開設定変更の追加ツールなし。承認済みだが本人管理操作待ち。
 - origin変更で旧書類は自動移行しない。旧docpdf-line-testで必要日付の復元用ZIP保存→新サイト復元→保持確認。旧DB/キャッシュを消さず、顧客書類をGitHub/CIへ送らない。
 - 次の1作業: 本人がR Settings→Make public、Pages→Source GitHub Actionsに設定。Codexが状態再読取り→専用branch pushで初回配信→固定URL一致→架空書類→本人のLINEメニュー2リンク貼替え。詳細docs/DOCPDF_GITHUB_PAGES.md。旧Cloudflare方式の接続待ちは履歴。
 
