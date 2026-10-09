@@ -1,8 +1,8 @@
 {
-  "build": "ffeb418edb5e2e72",
-  "output": "release/docpdf-line-preview-ffeb418edb5e2e72.zip",
-  "archiveBytes": 1014024,
-  "archiveSha256": "36c0f379a02594e326959c2b572fe3a286e604c1bf464311788da72f881f84a3",
+  "build": "cbf445a645eaaaa2",
+  "output": "release/docpdf-line-preview-cbf445a645eaaaa2.zip",
+  "archiveBytes": 1014021,
+  "archiveSha256": "d1bd4871dbcc58ebda1dc05cdd8960f9f2dc8953c51084bf58f021fcc3809fa8",
   "fileCount": 38,
   "totalBytes": 4177852,
   "published": false,
@@ -15,7 +15,7 @@
     {
       "path": "build.json",
       "bytes": 39,
-      "sha256": "affe189069ac3dcd19b0ec04c22ebac8569df14e7da8c5ca7c7e8ff5ec09efe9"
+      "sha256": "d8513b1ade5d1eb0cb0465684095c6aec7e8ffbfe760524eead719cfe3819a2d"
     },
     {
       "path": "help.html",
@@ -150,12 +150,12 @@
     {
       "path": "style.css",
       "bytes": 23746,
-      "sha256": "eebff7b9682e3bf356d3e0cd7931ee425d9282322fcdefb51d4137d87eb59b09"
+      "sha256": "00b9758ef5dafcff83ff7dc148642b6fd8ff591e26d2a52e787374796b376a37"
     },
     {
       "path": "sw.js",
       "bytes": 3737,
-      "sha256": "fdce343be94cb3a2556a4dc1289c5762603ec29d24f46cf1fd1c539af11ab9a2"
+      "sha256": "9ef34f8ff2aa746926e4697574a21a51c76aa42389a0475bfd682ae7a4703211"
     },
     {
       "path": "vendor/INTEGRITY.json",

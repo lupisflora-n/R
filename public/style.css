@@ -144,7 +144,7 @@ body.editor-open{overflow:hidden;overscroll-behavior:none}
 .fixed-editor .dialoghead button{min-height:44px;padding:8px 12px;font-size:13px}
 .fixed-editor .editor-controls{max-width:none;margin:0}
 .fixed-editor .dialogbody{min-height:0;overflow:hidden;padding:8px 12px;display:grid;grid-template-rows:44px minmax(0,1fr) 92px 38px;gap:8px}
-.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-rows:44px minmax(0,1fr) 122px 38px}
+.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-rows:44px minmax(0,1fr) 136px 38px}
 .fixed-editor .editor-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .fixed-editor .editor-toolbar button{min-height:44px;padding:6px 2px;font-size:13px}
 .fixed-editor .editor-toolbar .selected{background:#184b39;border-color:#184b39;color:#fff}
