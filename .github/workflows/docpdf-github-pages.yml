@@ -1,4 +1,5 @@
 name: Publish docPDF to GitHub Pages
+# Initial activation: repository public and Pages enabled by the owner.
 
 on:
   push:
