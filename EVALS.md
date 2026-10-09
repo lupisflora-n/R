@@ -109,3 +109,12 @@ APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit72
 ## 2026-10-09 固定編集画面
 
 本人の前版実機フィードバックを受け、固定写真枠/タブ/画面内の決定・文書化・保存、差分ドラッグ、小印＋44pxヒット領域へ変更。40合成・20構文・静的4・ZIP一致PASS。ブラウザーはIPC拒否でBLOCKED。詳細はdocs/DOCPDF_EDITOR_FIXED.md。独立LINE分岐のみ、次は同じ専用サイトへの更新と架空書類の操作確認。
+
+## 2026-10-09 自動公開の事前検査
+
+- 合成43 PASS、fail0。固定URL照合に追加3件: 配信途中の旧buildから一致への待機、不一致build/filesの有限回失敗、HTTP503を成功にしない。fetch/sleep模擬、実ネットワークではない。evidence/line/publication-unit-tests.txt。
+- 構文20モジュール/危険パターンPASS（完全型検査ではない）、新mjsのnode --check、diff --check PASS。
+- build6dc49a208f65eb40/files35、静的4 PASS、配布37ファイルのallowlist/全資源SHA-256/ZIP再読込一致。新ZIP hashはevidence/preview-package.json。
+- PyYAML BaseLoaderでworkflow解析: push専用branch、初期無効化スイッチ、contents:read、各Action40桁SHA、検査後だけdist配信、既存project/Production branch、配信後固定URL照合を確認。実GitHub ActionsやCloudflare認証/課金確認は未実施。新しい独立レビューなし。
+- GitHub公式refからcheckout v6/setup-node v6/wrangler-action v4のSHAを取得、公式wrangler-action action.ymlのinputs/node24対応、workers-sdk release wrangler@4.149.0を確認。取得成功とCIの成功は別。
+- 環境credential readinessは現在観測、外部認証binding空。Cloudflare/LINEプラグイン検索0。既存public buildをクラウドから再検証できていない。新画面の実機/LINE/ブラウザーは未検証。

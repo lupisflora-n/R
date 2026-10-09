@@ -61,3 +61,7 @@ LIFF/LINEログイン/プロフィール取得/トークへ書類送信/サー�
 ## 2026-10-09 固定編集画面
 
 本人の前版実機フィードバックを受け、固定写真枠/タブ/画面内の決定・文書化・保存、差分ドラッグ、小印＋44pxヒット領域へ変更。40合成・20構文・静的4・ZIP一致PASS。ブラウザーはIPC拒否でBLOCKED。詳細はdocs/DOCPDF_EDITOR_FIXED.md。独立LINE分岐のみ、次は同じ専用サイトへの更新と架空書類の操作確認。
+
+## 2026-10-09 GitHub自動配信
+
+本人がGitHub公開/LINE接続の代行を依頼。既存の非公開ソースとLINE入口、同一ブラウザー保存originを保つため、GitHub Pagesへの移転/公開リポジトリ化をせず、codex/docpdf-line専用GitHub Actionsから既存docpdf-line-testへ静的distを配信する。Cloudflare側のProduction branch main指定はGitHub main変更ではない。接続準備と既存無料枠確認前は運用変数でrunnerを無効化。アカウントトークンは本人がGitHub Secretsへ直接設定し、チャット/ソース/ログへ出さない。初回接続後の同検証サイトへの自動更新は今回の依頼範囲。課金/一般提供/顧客データ送信の承認を含めない。

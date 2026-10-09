@@ -1,4 +1,15 @@
 # STATE｜再開点
+## 最新：2026-10-09 GitHub自動公開の接続準備
+
+- 本人「githubで公開してそれとLINEを繋げて」で、手動ZIP更新をGitHubからの自動更新へ変更するよう依頼。非公開R/専用codex/docpdf-lineから既存docpdf-line-testへWranglerで配信する設定を作成。固定originと既存LINEメニューを維持し、本線/main/別サイトを変更しない。
+- `.github/workflows/docpdf-line-pages.yml` は専用ブランチpushだけを対象に、構文/合成/build/静的/配布allowlist・ハッシュ検査を通ったdistのみ配信。SHA固定の公式Actions、Node24.19.0、Wrangler4.149.0、contents:read、直列化/10分上限。公開固定URLのbuild/filesが一致しなければ失敗扱い。
+- 初期接続と無料枠を確認後 `DOCPDF_AUTO_PUBLISH=true` で有効化。未設定ならrunnerを起動しない。これは接続 readiness のスイッチであり公開承認の取り直しではない。課金設定は変更しない。
+- Cloudflare/LINEの利用可能プラグインは個別検索0件。環境statusはobservations_current=true/running、ネットワークunrestricted/enforcedだが資格情報/外部identity/capability空。シェルghはproxy socket EPERM、GitHubコネクターはSecrets/Variables管理に非対応。資格情報なしとGitHub保存権限なしを混同しない。Cloudflare認証設定と無料Actions枠確認だけ本人操作が必要。秘密をチャットへ求めない。
+- 新規の固定URL照合処理3件を含む合成43 PASS、構文20 PASS、静的4 PASS、build `6dc49a208f65eb40` / files35、ZIP全37資源ハッシュ一致。workflow YAMLを解析し起動branch/有効化/権限/SHA固定/配布先/検査順を検証。実Actions/Wrangler配信・固定URL照合・ブラウザー・LINE操作は未実行。独立レビューは今回追加なし。
+- 再生成した同buildのローカルZIPのSHA-256は `3ee94d52c0ddc33afdf90219f57fc62cb951a49729506b8f1f6bfa8af43f9d69`。圧縮時刻により旧ZIPとアーカイブhashは異なるが、全37資源の内容hashは再検査一致。今後の自動配信はZIPではなくdistを送る。
+- 公開最新版の最終本人報告はc9bba312e31d048d/files34。固定編集版6dcは未公開。既存LINE入口からPDF生成/メールまで達成した本人報告と、今回の配信/画面検査は別の証拠。
+- 次の1作業: docs/DOCPDF_GITHUB_PUBLICATION.mdの初回接続を案内。本人がCloudflareのAPIトークン画面を開く→GitHub Secretsへ直接2値を保存→無料枠確認/運用変数true→専用ブランチpushで配信し固定URLを照合。Cloudflare/LINEへの画面操作接続なし、トークン貼付不要、公開許可の再取得不要。
+
 ## 最新：2026-10-09 固定編集画面と四隅ドラッグ修正
 
 - 本人が前回の公開build `c9bba312e31d048d` / files34を提示し一致を確認。その版の実操作から、スクロール不要の固定編集画面、取込後の「文書化」のその場反映、画面内の四隅決定、小さな角印と正常なスライドを依頼。
