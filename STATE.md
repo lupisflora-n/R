@@ -1,6 +1,9 @@
 # STATE｜再開点
 ## 最新：2026-10-09 トリミング後の白黒/カラーとバランス1本
 
+- 公開完了: 実装commit a3425e62bdfbc9e088f8ad154901697d0ab1d2cb（13変更blob一致/既存保持/削除0/計164）、表示高調整commit eb160ebbfa393b58ccb1320ae8052b36c22cca1f。専用branchのみ。最終run https://github.com/lupisflora-n/R/actions/runs/37906520702 build113741189117/deploy113741282922 success、実CIログで50/pass50、公開固定URLのbuild cbf445a645eaaaa2/files36一致を確認。
+- 白黒欄と案内文の重なりを避け、tool領域136pxを確保。途中候補ffebは履歴、最終公開はcbf445a645eaaaa2。npm run test:e2eを新UIで試したがChromium IPC拒否でBLOCKED/0実行。evidence/browser-results.json。実機の見え方/操作速度/実文書の画質は未合格。main d387bcb/本線8fe715f不変を再確認。
+
 - 本人の参照動画と明示指示: 画面内でトリミング決定→色加工、色味は文字視認用白黒/カラーの2択、白黒はバランスだけ調整。動画はローカルに抽出して編集部分を確認、動画/個人情報/スクショをrepoやCIへ入れない。
 - 専用LINE版で実装。四隅未決定では色加工/名前へ進めず保存不可、四隅決定成功後のみ色加工へ。四隅へ戻り位置変更したら再決定必須。固定写真枠/画面内決定/比較/保存を維持。
 - UIは白黒(readable)/カラー(color)だけ、明るさtabと独立brightness/contrast sliderを除去。白黒バランス-100..100を連動したbrightness/contrastへ写像、階調処理は既存連続readableを使用。カラーは明るさ0/contrast1で色保持。白黒値はカラーとの往復で保持、スライダーを離すと原本からpreviewを再処理。未反映では保存禁止。待機中も前の加工写真を維持し状態を表示。

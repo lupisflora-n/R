@@ -127,3 +127,5 @@ GitHub Pages向け/R/経路対応と公式Actions配信設定を作成。47合�
 ## 2026-10-09 白黒/カラーとbalance
 
 トリミング決定→2択色加工/白黒1balanceへ変更。50合成・構文21・静的/Pages資源/ZIP一致PASS。次は同じGitHub Pagesへ自動配信し固定build一致を確認、架空紙で編集/保存/PDFを実機評価。
+
+GitHub Pagesの最終buildcbf445a645eaaaa2/files36公開と固定URL一致を確認済み。本人の同URLで保存/処理後に更新を適用→架空紙でトリミング決定→白黒balance/カラー→原本比較→保存/PDFの実機確認が次。

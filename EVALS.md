@@ -137,3 +137,5 @@ R private=false/has_pages=trueをAPIで確認。起動commit f2798d3、run379019
 ## 2026-10-09 白黒/カラーとbalance
 
 合成50/pass50、構文21/静的4/Pages資源/manifest/HTML CSP/ZIP38資源一致PASS。新3検査: balance全域の既存recipe validationと中間薄字の連続tone差、カラーのhidden調整除去と入力非変異、legacy gray/binary正規化の非変異。evidence/line/editor-finish-tests.txt。browser test更新は未実行。動画は目視参照のみ、実文書を画質ベンチマークやrepoへ投入しない。候補buildffeb418edb5e2e72/files36。実機/ブラウザー/新公開はまだ未検証。
+
+最終Pages run37906520702 build113741189117/deploy113741282922 success。実CI50/pass50、公開固定URLでbuildcbf445a645eaaaa2/files36一致を確認。途中ffeb版は最後の高さ調整前の履歴。新UIのbrowser testはIPC拒否/BLOCKED/0実行、evidence/browser-results.json。ソース画像や文字を再構築せず既存階調処理、実文書の画質同等性は未測定。本線/main不変。
