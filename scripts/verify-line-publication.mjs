@@ -6,12 +6,16 @@ const origin = 'https://docpdf-line-test.pages.dev';
 export async function verifyPublication(expected, {
   fetchBuild = fetch,
   sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds)),
-  attempts = 12
+  attempts = 12,
+  appBase = origin + '/'
 } = {}) {
+  if (![origin + '/', 'https://lupisflora-n.github.io/R/'].includes(appBase)) throw new Error('Unexpected publication target');
   let lastError;
   for (let attempt = 0; attempt < attempts; attempt++) {
     try {
-      const response = await fetchBuild(`${origin}/build.json?verify=${encodeURIComponent(expected.build)}`, {
+      const url = new URL('build.json', appBase);
+      url.searchParams.set('verify', expected.build);
+      const response = await fetchBuild(url.href, {
         cache: 'no-store', redirect: 'error', signal: AbortSignal.timeout(10000)
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -29,7 +33,11 @@ export async function verifyPublication(expected, {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const expected = JSON.parse(await readFile('dist/build.json', 'utf8'));
-  await verifyPublication(expected);
-  console.log(`Verified ${origin}: build ${expected.build}, files ${expected.files}`);
+  const expected = process.argv[3]
+    ? { build: process.argv[3], files: Number(process.argv[4]) }
+    : JSON.parse(await readFile('dist/build.json', 'utf8'));
+  if (!expected.build || !Number.isInteger(expected.files) || expected.files < 1) throw new Error('Invalid expected build');
+  const appBase = process.argv[2] || origin + '/';
+  await verifyPublication(expected, { appBase });
+  console.log(`Verified ${appBase}: build ${expected.build}, files ${expected.files}`);
 }

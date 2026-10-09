@@ -1,0 +1,59 @@
+
+> daily-docscan-v2@0.2.0 test
+> node --experimental-strip-types --test --test-isolation=none tests/*.test.ts
+
+✔ backup inspection checks hashes, page recipe, and completed PDF bytes (34.937088ms)
+✔ backup keeps trashed originals and PDF references, rejecting forged trash timestamps (21.426781ms)
+✔ backup rejects forged hash, MIME, unsupported version, invalid time and PDF snapshot IDs before writing (34.130015ms)
+✔ multipart backup rejects missing parts and conflicting asset identities across complete parts (4.016068ms)
+✔ actual decompression is bounded even with forged central-directory size (50.234767ms)
+✔ document date uses local calendar and validates actual days (0.229399ms)
+✔ crop rejects crossing, inverse, NaN, out-of-bounds and degenerate corners (0.231703ms)
+✔ full crop keeps source resolution; rotation mapping keeps normalized corners (0.700926ms)
+✔ safe Japanese names and filter settings (0.420682ms)
+✔ trash is confirmed and reversible without modifying image recipes or original references (0.87925ms)
+✔ physical erase deletes every page revision and unshared asset only after trash; repeated erase is harmless (0.273755ms)
+✔ completed PDF bytes and history are preserved, including older PDF records without page IDs (0.495392ms)
+✔ shared originals and rendered assets survive physical erase; invalid cross-page revision stops erase (0.162391ms)
+✔ running or verifying PDF input blocks deletion; failed/canceled jobs do not retain unwanted photos (0.180517ms)
+✔ fenced transaction refuses stale generation and does not expose any partial mutation after abort/quota (1.236558ms)
+✔ transaction re-reads current PDF references and keeps completed PDF bytes unchanged when trashing (0.832321ms)
+✔ corner follows the entire finger drag at displayed scale and keeps the initial grab offset (0.282037ms)
+✔ corner movement clamps to the original image, is independent of page scroll, and handles different screen scales (0.136342ms)
+✔ portrait, landscape and rotated images fit their fixed photo area with room for edge touch targets (0.151554ms)
+✔ inverse projective transform maps every output corner to requested trapezoid (0.378229ms)
+✔ standard filter retains fine tone differences; binary requires explicit mode (0.109051ms)
+✔ GitHub project LINE links retain /R/ while discarding identity and redirect inputs (0.489504ms)
+✔ handoff derives the deployed project path from its actual module location (2.147415ms)
+✔ project-scoped offline navigation handles help and leaves sibling apps alone (22.107638ms)
+✔ publication checks the GitHub project URL rather than the previous Cloudflare origin (0.445578ms)
+✔ only live lease owner can write; old generation and incompatible readers are fenced (0.205093ms)
+✔ camera suspension expiry/release creates a fresh generation; heartbeat retains live generation (0.201458ms)
+✔ LINE configuration helper rejects the main site and non-origin/credential URLs (263.254036ms)
+✔ LINE entry recognizes Android/iPhone user agents and ordinary browsers (0.307936ms)
+✔ actual entry bootstrap in LINE does not import document modules or open a database (3.520075ms)
+✔ launch URLs retain only the same origin and the LINE external-browser flag (0.18954ms)
+✔ offline navigation returns the requested help or LINE HTML instead of the document app (2.743446ms)
+✔ 1/5/10-page PDF preserves selected order and A4 portrait/landscape structure (42.538898ms)
+✔ PDF rejects empty/duplicate selection, unsupported MIME and cancellation without changing source (1.766462ms)
+✔ publication waits for the fixed LINE origin to receive the matching build (0.343928ms)
+✔ publication never treats a stale or incomplete deployment as verified (0.602821ms)
+✔ publication reports HTTP failure instead of declaring the deployment complete (0.434323ms)
+✔ PDF refuses stale, deleted or absent inputs while permitting an unchanged snapshot (0.163181ms)
+✔ job and PDF commits wait for every current input; stale reads or write failure abort (0.36514ms)
+✔ service worker serves redirected cached HTML as a clean navigation response offline (3.376202ms)
+✔ service worker installs complete resources without forced activation and refuses multi-tab update (2.194835ms)
+✔ update client blocks new work synchronously before delayed activation acknowledgment (1.468582ms)
+✔ vendored library and license bytes match recorded SHA-256 integrity (6.721909ms)
+✔ actual worker retains every source pixel for full color crop and maps 90-degree rotation (1.810376ms)
+✔ actual worker rejects invalid corners instead of emitting a cropped image (0.538236ms)
+✔ zip preflight accepts own archive and rejects traversal, huge declared expansion and missing manifest (2.092324ms)
+✔ duplicate ZIP entry paths are rejected before a ZIP library can overwrite them (1.11564ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 637.986987

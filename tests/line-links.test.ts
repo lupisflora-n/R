@@ -19,5 +19,10 @@ test('LINE configuration helper rejects the main site and non-origin/credential 
     assert.equal(links.app, 'https://docpdf.example/?openExternalBrowser=1');
     assert.equal(links.help, 'https://docpdf.example/help?openExternalBrowser=1');
     assert.equal(links.configuredInLine, false);
+    const github = spawnSync(process.execPath, [script, 'https://lupisflora-n.github.io/R/'], { cwd: directory, encoding: 'utf8' });
+    assert.equal(github.status, 0);
+    const githubLinks = JSON.parse(readFileSync(join(directory, 'release/line-links.json'), 'utf8'));
+    assert.equal(githubLinks.app, 'https://lupisflora-n.github.io/R/?openExternalBrowser=1');
+    assert.equal(githubLinks.help, 'https://lupisflora-n.github.io/R/help.html?openExternalBrowser=1');
   } finally { rmSync(directory, { recursive: true }); }
 });

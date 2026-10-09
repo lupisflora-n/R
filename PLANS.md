@@ -115,3 +115,7 @@ Android本人の1枚試験→保存/復元/10枚/更新→初見3人（暫定）
 ## 2026-10-09 GitHubからの自動更新
 
 既存Direct Uploadサイトへ公式Wrangler CI方式で更新するworkflowと固定URL照合を作成。合成43・構文20・静的4・配布資源一致・workflow YAML解析PASS。現在は接続準備のみ、Actions/Wrangler未実行。docs/DOCPDF_GITHUB_PUBLICATION.mdに初回2Secrets/無料枠確認/有効化手順。次は本人の認証設定を案内し、専用ブランチpush→固定URL一致→架空書類で固定編集画面とメール添付を確認する。本線/既存LINEリンク/originを維持。
+
+## 2026-10-09 GitHub Pagesへ切替え
+
+GitHub Pages向け/R/経路対応と公式Actions配信設定を作成。47合成・構文20・静的4・資源/manifest/YAML/ZIP一致PASS。次は本人のR公開/Pages Source設定→専用branch push→配信build一致→架空書類確認→LINEリンク変更。詳細docs/DOCPDF_GITHUB_PAGES.md。Cloudflare認証は不要。

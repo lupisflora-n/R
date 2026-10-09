@@ -1,4 +1,14 @@
 # STATE｜再開点
+## 最新：2026-10-09 GitHub Pagesへの切替え
+
+- 本人がGitHub Pagesでの公開を希望し、確認質問へ「コードも公開してよい」と明示回答。Rソース公開とLINE版配信の承認済み。旧Cloudflare認証案内を中止、Cloudflare自動配信workflowを削除。旧サイト/保存領域は残す。
+- 予定URL https://lupisflora-n.github.io/R/ 。LINE予定リンクは同URL+openExternalBrowser=1、ヘルプ/R/help.html+同flag。配信/リポジトリ公開/LINEメニュー変更は未実行。GitHub接続はprivacy/Pages管理変更非対応、画面操作接続なし。公開許可の取り直しではなく本人の管理画面操作が必要。
+- HTML/manifestを相対URL、LINE起動先はmodule URLから/R/を保持、SWは自身のscope内だけを扱う。DB/原本/画質不変。HTML CSP/no-referrerを設定するが、GitHub PagesではCloudflare _headersは適用されずHTTP保護が同一とは説明しない。
+- Pages workflowはpublicになるまでjobをskip、専用branch pushのみ、標準Ubuntu/job各10分/SHA固定/検査済distのみ配信。deployだけpages:write/id-token:write、配信後fixed URLのbuild/files一致を検査。本線/mainにコード変更なし。
+- 候補build5e8b035ee28cea55/files35。合成47 PASS、構文20/静的4、GitHub /R/資源・manifest・CSP確認、YAML構造、ZIP37資源hash一致PASS。証拠evidence/line/github-pages-unit-tests.txt。実Actions配信/ブラウザー/LINE/移行は未検証。今回新独立レビューなし。
+- origin変更で旧書類は自動移行しない。旧docpdf-line-testで必要日付の復元用ZIP保存→新サイト復元→保持確認。旧DB/キャッシュを消さず、顧客書類をGitHub/CIへ送らない。
+- 次の1作業: 本人がR Settings→Make public、Pages→Source GitHub Actionsに設定。Codexが状態再読取り→専用branch pushで初回配信→固定URL一致→架空書類→本人のLINEメニュー2リンク貼替え。詳細docs/DOCPDF_GITHUB_PAGES.md。旧Cloudflare方式の接続待ちは履歴。
+
 ## 最新：2026-10-09 GitHub自動公開の接続準備
 
 - 本人「githubで公開してそれとLINEを繋げて」で、手動ZIP更新をGitHubからの自動更新へ変更するよう依頼。非公開R/専用codex/docpdf-lineから既存docpdf-line-testへWranglerで配信する設定を作成。固定originと既存LINEメニューを維持し、本線/main/別サイトを変更しない。

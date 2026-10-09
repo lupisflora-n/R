@@ -119,3 +119,7 @@ APIで43ファイルを基準tree873667cへ適用しtree8feaa52、実装commit72
 - GitHub公式refからcheckout v6/setup-node v6/wrangler-action v4のSHAを取得、公式wrangler-action action.ymlのinputs/node24対応、workers-sdk release wrangler@4.149.0を確認。取得成功とCIの成功は別。
 - 環境credential readinessは現在観測、外部認証binding空。Cloudflare/LINEプラグイン検索0。既存public buildをクラウドから再検証できていない。新画面の実機/LINE/ブラウザーは未検証。
 - GitHub反映6c8d896: 変更10 blob一致、既存151ファイル保持/合計156/削除0、workflow再読取り一致、本線2ref不変。Actions run37889169800はcompleted/skippedで初期無効化を確認。CI検査/実配信をPASSとして数えない。
+
+## 2026-10-09 GitHub Pagesへ切替え
+
+合成47 PASS（既存43＋GitHub経路4）：/R/を保持し個人情報クエリを除去、実module URLからbase計算、project scopeのoffline応答と別app非捕捉、GitHub URLへのbuild照合。模擬URL/HTTP/SWで実公開ではない。evidence/line/github-pages-unit-tests.txt。構文20・静的4・HTML/manifest資源/CSP/no-referrer・YAML branch/public限定/依存/権限/SHA/配信URL確認・37資源ZIPhash一致PASS。build5e8b035ee28cea55/files35。ブラウザー/実Actions配信/LINE/実機は未検証。GitHub Pagesが_headersを強制するとの主張なし。

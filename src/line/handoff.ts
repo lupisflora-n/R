@@ -8,18 +8,22 @@ export function browserLabel(userAgent: string): string {
   return 'いつものブラウザー';
 }
 
-export function appUrl(currentUrl: string): string {
+const moduleRoot = new URL('../../', import.meta.url);
+const deployedBasePath = ['http:', 'https:'].includes(moduleRoot.protocol) ? moduleRoot.pathname : '/';
+
+export function appUrl(currentUrl: string, basePath = deployedBasePath): string {
   const current = new URL(currentUrl);
   if (!['http:', 'https:'].includes(current.protocol) || current.username || current.password) {
     throw new Error('通常のウェブURLから開いてください。');
   }
-  // Root-hosted, separate docPDF origin. Do not carry identity, document names,
+  if (!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(basePath)) throw new Error('公開先のパスが不正です。');
+  // Keep the installed app's path, including GitHub project Pages. Do not carry identity, document names,
   // return URLs, or any other supplied query or fragment into the launch URL.
-  return new URL('/', current.origin).href;
+  return new URL(basePath, current.origin).href;
 }
 
-export function externalAppUrl(currentUrl: string): string {
-  const target = new URL(appUrl(currentUrl));
+export function externalAppUrl(currentUrl: string, basePath = deployedBasePath): string {
+  const target = new URL(appUrl(currentUrl, basePath));
   target.searchParams.set('openExternalBrowser', '1');
   return target.href;
 }
@@ -37,7 +41,7 @@ export function renderHandoff(root: Element, currentUrl: string, userAgent: stri
   const header = node('header', '');
   const brand = node('div', '', 'brand');
   const icon = document.createElement('img');
-  icon.src = '/icon.svg'; icon.alt = '';
+  icon.src = new URL('icon.svg', target).href; icon.alt = '';
   brand.append(icon, node('strong', 'docPDF'));
   header.append(brand, node('span', '検証版', 'pill'));
   const main = node('main', '', 'wrap launch');
@@ -93,7 +97,7 @@ export function renderHandoff(root: Element, currentUrl: string, userAgent: stri
   privacy.append(node('h2', '書類の扱いについて'),
     node('p', '画像の加工とPDF作成は端末内で行います。アプリから書類を処理サーバーやLINEトークへ自動送信する機能はありません。保存・共有を選ぶと、その保存先や共有先で扱われます。', 'muted'),
     node('p', '端末の紛失・写真の自動バックアップ・宛先の間違いには注意が必要です。ブラウザー内保存は永久保存やバックアップを保証しません。', 'muted'));
-  const help = document.createElement('a'); help.href = '/help.html';
+  const help = document.createElement('a'); help.href = new URL('help.html', target).href;
   help.textContent = '使い方・保存と安全の説明'; help.className = 'text-link';
   privacy.append(help); main.append(privacy);
   main.append(node('footer', 'docPDF · LINE入口の検証版'));

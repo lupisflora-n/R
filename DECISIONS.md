@@ -65,3 +65,7 @@ LIFF/LINEログイン/プロフィール取得/トークへ書類送信/サー�
 ## 2026-10-09 GitHub自動配信
 
 本人がGitHub公開/LINE接続の代行を依頼。既存の非公開ソースとLINE入口、同一ブラウザー保存originを保つため、GitHub Pagesへの移転/公開リポジトリ化をせず、codex/docpdf-line専用GitHub Actionsから既存docpdf-line-testへ静的distを配信する。Cloudflare側のProduction branch main指定はGitHub main変更ではない。接続準備と既存無料枠確認前は運用変数でrunnerを無効化。アカウントトークンは本人がGitHub Secretsへ直接設定し、チャット/ソース/ログへ出さない。初回接続後の同検証サイトへの自動更新は今回の依頼範囲。課金/一般提供/顧客データ送信の承認を含めない。
+
+## 2026-10-09 GitHub Pagesへ切替え
+
+本人がGitHub Pagesを明示希望し「コードも公開してよい」と回答。Rソース公開と専用LINE版のGitHub Pages公開を承認済み。旧Cloudflare自動配信を撤去し/mainや本線コードを変更しない。新originの書類は復元用ZIPで移行し、旧サイト/DBは残す。管理設定変更は現在の接続非対応のため本人操作。LINEはURL入口のまま、顧客データ送信/課金の許可を含めない。

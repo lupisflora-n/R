@@ -2,6 +2,7 @@ const BUILD='__BUILD__';
 const ASSETS=__ASSETS__;
 const CACHE='docscan-assets-'+BUILD;
 const urls=new Set(ASSETS.map(path=>new URL(path,self.location).href));
+const baseUrl=new URL('./',self.location);
 self.addEventListener('install',event=>{
   event.waitUntil((async()=>{
     const cache=await caches.open(CACHE);
@@ -17,11 +18,11 @@ self.addEventListener('fetch',event=>{
   if(event.request.method!=='GET')return;
   if(event.request.mode==='navigate'){
     const requestUrl=new URL(event.request.url);
-    if(requestUrl.origin!==new URL(self.location).origin)return;
+    if(requestUrl.origin!==baseUrl.origin || !requestUrl.pathname.startsWith(baseUrl.pathname))return;
     // Cloudflare Pages redirects *.html to extensionless canonical paths.
-    const documents={'/':'./index.html','/index':'./index.html','/index.html':'./index.html',
-      '/line':'./line.html','/line.html':'./line.html','/help':'./help.html','/help.html':'./help.html'};
-    const documentPath=documents[requestUrl.pathname];
+    const documents={'':'./index.html','index':'./index.html','index.html':'./index.html',
+      'line':'./line.html','line.html':'./line.html','help':'./help.html','help.html':'./help.html'};
+    const documentPath=documents[requestUrl.pathname.slice(baseUrl.pathname.length)];
     if(!documentPath)return;
     const documentUrl=new URL(documentPath,self.location).href;
     // Preserve each known HTML route offline. Do not turn help/LINE entry/404

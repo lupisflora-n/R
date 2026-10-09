@@ -1,12 +1,12 @@
 {
-  "id": "/",
+  "id": "./",
   "name": "docPDF",
   "short_name": "docPDF",
   "lang": "ja",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f7f2e5",
   "theme_color": "#123c2f",
-  "icons": [{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
 }
