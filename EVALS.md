@@ -133,3 +133,7 @@ R private=false/has_pages=trueをAPIで確認。起動commit f2798d3、run379019
 ## 2026-10-09 Pages配信の再実行成功
 
 本人の許可branch追加後failed jobs rerun成功。run37901975060 attempt2、build113729442278/deploy113729441203 success。deploy実ログで固定 https://lupisflora-n.github.io/R/ のbuild5e8b035ee28cea55/files35一致を実fetchで確認。初回CIの47合成/静的配布検査成功と区別して公開到達をPASSと記録。Web取得ツールはgithub.ioへアクセス不可、ブラウザー画面/配信ヘッダー/実LINE/実機の合格ではない。main/ref d387bcb、本線/ref8fe715f不変。
+
+## 2026-10-09 白黒/カラーとbalance
+
+合成50/pass50、構文21/静的4/Pages資源/manifest/HTML CSP/ZIP38資源一致PASS。新3検査: balance全域の既存recipe validationと中間薄字の連続tone差、カラーのhidden調整除去と入力非変異、legacy gray/binary正規化の非変異。evidence/line/editor-finish-tests.txt。browser test更新は未実行。動画は目視参照のみ、実文書を画質ベンチマークやrepoへ投入しない。候補buildffeb418edb5e2e72/files36。実機/ブラウザー/新公開はまだ未検証。

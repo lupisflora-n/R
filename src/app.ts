@@ -9,6 +9,7 @@ import { openPdf } from './exports/viewer.ts';
 import { exportDay, inspectBackup, restoreBackup } from './backup/backup.ts';
 import { initializeUpdates } from './update/client.ts';
 import { dragCorner, fitEditorImage } from './editor/interaction.ts';
+import { editorRecipe, finishRecipe, whiteBlackBalance } from './editor/finish.ts';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag:K,text='',className=''):HTMLElementTagNameMap[K] {
   const node=document.createElement(tag);if(text)node.textContent=text;if(className)node.className=className;return node;
@@ -218,20 +219,21 @@ async function edit(page:Page):Promise<void> {
   try {
     const original=await db.get('assets',page.originalAssetId);if(!original)throw new Error('原本がありません。');
     const previous=page.activeRevisionId?await db.get('revisions',page.activeRevisionId):undefined;
-    let recipe:Recipe=structuredClone(previous?.recipe || defaultRecipe()),active=0,mode='crop',previewRecipe:string|undefined,processed:ImageData|undefined,showOriginal=false;
+    let recipe:Recipe=editorRecipe(previous?.recipe),active=0,mode='crop',cropConfirmed=false,previewRecipe:string|undefined,processed:ImageData|undefined,showOriginal=false;
+    let balanceValue=whiteBlackBalance(recipe);
     const history:Recipe[]=[],cornerNames=['左上','右上','右下','左下'];
     const decoded=await decode(original.blob,1000);if(removed)return;
     const toolbar=el('div','','editor-toolbar'),tabs=new Map<string,HTMLButtonElement>();
-    for(const [key,label] of [['crop','四隅'],['tone','色調'],['light','明るさ'],['name','名前']]){
-      const b=button(label,()=>{if(busy)return;mode=key;showOriginal=false;syncMode();setMessage(key==='crop'?'角を合わせて「四隅を決定」。':key==='tone'?'色調を選ぶと反映します。「文書化」でも確認できます。':key==='light'?'スライダーから指を離すと反映します。': '名前の変更は「保存」で確定します。');});b.setAttribute('aria-pressed','false');toolbar.append(b);tabs.set(key,b);
+    for(const [key,label] of [['crop','1 トリミング'],['tone','2 色加工'],['name','名前']]){
+      const b=button(label,()=>{if(busy || (key!=='crop' && !cropConfirmed))return;mode=key;showOriginal=false;syncMode();setMessage(key==='crop'?'角を合わせて「四隅を決定」。':key==='tone'?'白黒かカラーを選び、文字を確認して保存。': '名前の変更は「保存」で確定します。');});b.setAttribute('aria-pressed','false');toolbar.append(b);tabs.set(key,b);
     }
     const workspace=el('div','','editor-image-area'),stage=el('div','','editor-stage'),canvas=el('canvas'),handles=el('div','','handles');
     stage.append(canvas,handles);workspace.append(stage);
     const viewLabel=modal.overlay.querySelector('h2')!,compare=button('原本',()=>{if(busy || !processed || previewRecipe!==JSON.stringify(recipe))return;showOriginal=!showOriginal;renderView();},'editor-compare');viewLabel.classList.add('editor-view-title');
     const head=modal.overlay.querySelector('.dialoghead')!;head.insertBefore(compare,head.lastElementChild);compare.setAttribute('aria-label','原本を表示して比較');
-    const tools=el('div','','editor-tool-panels'),cropPane=el('div','','fixed-crop-tools'),tonePane=el('div','','fixed-tone-tools hidden'),lightPane=el('div','','fixed-light-tools hidden'),namePane=el('div','','fixed-name-tools hidden');
-    tools.append(cropPane,tonePane,lightPane,namePane);
-    const message=el('p','角を合わせて「四隅を決定」。そのまま「文書化」もできます。','editor-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
+    const tools=el('div','','editor-tool-panels'),cropPane=el('div','','fixed-crop-tools'),tonePane=el('div','','fixed-tone-tools hidden'),namePane=el('div','','fixed-name-tools hidden');
+    tools.append(cropPane,tonePane,namePane);
+    const message=el('p','角を合わせて「四隅を決定」。次に色加工へ進みます。','editor-message');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
     modal.body.classList.add('editor-controls');modal.body.replaceChildren(toolbar,workspace,tools,message);
     const pointButtons=el('div','','cornerbuttons'),handleButtons:HTMLButtonElement[]=[],cornerButtons:HTMLButtonElement[]=[];
     type Drag={index:number;pointerId:number;point:{x:number;y:number};start:{x:number;y:number};frame:{width:number;height:number}};
@@ -239,15 +241,15 @@ async function edit(page:Page):Promise<void> {
     function checkpoint(){history.push(structuredClone(recipe));if(history.length>50)history.shift();}
     function setMessage(value:string,error=false){message.textContent=value;message.classList.toggle('warning',error);message.title=value;}
     function hasPreview(){return Boolean(processed && previewRecipe===JSON.stringify(recipe));}
-    function invalidatePreview(){previewRecipe=undefined;showOriginal=false;setMessage(mode==='crop'?'位置を反映するには「四隅を決定」か「文書化」。':'「文書化」で変更を反映します。');renderView();syncActions();}
+    function invalidatePreview(){previewRecipe=undefined;showOriginal=false;if(mode==='crop')cropConfirmed=false;setMessage(mode==='crop'?'位置を合わせて「四隅を決定」。':'調整を反映してから保存します。');renderView();syncActions();}
     function fitStage(){
       if(removed)return;
-      const pixels=mode==='crop' || showOriginal || !hasPreview()?decoded.pixels:processed!;
+      const pixels=mode==='crop' || showOriginal || !processed?decoded.pixels:processed;
       const fitted=fitEditorImage(pixels,{width:workspace.clientWidth,height:workspace.clientHeight});
       stage.style.width=`${fitted.width}px`;stage.style.height=`${fitted.height}px`;
     }
     function renderView(){
-      const pixels=mode==='crop' || showOriginal || !hasPreview()?decoded.pixels:processed!;
+      const pixels=mode==='crop' || showOriginal || !processed?decoded.pixels:processed;
       canvas.width=pixels.width;canvas.height=pixels.height;const context=canvas.getContext('2d')!;context.putImageData(pixels,0,0);
       if(mode==='crop'){
         context.beginPath();context.rect(0,0,canvas.width,canvas.height);
@@ -256,7 +258,7 @@ async function edit(page:Page):Promise<void> {
       }
       handles.classList.toggle('hidden',mode!=='crop');
       handleButtons.forEach((b,i)=>{b.style.left=`${recipe.points[i].x*100}%`;b.style.top=`${recipe.points[i].y*100}%`;b.classList.toggle('active',active===i);b.setAttribute('aria-pressed',String(active===i));cornerButtons[i].classList.toggle('selected',active===i);cornerButtons[i].setAttribute('aria-pressed',String(active===i));});
-      viewLabel.textContent=mode==='crop'?`原本 · ${active+1} ${cornerNames[active]}を調整`:showOriginal || !hasPreview()?'原本':'文書化後';
+      viewLabel.textContent=mode==='crop'?`原本 · ${active+1} ${cornerNames[active]}を調整`:showOriginal || !processed?'原本':hasPreview()?'文書化後':'調整を反映待ち';
       canvas.setAttribute('aria-label',viewLabel.textContent);compare.classList.toggle('hidden',mode==='crop' || !hasPreview());compare.textContent=showOriginal?'加工後':'原本';compare.setAttribute('aria-label',showOriginal?'加工後を表示':'原本を表示して比較');compare.setAttribute('aria-pressed',String(showOriginal));fitStage();
     }
     function movePointer(event:PointerEvent){
@@ -276,29 +278,27 @@ async function edit(page:Page):Promise<void> {
     function nudge(dx:number,dy:number){if(busy)return;checkpoint();const rect=canvas.getBoundingClientRect();recipe.points[active]=dragCorner(recipe.points[active],{x:0,y:0},{x:dx*2,y:dy*2},rect);invalidatePreview();}
     const adjustments=el('div','','fixed-corner-adjustments');
     for(const [label,dx,dy,direction] of [['←',-1,0,'左'],['↑',0,-1,'上'],['↓',0,1,'下'],['→',1,0,'右']] as const){const b=button(label,()=>nudge(dx,dy));b.setAttribute('aria-label',`選択中の四隅を${direction}へ少し動かす`);adjustments.append(b);}
-    adjustments.append(button('戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;invalidatePreview();syncParams();},'quiet'),button('全体',()=>{if(busy)return;checkpoint();recipe.points=defaultRecipe().points;invalidatePreview();},'quiet'));cropPane.append(adjustments);
+    adjustments.append(button('戻す',()=>{if(busy || !history.length)return;recipe=history.pop()!;if(recipe.filter!=='color')balanceValue=whiteBlackBalance(recipe);invalidatePreview();syncParams();},'quiet'),button('全体',()=>{if(busy)return;checkpoint();recipe.points=defaultRecipe().points;invalidatePreview();},'quiet'));cropPane.append(adjustments);
     const filter=el('select');filter.id='editor-filter';
-    for(const [value,label] of [['readable','読みやすい白黒'],['gray','グレー'],['color','カラー'],['binary','強い白黒']]){const option=el('option',label);option.value=value;filter.append(option);}
+    for(const [value,label] of [['readable','白黒（文字を読みやすく）'],['color','カラー']]){const option=el('option',label);option.value=value;filter.append(option);}
     const rotation=button('90°回転',()=>{if(busy)return;checkpoint();recipe.rotation=((recipe.rotation+90)%360) as Recipe['rotation'];invalidatePreview();void documentify();});
-    tonePane.append(field('色調',filter),rotation);
-    const brightness=el('input');brightness.id='brightness';brightness.type='range';brightness.min='-40';brightness.max='40';brightness.step='1';
-    const contrast=el('input');contrast.id='contrast';contrast.type='range';contrast.min='0.7';contrast.max='1.5';contrast.step='0.05';
-    for(const [input,key] of [[brightness,'brightness'],[contrast,'contrast']] as const){
-      input.addEventListener('input',()=>{if(busy)return;checkpoint();recipe[key]=Number(input.value);invalidatePreview();});
-      input.addEventListener('change',()=>{if(!busy)void documentify();});
-    }
-    lightPane.append(field('明るさ',brightness),field('コントラスト',contrast));
+    const toneChoice=el('div','','finish-choice');toneChoice.append(field('仕上がり',filter),rotation);tonePane.append(toneChoice);
+    const balance=el('input');balance.id='editor-balance';balance.type='range';balance.min='-100';balance.max='100';balance.step='1';
+    const balanceControls=el('div','','finish-balance'),balanceField=field('バランス',balance),balanceLabel=balanceField.querySelector('label')!;
+    balanceControls.append(balanceField);tonePane.append(balanceControls);
+    balance.addEventListener('input',()=>{if(busy)return;checkpoint();balanceValue=Number(balance.value);recipe=finishRecipe(recipe,'readable',balanceValue);balanceLabel.textContent=`バランス ${balanceValue} · 弱め ↔ 強め`;invalidatePreview();});
+    balance.addEventListener('change',()=>{if(!busy)void documentify();});
     const title=el('input');title.value=page.title;title.id='page-title';title.maxLength=100;namePane.append(field('文書の名前',title));
-    function syncParams(){filter.value=recipe.filter;brightness.value=String(recipe.brightness);contrast.value=String(recipe.contrast);}
-    filter.addEventListener('change',()=>{if(busy)return;checkpoint();recipe.filter=filter.value as Recipe['filter'];invalidatePreview();void documentify();});
+    function syncParams(){filter.value=recipe.filter;balance.value=String(balanceValue);balanceLabel.textContent=`バランス ${balanceValue} · 弱め ↔ 強め`;balanceControls.classList.toggle('hidden',recipe.filter==='color');}
+    filter.addEventListener('change',()=>{if(busy)return;checkpoint();recipe=finishRecipe(recipe,filter.value as 'readable'|'color',balanceValue);invalidatePreview();syncParams();void documentify();});
     async function documentify(){
       await run(async()=>{
         try{
           validateCorners(recipe.points);setMessage('文書化しています…');const snapshot=structuredClone(recipe);abort=new AbortController();
           const result=await processImage(original.blob,snapshot,abort.signal,true),preview=await decode(result.blob);
           if(removed || abort.signal.aborted)throw new DOMException('取消しました','AbortError');
-          processed=preview.pixels;previewRecipe=JSON.stringify(snapshot);showOriginal=false;if(mode==='crop')mode='tone';syncMode();
-          setMessage(recipe.filter==='binary'?'薄い文字が消えていないか確認して保存してください。':'文書化を反映しました。文字と紙の端を確認して保存。');
+          processed=preview.pixels;previewRecipe=JSON.stringify(snapshot);showOriginal=false;if(mode==='crop'){cropConfirmed=true;mode='tone';}syncMode();
+          setMessage(recipe.filter==='color'?'カラーの仕上がりを確認して保存。':'白黒の仕上がりを確認。必要ならバランスだけ調整。');
         }catch(error){if(!removed)setMessage(safeError(error),true);throw error;}
       });
     }
@@ -306,7 +306,7 @@ async function edit(page:Page):Promise<void> {
     const back=button('四隅へ戻る',()=>{if(busy)return;mode='crop';showOriginal=false;syncMode();});
     const documentButton=button('文書化',()=>void documentify(),'primary');
     const save=button('保存',()=>{
-      if(!hasPreview()){setMessage('「文書化」で仕上がりを確認してから保存してください。');return;}
+      if(!cropConfirmed || mode==='crop' || !hasPreview()){setMessage('四隅を決定し、色加工の仕上がりを確認して保存してください。');return;}
       void run(async()=>{
         try{
           validateCorners(recipe.points);setMessage('原本から編集版を保存しています…');const fence=db.currentToken(),snapshot=structuredClone(recipe),titleSnapshot=title.value.trim();abort=new AbortController();
@@ -318,12 +318,12 @@ async function edit(page:Page):Promise<void> {
       });
     },'editor-save');save.setAttribute('aria-label','編集を保存');
     const footer=el('div','','fixed-editor-actions editor-controls'),cancelProcessing=button('処理を取消',()=>abort?.abort(),'editor-cancel-processing hidden');footer.append(confirmCorners,back,documentButton,save,cancelProcessing);modal.footer.append(footer);
-    function syncActions(){save.dataset.uiDisabled=String(!hasPreview());controls();}
+    function syncActions(){save.dataset.uiDisabled=String(!cropConfirmed || mode==='crop' || !hasPreview());tabs.forEach((b,key)=>b.dataset.uiDisabled=String(key!=='crop' && !cropConfirmed));documentButton.classList.toggle('hidden',mode==='crop' || hasPreview());controls();}
     function syncMode(){
       modal.overlay.dataset.editorMode=mode;
       tabs.forEach((b,key)=>{b.classList.toggle('selected',key===mode);b.setAttribute('aria-pressed',String(key===mode));});
-      for(const [key,pane] of [['crop',cropPane],['tone',tonePane],['light',lightPane],['name',namePane]] as const)pane.classList.toggle('hidden',mode!==key);
-      confirmCorners.classList.toggle('hidden',mode!=='crop');back.classList.toggle('hidden',mode==='crop');renderView();syncParams();syncActions();
+      for(const [key,pane] of [['crop',cropPane],['tone',tonePane],['name',namePane]] as const)pane.classList.toggle('hidden',mode!==key);
+      confirmCorners.classList.toggle('hidden',mode!=='crop');back.classList.toggle('hidden',mode==='crop');save.classList.toggle('hidden',mode==='crop');renderView();syncParams();syncActions();
     }
     const viewport=window.visualViewport;
     const resize=()=>{if(viewport){modal.overlay.style.height=`${viewport.height}px`;modal.overlay.style.top=`${viewport.offsetTop}px`;}fitStage();};

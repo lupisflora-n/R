@@ -144,8 +144,8 @@ body.editor-open{overflow:hidden;overscroll-behavior:none}
 .fixed-editor .dialoghead button{min-height:44px;padding:8px 12px;font-size:13px}
 .fixed-editor .editor-controls{max-width:none;margin:0}
 .fixed-editor .dialogbody{min-height:0;overflow:hidden;padding:8px 12px;display:grid;grid-template-rows:44px minmax(0,1fr) 92px 38px;gap:8px}
-.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-rows:44px minmax(0,1fr) 64px 38px}
-.fixed-editor .editor-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.fixed-editor:not([data-editor-mode=crop]) .dialogbody{grid-template-rows:44px minmax(0,1fr) 122px 38px}
+.fixed-editor .editor-toolbar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .fixed-editor .editor-toolbar button{min-height:44px;padding:6px 2px;font-size:13px}
 .fixed-editor .editor-toolbar .selected{background:#184b39;border-color:#184b39;color:#fff}
 .fixed-editor .editor-image-area{position:relative;min-height:0;min-width:0;overflow:hidden;background:#263f32;border-radius:10px;display:grid;place-items:center}
@@ -164,7 +164,8 @@ body.editor-open{overflow:hidden;overscroll-behavior:none}
 .fixed-editor .cornerbuttons button{min-height:44px;padding:4px 2px;font-size:12px;border-width:1px}
 .fixed-editor .fixed-corner-adjustments{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-top:4px}
 .fixed-editor .fixed-corner-adjustments button{min-width:0;min-height:44px;padding:4px 0;font-size:14px}
-.fixed-editor .fixed-tone-tools{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
+.fixed-editor .fixed-tone-tools{display:grid;gap:8px}
+.fixed-editor .finish-choice{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
 .fixed-editor .fixed-tone-tools button{min-height:44px;padding:6px 10px;font-size:13px}
 .fixed-editor .fixed-light-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .fixed-editor .field{margin:0;gap:3px;min-width:0}
@@ -174,7 +175,9 @@ body.editor-open{overflow:hidden;overscroll-behavior:none}
 .fixed-editor .editor-message{margin:0;padding:0 3px;border:0;background:transparent;border-radius:0;color:#425940;font-size:12px;line-height:19px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .fixed-editor .editor-message.warning{color:#9a341f}
 .fixed-editor .dialogfooter{position:static;padding:8px 12px;padding-bottom:max(8px,env(safe-area-inset-bottom));box-shadow:none}
-.fixed-editor .fixed-editor-actions{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,.7fr);gap:6px}
+.fixed-editor .fixed-editor-actions{display:flex;gap:6px;flex-wrap:wrap}
+.fixed-editor-actions button:not(.hidden){flex:1}
+.fixed-editor-actions .editor-cancel-processing{flex-basis:100%!important}
 .fixed-editor-actions button{min-width:0;min-height:44px;padding:6px 4px;font-size:13px}
 .fixed-editor-actions .corner-confirm,.fixed-editor-actions .editor-save{background:#184b39;color:#fff;border-color:#184b39}
 .fixed-editor-actions .editor-cancel-processing{grid-column:1/-1;min-height:36px;height:36px;margin:0;background:#fff8dc;color:#745725}

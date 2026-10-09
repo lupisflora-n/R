@@ -1,4 +1,14 @@
 # STATE｜再開点
+## 最新：2026-10-09 トリミング後の白黒/カラーとバランス1本
+
+- 本人の参照動画と明示指示: 画面内でトリミング決定→色加工、色味は文字視認用白黒/カラーの2択、白黒はバランスだけ調整。動画はローカルに抽出して編集部分を確認、動画/個人情報/スクショをrepoやCIへ入れない。
+- 専用LINE版で実装。四隅未決定では色加工/名前へ進めず保存不可、四隅決定成功後のみ色加工へ。四隅へ戻り位置変更したら再決定必須。固定写真枠/画面内決定/比較/保存を維持。
+- UIは白黒(readable)/カラー(color)だけ、明るさtabと独立brightness/contrast sliderを除去。白黒バランス-100..100を連動したbrightness/contrastへ写像、階調処理は既存連続readableを使用。カラーは明るさ0/contrast1で色保持。白黒値はカラーとの往復で保持、スライダーを離すと原本からpreviewを再処理。未反映では保存禁止。待機中も前の加工写真を維持し状態を表示。
+- 旧gray/binary/任意調整のrecipeはDBで維持。再編集を開いた時だけ新2択へ正規化し、保存操作まで既存版を変更しない。バックアップ形式/DB/原本/最終全解像度処理は不変。
+- 合成50 PASS、構文21 PASS（完全型検査なし）、静的4/R内資源/manifest/CSP/ZIP38資源hash一致PASS。新balanceの範囲/中間tone/カラーのneutral/legacy非変異3検査、browser testを新2択/1slider/決定gateに更新（未実行）。evidence/line/editor-finish-tests.txt。実画面/実機の比較は未検証。今回新独立レビューなし。
+- 候補build ffeb418edb5e2e72 / files36。公開版はまだ前回5e8b035ee28cea55、これからGitHub専用branchへ保存してPages自動配信/固定build一致を確認。main/本線を変更せず、顧客資料を試験へ使わない。
+- 次の1作業: Pages成功後、本人が同じGitHub URLで保存・処理終了後に更新を適用→架空紙を取り込む→四隅決定→白黒バランス/カラー選択→原本比較→保存/PDF。参照動画の画質と同等とは未測定のまま宣言しない。
+
 ## 最新：2026-10-09 GitHub Pages公開完了、LINEリンク貼替え待ち
 
 - 本人がgithub-pagesの許可branchへcodex/docpdf-lineを追加して「おっけ」。既存run37901975060のfailed jobs rerun APIがsuccess。attempt2のbuild113729442278/deploy113729441203ともsuccess、公開stepと固定URL照合step完了。

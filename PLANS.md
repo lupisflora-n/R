@@ -123,3 +123,7 @@ GitHub Pages向け/R/経路対応と公式Actions配信設定を作成。47合�
 初回CI run37901975060のbuildは47合成/静的資源検査を含めsuccess。deployはgithub-pages Environmentの許可branch不足で実行前に拒否。次は本人がEnvironmentへcodex/docpdf-lineを追加→failed deployのみ再実行→固定build一致確認。本線/mainを公開のために変更せず、保護ルールを迂回しない。
 
 本人の許可branch追加後attempt2のdeploy成功、GitHub runnerが公開URLのbuild5e8b035ee28cea55/files35一致を確認。次はLINEの既存メニュー2リンクをgithub.io/R/へ貼替え（本人管理画面）→実LINEの外部起動→架空書類で新編集画面/PDF/メール。旧originの必要書類はバックアップで移行し、旧DBを消さない。
+
+## 2026-10-09 白黒/カラーとbalance
+
+トリミング決定→2択色加工/白黒1balanceへ変更。50合成・構文21・静的/Pages資源/ZIP一致PASS。次は同じGitHub Pagesへ自動配信し固定build一致を確認、架空紙で編集/保存/PDFを実機評価。

@@ -69,3 +69,7 @@ LIFF/LINEログイン/プロフィール取得/トークへ書類送信/サー�
 ## 2026-10-09 GitHub Pagesへ切替え
 
 本人がGitHub Pagesを明示希望し「コードも公開してよい」と回答。Rソース公開と専用LINE版のGitHub Pages公開を承認済み。旧Cloudflare自動配信を撤去し/mainや本線コードを変更しない。新originの書類は復元用ZIPで移行し、旧サイト/DBは残す。管理設定変更は現在の接続非対応のため本人操作。LINEはURL入口のまま、顧客データ送信/課金の許可を含めない。
+
+## 2026-10-09 白黒/カラーとbalance
+
+本人の動画と明示指示を優先し、従来4filter/明るさ・contrast個別調整を編集UIから除く。white/readableとcolorの2択、白黒はbalanceのみ。colorはneutral保持、連続階調を利用しAI補完/二値化を新UIで使わない。旧recipeと成果物は保持、再編集時だけ新UIへ正規化。専用LINE版/同URLへの自動更新は既存承認範囲。
