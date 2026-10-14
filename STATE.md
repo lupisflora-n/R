@@ -1,4 +1,13 @@
 # STATE｜再開点
+## 最新：2026-10-14 新デザインの公開完了
+
+- 本人の公開依頼に対応。実装commit25954fd04bf0864efc4cafe80089a9bdba6e296e、検査待機修正commit9fa8d141b0e7273f206a70acab2589824d149d01。専用codex/docpdf-lineのみ。公開URL https://lupisflora-n.github.io/R/ 、build06bcd0fd14d3cebb/files36。
+- 最終run https://github.com/lupisflora-n/R/actions/runs/38534105070 build115752698169/deploy115753074784ともsuccess。実CI50/pass50、Chromiumの8経路・外部要求/エラーなしのassert、5サイズ各6チェックPASS。公開stepの実fetchで固定URLのbuild一致を確認。evidence/line/redesign-publication.json。
+- 新ホーム/書類・PDF・データのナビ、専用PDF作成、全画面トリミング/白黒カラー調整、PDFの共有/保存、日付・名前・ごみ箱/ZIP/保存設定/ヘルプを実装。スローガン除去と自然な操作名。DB/原本/処理/生成・共有・復元コアは不変。初回CIは検査側のsecond-tab待機不足で失敗し配信されず、修正後合格。
+- 新しい独立静的レビュー完了。balance欄未接続などを修正。ローカルChromiumはIPC/BLOCKED。起動許可と画像取得の通信許可が応答待ちとなり本人が中断し、再要求しない。GitHubの実ブラウザー検査は成功だが、artifact画像目視・物理Android/iPhone・実メール受信・新SWの実オフライン/更新経路を新たに検証したとは扱わない。
+- main d387bcbe0d21967b541bc101d893d1557beb2489、本線8fe715f1504f3f47415b8c33c8e32896cec0b6ce不変を最終再確認。復元ローカル履歴からforce-push禁止。課金/新origin/実文書送信なし。
+- 次の1作業: 本人が同じLINE入口/URLを開き、旧画面なら作業保存後に更新案内を適用。実機で編集→PDF→共有を確認し、具体的な見え方/操作の修正へ進む。ブラウザーデータは消さない。
+
 ## 最新：2026-10-14 新デザインの公開反映を本人が依頼
 
 - 本人「公開版に反映してください」で6画面の採用/同URL公開を明示。新構成/文言をsrc/app.tsとpublic/style.cssへ実装。書類・PDF・データのナビ、日付選択、写真グリッド、選択バー、専用PDF作成、固定のトリミング/調整、PDF確認/共有/保存、保存設定、ごみ箱/バックアップの経路を接続。原本/DB/画像処理/生成・共有・復元コアは変更なし。

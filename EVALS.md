@@ -158,3 +158,5 @@ Figma filefHlpIMNA9jCL2IBKSTVqxU、board5:17、4画面の編集可能ノード/�
 新UIで合成50/pass50、構文21/静的4/Pages資源/manifest/CSP/配布ZIP38資源一致PASS。evidence/redesign-unit-tests.txt。ローカルChromiumは起動IPC拒否/BLOCKED/0実行。追加起動許可要求は長時間応答待ちとなり本人中断で未実施。検査済みと扱わない。独立レビュー担当のbalance欄未接続の指摘を修正、全体レビュー完了はまだ未確認。CIでE2E/5サイズ編集を必須化し、合格後だけ静的artifactを配信する。CI/公開/新画面画像/実機はこの記録時点で未合格。
 
 2026-10-14追加: 別担当の静的差分レビュー完了。balance欄と撮影アクセシビリティ名、再試行案内名、LINEヘルプ検査名を修正。静的な実行時・データ保護阻害事項なしとの報告。レビュー側もChromium EPERMで実画面は未検証。CIでは5サイズでトリミングと白黒バランス/保存の収まりを両方検査する。
+
+2026-10-14最終公開: run38534105070、build115752698169/deploy115753074784 success。実CI50/pass50、8ブラウザー経路と外部通信/JSエラー空のassert成功、320×568/360×800/390×844/412×915/844×390各6項目PASS。固定URL06bcd0fd14d3cebb/files36を実fetchで確認。初回run38533727121は検査側の読込み待ち不足で失敗/配信なし、修正後合格。artifactの画像目視/物理端末/実メール/SW実更新は新規未検証。evidence/line/redesign-publication.json。

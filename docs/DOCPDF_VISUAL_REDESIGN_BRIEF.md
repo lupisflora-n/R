@@ -44,3 +44,7 @@ HTMLは画面遷移の一部を確認するデザイン見本。撮影・加工�
 5. 専用LINE分岐だけ、既存公開承認範囲に沿って同URLへ反映する。main/codex/docscan-v2にマージしない。
 
 FigmaはNoto Sans JP/Manrope、ローカルPNGはNoto Sans CJK/DejaVu Sans。ローカル収まり検査と目視はFigma最終スクリーンショットや実機操作検査とは別。顧客資料・実名・提供動画の私的な内容を使わず、書類見本は合成図形と文字だけ。ノード台帳はdesign/figma/redesign-state.json。
+
+## 2026-10-14 公開反映
+
+本人の「公開版に反映してください」で採用・公開を承認。新構成/表示層を実装し、同URL https://lupisflora-n.github.io/R/ にbuild06bcd0fd14d3cebbを公開。GitHub CIの50合成、8ブラウザー経路、5サイズの固定編集検査を通過。Figmaの最終同期は未実施で、画像1枚をアプリに埋め込む実装ではない。DB/原本/PDF/共有/復元は現行のまま。

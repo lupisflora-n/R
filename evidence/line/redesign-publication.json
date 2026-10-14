@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-14",
+  "repository": "lupisflora-n/R",
+  "branch": "codex/docpdf-line",
+  "implementationCommit": "25954fd04bf0864efc4cafe80089a9bdba6e296e",
+  "finalCommit": "9fa8d141b0e7273f206a70acab2589824d149d01",
+  "workflowRun": 38534105070,
+  "url": "https://github.com/lupisflora-n/R/actions/runs/38534105070",
+  "buildJob": 115752698169,
+  "deployJob": 115753074784,
+  "build": "06bcd0fd14d3cebb",
+  "files": 36,
+  "publicUrl": "https://lupisflora-n.github.io/R/",
+  "publicBuildMatch": "PASS (actual GitHub runner fetch in deploy log)",
+  "unitTests": {
+    "tests": 50,
+    "passed": 50,
+    "failed": 0
+  },
+  "browser": {
+    "engine": "Playwright1.62.1 Chromium151",
+    "flowChecksPassed": 8,
+    "noErrorsOrExternalRequestsAssertion": "PASS",
+    "scope": "Synthetic data with in-memory same-origin routing. Share cancellation is a mock, not actual email sending.",
+    "viewportChecks": [
+      {
+        "width": 320,
+        "height": 568,
+        "status": "PASS"
+      },
+      {
+        "width": 360,
+        "height": 800,
+        "status": "PASS"
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "status": "PASS"
+      },
+      {
+        "width": 412,
+        "height": 915,
+        "status": "PASS"
+      },
+      {
+        "width": 844,
+        "height": 390,
+        "status": "PASS"
+      }
+    ],
+    "checksPerViewport": 6,
+    "physicalDevices": "NOT_RUN",
+    "webKit": "NOT_RUN",
+    "newScreenshotVisualInspection": "NOT_PERFORMED (artifact retrieval blocked; not claimed)"
+  },
+  "initialRun": {
+    "run": 38533727121,
+    "result": "FAIL: browser test queried second-tab status before the app loaded; 6 flows passed; no deployment",
+    "fixed": "Optional status query waits until the element exists; final run passed"
+  },
+  "protectedRefs": {
+    "main": "d387bcbe0d21967b541bc101d893d1557beb2489",
+    "codex/docscan-v2": "8fe715f1504f3f47415b8c33c8e32896cec0b6ce"
+  },
+  "review": "Independent read-only source review completed; missing balance field/capture label/retry/help names fixed; no remaining static blockers.",
+  "localLimitations": "Local Chromium IPC blocked. Additional browser permission and artifact network permission requests were user-aborted; not repeated.",
+  "customerData": "None. Synthetic tests only. No new document uploads, server processing, origin or DB migration."
+}
