@@ -139,3 +139,22 @@ R private=false/has_pages=trueをAPIで確認。起動commit f2798d3、run379019
 合成50/pass50、構文21/静的4/Pages資源/manifest/HTML CSP/ZIP38資源一致PASS。新3検査: balance全域の既存recipe validationと中間薄字の連続tone差、カラーのhidden調整除去と入力非変異、legacy gray/binary正規化の非変異。evidence/line/editor-finish-tests.txt。browser test更新は未実行。動画は目視参照のみ、実文書を画質ベンチマークやrepoへ投入しない。候補buildffeb418edb5e2e72/files36。実機/ブラウザー/新公開はまだ未検証。
 
 最終Pages run37906520702 build113741189117/deploy113741282922 success。実CI50/pass50、公開固定URLでbuildcbf445a645eaaaa2/files36一致を確認。途中ffeb版は最後の高さ調整前の履歴。新UIのbrowser testはIPC拒否/BLOCKED/0実行、evidence/browser-results.json。ソース画像や文字を再構築せず既存階調処理、実文書の画質同等性は未測定。本線/main不変。
+
+## 2026-10-13 Figma視覚デザイン提案
+
+Figma filefHlpIMNA9jCL2IBKSTVqxU、board5:17、4画面の編集可能ノード/部品で初回案を構成。全表示文字Noto Sans JP、画像fill0、構造内TEXT95/FRAME55/VECTOR16/RECTANGLE30/INSTANCE32/ELLIPSE2、文字欠け修正と編集footer832/844を確認、最終全体スクリーンショットを目視。実機/ブラウザー/ライブ画面キャプチャの合格ではない。ソース変更なしなので既存アプリ検査を繰返していない。
+
+## 2026-10-13 新構成6画面・文言整理
+
+- 最終静的確認: SVG6ファイルのXML解析、PNG実寸、全テキスト宣言領域、HTMLの6画面ID、インラインJSのnode --check、外部fetch/DB/共有実処理なし、台帳JSON、git diff --check PASS。ブラウザーでの操作検査ではない。
+
+- Figma board14:122/page14:108。TEXT117/FRAME97/VECTOR12/INSTANCE49/RECTANGLE55/ELLIPSE1、Manrope/Noto Sans JP、image fill0、6画面390×844。ホーム下端867は画面外で未合格、残り下端824。最終修正/画像取得はStarter MCP上限で拒否、未実施。新Figma構成の画像検証済みとはしない。全作成/変更IDは台帳へ保存。
+- ローカル最新PNG/SVG/HTMLは同じ構成方針から別途作成。各780×1688 PNG、一覧2596×3976 PNG。全テキストのフォント実測折返し・宣言領域が390×844以内であることを描画時assert確認。日付chevronをベクターへ修正、最終文言後の一覧を目視確認。合成図形・架空名のみ。
+- 最終文言は調整/元の写真/名前を変更/リセット/保存設定等に整理、常設重複説明を除去。Figma最終状態とは別。ローカルNoto Sans CJK/DejaVuで、実フォント・実機可読性の合格ではない。
+- HTMLは画面遷移の見本。外部取得/DB/共有処理なし。実アプリ経路、長い実名、320px/横向き、空/処理/失敗等、実機は未検証。新独立レビューなし。src/public/index.html/package.json未変更につき既存50アプリ検査は繰返していない。
+
+## 2026-10-14 公開用デザイン実装の事前検査
+
+新UIで合成50/pass50、構文21/静的4/Pages資源/manifest/CSP/配布ZIP38資源一致PASS。evidence/redesign-unit-tests.txt。ローカルChromiumは起動IPC拒否/BLOCKED/0実行。追加起動許可要求は長時間応答待ちとなり本人中断で未実施。検査済みと扱わない。独立レビュー担当のbalance欄未接続の指摘を修正、全体レビュー完了はまだ未確認。CIでE2E/5サイズ編集を必須化し、合格後だけ静的artifactを配信する。CI/公開/新画面画像/実機はこの記録時点で未合格。
+
+2026-10-14追加: 別担当の静的差分レビュー完了。balance欄と撮影アクセシビリティ名、再試行案内名、LINEヘルプ検査名を修正。静的な実行時・データ保護阻害事項なしとの報告。レビュー側もChromium EPERMで実画面は未検証。CIでは5サイズでトリミングと白黒バランス/保存の収まりを両方検査する。

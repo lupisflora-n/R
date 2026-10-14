@@ -12,8 +12,8 @@ export async function initializeUpdates(isBusy:()=>boolean,pill:HTMLElement,noti
     };
     const show=()=>{
       if(!registration.waiting)return;
-      notice.replaceChildren();notice.classList.remove('hidden');const text=document.createElement('p');text.textContent='新しい版があります。編集やPDF作成を終え、他の画面を閉じてから適用できます。';
-      const button=document.createElement('button');button.textContent='保存済みの状態で更新';
+      notice.replaceChildren();notice.classList.remove('hidden');const text=document.createElement('p');text.textContent='更新があります。作業を保存してから更新してください。';
+      const button=document.createElement('button');button.textContent='更新する';
       button.onclick=async()=>{
         if(isBusy()){text.textContent='作業中は更新できません。保存や処理を終えてからお試しください。';return;}
         button.disabled=true;setApplying(true);

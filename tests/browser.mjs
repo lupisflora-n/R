@@ -9,7 +9,7 @@ const live=Boolean(process.env.DOCSCAN_E2E_URL),base=process.env.DOCSCAN_E2E_URL
 const results=[],errors=[],external=[];
 let browser,context,page;
 async function check(name,action){const start=Date.now();try{await action();results.push({name,status:'PASS',ms:Date.now()-start});console.log('PASS '+name);}catch(error){results.push({name,status:'FAIL',message:error.message});throw error;}}
-await mkdir('evidence',{recursive:true});
+await mkdir('evidence/redesign',{recursive:true});
 try{
   const playwright=loadPlaywright();
   const {chromium}=playwright;
@@ -27,31 +27,31 @@ try{
   page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text());});
   context.on('request',req=>{if(!req.url().startsWith(base) && !req.url().startsWith('blob:') && !req.url().startsWith('data:'))external.push(req.url());});
   await check('mobile home loads with capture controls',async()=>{
-    await page.goto(base);await page.getByRole('button',{name:'写真から選ぶ',exact:true}).waitFor();
-    await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.getAttribute('aria-label')==='写真から選ぶ').disabled);
-    assert.match(await page.locator('body').innerText(),/その日の紙を、ひとつに/);await page.screenshot({path:'evidence/mobile-home.png',fullPage:true});
+    await page.goto(base);await page.getByRole('button',{name:'写真を選ぶ',exact:true}).waitFor();
+    await page.waitForFunction(()=>!Array.from(document.querySelectorAll('button')).find(b=>b.getAttribute('aria-label')==='写真を選ぶ').disabled);
+    assert.equal(await page.getByRole('navigation',{name:'画面切替'}).count(),1);await page.getByRole('button',{name:'日付を選ぶ',exact:true}).click();await page.getByRole('dialog',{name:'日付',exact:true}).getByLabel('文書の日付',{exact:true}).waitFor();await page.getByRole('button',{name:'閉じる',exact:true}).click();assert.equal(await page.getByRole('heading',{name:'書類',exact:true}).count(),1);await page.screenshot({path:'evidence/redesign/mobile-home.png',fullPage:true});
   });
   const sample=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=900;c.height=1280;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#172e2b';x.font='bold 44px sans-serif';x.fillText('SYNTHETIC DOCUMENT',72,110);x.font='22px sans-serif';x.fillText('TEST ONLY / 2026-10-03',72,158);x.font='16px sans-serif';for(let i=0;i<32;i++){x.fillText(`Line ${i+1}  123.45  0.05  8pt/10pt  sample`,72,240+i*25);x.fillRect(72,248+i*25,740,.5);}x.strokeStyle='#bb5544';x.lineWidth=3;x.strokeRect(650,80,140,90);x.font='26px sans-serif';x.fillStyle='#bb5544';x.fillText('FAKE',675,136);return Array.from(Uint8Array.from(atob(c.toDataURL('image/png').split(',')[1]),c=>c.charCodeAt(0)));}));
   await check('capture -> committed draft -> manual crop -> filter -> revision',async()=>{
-    const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真から選ぶ',exact:true}).click();await(await chooser).setFiles({name:'synthetic.png',mimeType:'image/png',buffer:sample});
-    const editor=page.getByRole('dialog',{name:'四隅と見やすさを確認'});await editor.waitFor();
+    const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真を選ぶ',exact:true}).click();await(await chooser).setFiles({name:'synthetic.png',mimeType:'image/png',buffer:sample});
+    const editor=page.getByRole('dialog',{name:'写真を編集'});await editor.waitFor();await editor.locator('.handle').first().waitFor();
     const stage=await editor.locator('.editor-stage').boundingBox(),handle=editor.locator('.handle').first(),box=await handle.boundingBox();
     await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+stage.width*.2,box.y+box.height/2+stage.height*.15,{steps:12});await page.mouse.up();
     const point=await handle.evaluate(e=>({x:parseFloat(e.style.left)/100,y:parseFloat(e.style.top)/100}));assert.ok(Math.abs(point.x-.2)<.01 && Math.abs(point.y-.15)<.01,'corner must follow the full drag, not just the first move');
     await editor.getByRole('button',{name:'全体',exact:true}).click();
     assert.equal(await editor.locator('.editor-save').isDisabled(),true);
-    await editor.getByRole('button',{name:'四隅を決定',exact:true}).click();await editor.getByText('文書化後',{exact:true}).waitFor();
+    await editor.getByRole('button',{name:'次へ',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.fixed-editor')?.dataset.previewReady==='true' && document.querySelector('.fixed-editor')?.dataset.editorMode==='tone');
     assert.equal(await editor.locator('#editor-filter option').count(),2);
     assert.equal(await editor.locator('#editor-balance').isVisible(),true);
     assert.equal(await editor.locator('#brightness,#contrast').count(),0);
-    await page.screenshot({path:'evidence/editor.png',fullPage:true});
-    await editor.getByRole('button',{name:'四隅へ戻る',exact:true}).click();await editor.getByRole('button',{name:'選択中の四隅を下へ少し動かす',exact:true}).click();
+    await page.screenshot({path:'evidence/redesign/editor.png',fullPage:true});
+    await editor.getByRole('button',{name:'トリミング',exact:true}).click();await editor.getByRole('button',{name:'選択中の四隅を下へ少し動かす',exact:true}).click();
     assert.equal(await editor.locator('.editor-save').isDisabled(),true,'changed crop must be rendered again');
     await editor.getByRole('button',{name:'全体',exact:true}).click();
-    assert.equal(await editor.getByRole('button',{name:'2 色加工',exact:true}).isDisabled(),true);
-    await editor.getByRole('button',{name:'四隅を決定',exact:true}).click();await editor.getByText('文書化後',{exact:true}).waitFor();
-    await editor.locator('#editor-filter').selectOption('color');
-    await page.waitForFunction(()=>document.querySelector('.editor-view-title')?.textContent==='文書化後' && !document.querySelector('.editor-save').disabled);
+    assert.equal(await editor.locator('.editor-toolbar button').nth(1).isDisabled(),true);
+    await editor.getByRole('button',{name:'次へ',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.fixed-editor')?.dataset.previewReady==='true' && document.querySelector('.fixed-editor')?.dataset.editorMode==='tone');
+    await editor.getByRole('button',{name:'カラー',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('.fixed-editor')?.dataset.previewReady==='true' && !document.querySelector('.editor-save').disabled);
     assert.equal(await editor.locator('#editor-balance').isVisible(),false);
     await page.getByRole('button',{name:'編集を保存',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
     await page.waitForFunction(()=>!document.querySelector('.page-row input').disabled);
@@ -59,53 +59,55 @@ try{
     assert.equal(state.pages,1);assert.equal(state.state,'READY');assert.equal(state.originalSize,sample.length);assert.match(state.hash,/^[0-9a-f]{64}$/);
   });
   await check('selected PDF -> saved bytes -> actual PDF.js rendering -> share cancellation',async()=>{
-    await page.locator('.page-row input[type=checkbox]').check();await page.getByRole('button',{name:'1枚でPDFを作成',exact:true}).click();
-    await page.getByRole('dialog',{name:'完成PDFを確認'}).waitFor();
+    await page.locator('.page-row input[type=checkbox]').check();await page.screenshot({path:'evidence/redesign/library.png',fullPage:true});await page.getByRole('button',{name:'PDF作成',exact:true}).click();assert.equal(await page.locator('#assemble-screen').isVisible(),true);await page.getByRole('button',{name:'作成',exact:true}).click();
+    await page.getByRole('dialog',{name:'PDF'}).waitFor();
     // A canvas has a nonzero default width even before PDF.js finishes rendering.
-    await page.getByRole('dialog',{name:'完成PDFを確認'}).getByText('1 / 1',{exact:true}).waitFor();
+    await page.getByRole('dialog',{name:'PDF'}).getByText('1 / 1',{exact:true}).waitFor();
     assert.equal(await page.evaluate(()=>{const c=document.querySelector('[role=dialog] .pdfcanvas');const pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]>0 && pixels[i]<180 && pixels[i+1]<180 && pixels[i+2]<180)dark++;return dark>100;}),true,'PDF preview must contain visible document ink');
-    await page.screenshot({path:'evidence/pdf-preview.png',fullPage:true});
+    await page.screenshot({path:'evidence/redesign/pdf-preview.png',fullPage:true});
     await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>true});Object.defineProperty(navigator,'share',{configurable:true,value:()=>Promise.reject(new DOMException('Cancel','AbortError'))});});
-    await page.getByRole('button',{name:'共有して送る',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[role=status]').textContent.includes('共有を取消しました'));
-    await page.getByRole('button',{name:'閉じる',exact:true}).click();
+    await page.getByRole('button',{name:'共有',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.status').textContent.includes('共有をキャンセルしました'));
+    await page.getByRole('button',{name:'閉じる',exact:true}).click();await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'書類',exact:true}).click();
     const pdfs=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return(await db.list('pdfs')).length;});assert.equal(pdfs,1);
   });
   await check('trash removes PDF selection; restore preserves original and completed PDF; referenced erase is refused',async()=>{
     const before=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:await db.list('pages'),pdfs:await db.list('pdfs'),assets:(await db.list('assets')).map(a=>({id:a.id,hash:a.sha256,bytes:a.byteCount}))};});
     page.once('dialog',dialog=>dialog.accept());await page.locator('.page-actions button.danger').click();
-    await page.getByText('まだ写真がありません。',{exact:true}).waitFor();
-    assert.equal(await page.locator('.orderrow').count(),0);assert.equal(await page.getByRole('button',{name:'PDFを作成',exact:true}).isDisabled(),true);
-    await page.getByRole('button',{name:'ごみ箱を見る（1枚）',exact:true}).click();
-    const trash=page.getByRole('dialog',{name:'写真のごみ箱'});
+    await page.getByText('書類がありません',{exact:true}).waitFor();
+    assert.equal(await page.locator('.orderrow').count(),0);assert.equal(await page.locator('.selection-bar').isVisible(),false);
+    await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'データ',exact:true}).click();await page.getByRole('button',{name:'ごみ箱（1枚）',exact:true}).click();
+    const trash=page.getByRole('dialog',{name:'ごみ箱'});
     assert.equal(await trash.getByRole('button',{name:'完全削除',exact:true}).isDisabled(),true);
     assert.equal(await page.evaluate(async()=>{const db=await import('/src/storage/db.js');const deletion=await import('/src/storage/deletion.js');try{await deletion.permanentlyDeletePage((await db.list('pages'))[0].id,true);return false;}catch{return true;}}),true);
     await trash.getByText(/完成PDFに使った写真は/).waitFor();
-    await trash.getByRole('button',{name:'元に戻す',exact:true}).click();await trash.getByText('写真を一覧へ戻しました。',{exact:true}).waitFor();
+    await trash.getByRole('button',{name:'元に戻す',exact:true}).click();await trash.getByText('写真を元に戻しました。',{exact:true}).waitFor();
     await trash.getByRole('button',{name:'閉じる',exact:true}).click();
     const after=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:await db.list('pages'),pdfs:await db.list('pdfs'),assets:(await db.list('assets')).map(a=>({id:a.id,hash:a.sha256,bytes:a.byteCount}))};});
     assert.deepEqual(after.pdfs,before.pdfs);assert.deepEqual(after.assets,before.assets);
     assert.deepEqual(after.pages.map(p=>({...p,deletedAt:undefined})),before.pages.map(p=>({...p,deletedAt:undefined})));
   });
   await check('unused captured draft can be permanently erased without removing completed PDF',async()=>{
-    const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真から選ぶ',exact:true}).click();await(await chooser).setFiles({name:'throwaway.png',mimeType:'image/png',buffer:sample});
-    const editor=page.getByRole('dialog',{name:'四隅と見やすさを確認'});await editor.waitFor();await editor.getByRole('button',{name:'閉じる',exact:true}).click();
+    await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'書類',exact:true}).click();
+    const chooser=page.waitForEvent('filechooser');await page.getByRole('button',{name:'写真を選ぶ',exact:true}).click();await(await chooser).setFiles({name:'throwaway.png',mimeType:'image/png',buffer:sample});
+    const editor=page.getByRole('dialog',{name:'写真を編集'});await editor.waitFor();await editor.locator('.handle').first().waitFor();await editor.getByRole('button',{name:'閉じる',exact:true}).click();
     page.once('dialog',dialog=>dialog.accept());await page.locator('.page-actions button.danger').last().click();
-    await page.getByRole('button',{name:'ごみ箱を見る（1枚）',exact:true}).click();
-    const trash=page.getByRole('dialog',{name:'写真のごみ箱'});page.once('dialog',dialog=>dialog.accept());await trash.getByRole('button',{name:'完全削除',exact:true}).click();await trash.getByText('原本と編集版を完全削除しました。',{exact:true}).waitFor();await trash.getByRole('button',{name:'閉じる',exact:true}).click();
+    await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'データ',exact:true}).click();await page.getByRole('button',{name:'ごみ箱（1枚）',exact:true}).click();
+    const trash=page.getByRole('dialog',{name:'ごみ箱'});page.once('dialog',dialog=>dialog.accept());await trash.getByRole('button',{name:'完全削除',exact:true}).click();await trash.getByText('原本と編集版を完全削除しました。',{exact:true}).waitFor();await trash.getByRole('button',{name:'閉じる',exact:true}).click();
     const state=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return {pages:(await db.list('pages')).length,pdfs:(await db.list('pdfs')).length};});assert.deepEqual(state,{pages:1,pdfs:1});
   });
   await check('backup -> hash validation -> additive restore -> repeated import idempotency',async()=>{
-    await page.getByRole('button',{name:'この日付の復元用ZIPを作る',exact:true}).click();await page.locator('.backups a').waitFor();
+    await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'データ',exact:true}).click();
+    await page.getByRole('button',{name:'書き出す',exact:true}).click();await page.locator('.backups a').waitFor();
     const downloaded=page.waitForEvent('download');await page.locator('.backups a').click();const file=await downloaded;const path=await file.path();
-    await page.locator('#restore-input').setInputFiles(path);await page.getByRole('dialog',{name:'復元内容を確認'}).waitFor();await page.getByRole('button',{name:'確認して追加する',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
-    await page.waitForFunction(()=>document.querySelector('[role=status]').textContent.includes('復元しました'));
+    await page.locator('#restore-input').setInputFiles(path);await page.getByRole('dialog',{name:'復元内容を確認'}).waitFor();await page.getByRole('dialog',{name:'復元内容を確認'}).getByRole('button',{name:'復元',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
+    await page.waitForFunction(()=>document.querySelector('.status').textContent.includes('復元しました'));
     const sizes=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return{pages:(await db.list('pages')).length,pdfs:(await db.list('pdfs')).length};});assert.deepEqual(sizes,{pages:2,pdfs:2});
-    await page.locator('#restore-input').setInputFiles(path);await page.getByRole('button',{name:'確認して追加する',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
+    await page.locator('#restore-input').setInputFiles(path);await page.getByRole('dialog',{name:'復元内容を確認'}).getByRole('button',{name:'復元',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
     const count=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return(await db.list('pages')).length;});assert.equal(count,2);
   });
   await check('second tab is fenced from writing while first tab retains data',async()=>{
-    const other=await context.newPage();await other.goto(base);await other.waitForFunction(()=>document.querySelector('[role=status]').textContent.includes('別の画面で作業中'));
-    assert.equal(await other.getByRole('button',{name:'写真から選ぶ',exact:true}).isDisabled(),true);await other.close();
+    const other=await context.newPage();await other.goto(base);await other.waitForFunction(()=>document.querySelector('.status').textContent.includes('別の画面で作業中'));
+    assert.equal(await other.getByRole('button',{name:'写真を選ぶ',exact:true}).isDisabled(),true);await other.close();
   });
   await check('saved documents survive browser reload',async()=>{
     await page.reload();await page.waitForFunction(()=>document.querySelector('.page-row')!==null);assert.match(await page.locator('body').innerText(),/編集済み/);
@@ -122,6 +124,6 @@ try{
     const reason=/Operation not permitted|EPERM/.test(error.message)?'Operating-system sandbox denied Chromium startup/IPC. No browser test ran.':error.code==='MODULE_NOT_FOUND'?'Playwright is unavailable in this execution environment. No browser test ran.':'Chromium could not start. No browser test ran.';
     results.push({name:'browser startup',status:'BLOCKED',reason});console.error('BLOCKED: '+reason);
   }else{if(!results.some(r=>r.status==='FAIL'))results.push({name:'browser verification',status:'FAIL',message:error.message});console.error(error.stack);}
-  if(page)await page.screenshot({path:'evidence/failure.png',fullPage:true}).catch(()=>{});process.exitCode=1;
+  if(page)await page.screenshot({path:'evidence/redesign/failure.png',fullPage:true}).catch(()=>{});process.exitCode=1;
 }
-finally{await writeFile('evidence/browser-results.json',JSON.stringify({date:new Date().toISOString(),status:results.some(r=>r.status==='FAIL')?'FAIL':!browser?'BLOCKED':'COMPLETED',browser:live?'Playwright Chromium against a real server':'Playwright Chromium with in-memory local asset routing',passedBrowserTests:results.filter(r=>r.status==='PASS').length,results,errors,external},null,2));await context?.close();await browser?.close();}
+finally{await writeFile('evidence/redesign/browser-results.json',JSON.stringify({date:new Date().toISOString(),status:results.some(r=>r.status==='FAIL')?'FAIL':!browser?'BLOCKED':'COMPLETED',browser:live?'Playwright Chromium against a real server':'Playwright Chromium with in-memory local asset routing',passedBrowserTests:results.filter(r=>r.status==='PASS').length,results,errors,external},null,2));await context?.close();await browser?.close();}

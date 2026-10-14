@@ -62,7 +62,7 @@ try {
         await page.goto(base + '/line.html?redirect=https://evil.example');
         await page.getByRole('link', { name: 'ブラウザーでdocPDFを開く', exact: true }).waitFor();
         assert.equal(await page.evaluate(() => window.__databaseOpens), 0);
-        await page.getByRole('link', { name: '使い方・保存と安全の説明', exact: true }).click();
+        await page.getByRole('link', { name: 'ヘルプ', exact: true }).click();
         await page.getByRole('heading', { name: '保存先は端末のブラウザー内', exact: true }).waitFor();
         assert.equal(await page.locator('input[type=file]').count(), 0);
         assert.equal(await page.evaluate(() => window.__databaseOpens), 0);

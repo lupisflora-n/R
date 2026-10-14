@@ -54,6 +54,27 @@ jobs:
           const {build, files} = JSON.parse(readFileSync('dist/build.json', 'utf8'));
           appendFileSync(process.env.GITHUB_OUTPUT, `build=${build}\nfiles=${files}\n`);
           JS
+      - name: Install browser test tools
+        run: |
+          npm install --no-save --package-lock=false --ignore-scripts playwright@1.62.1
+          npx --no-install playwright install --with-deps chromium
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          import { appendFileSync } from 'node:fs';
+          appendFileSync(process.env.GITHUB_ENV, `DOCSCAN_CHROMIUM=${chromium.executablePath()}\n`);
+          JS
+      - name: Verify app flow and fixed mobile editor
+        run: |
+          npm run test:e2e
+          npm run test:mobile-quality
+      - name: Keep synthetic browser verification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: docpdf-browser-verification
+          path: evidence/redesign
+          if-no-files-found: ignore
+          retention-days: 1
       - name: Upload static app only
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
         with:

@@ -1,4 +1,29 @@
 # STATE｜再開点
+## 最新：2026-10-14 新デザインの公開反映を本人が依頼
+
+- 本人「公開版に反映してください」で6画面の採用/同URL公開を明示。新構成/文言をsrc/app.tsとpublic/style.cssへ実装。書類・PDF・データのナビ、日付選択、写真グリッド、選択バー、専用PDF作成、固定のトリミング/調整、PDF確認/共有/保存、保存設定、ごみ箱/バックアップの経路を接続。原本/DB/画像処理/生成・共有・復元コアは変更なし。
+- ローカル50合成PASS、構文21/静的4/Pages資源/ZIP検査PASS。ローカルChromiumはIPC拒否で0実行。起動の追加許可要求が応答待ちとなり本人が中断。同要求は繰返さず、GitHubの標準runnerでPlaywright1.62.1によるE2E/5サイズ固定編集検査を公開前の必須条件に追加。失敗時に旧公開版を維持する。
+- レビュー担当から白黒balance欄未接続の指摘を受け修正。新ブラウザー検査の合格、画像目視、公開build一致はまだ未確認。Figmaの利用上限を回避せず、本人へ提示した最新ローカル案を基準に実装。
+- 現在/workspace/R-line、codex/docpdf-line。remote base129a91eadff6e8504343b7aae3813a19073643a8/tree0ce20b2b2caba33bdcc9fa79c7763f2d38c20bf2を再確認。現在公開はcbf445a645eaaaa2。main/本線は触らず、復元されたローカル履歴からforce-pushしない。
+- 次の1作業: 修正済み候補を専用branchへbase-tree方式で保存し、GitHubの実ブラウザー検査→配信→固定URLのbuild一致を確認。失敗を修正して再実行し、成功/未検証を区別して報告。
+
+## 最新：2026-10-13 構成・配置と文言からの再設計
+
+- 本人が「ボタンの配置も全体の構成もデザインも全て一新、機能は保つ」と明示。旧配置固定の解釈を撤回し、初回A/B方向選択待ちは廃止。UI/UX・アートディレクションの範囲で6画面を新構成。追加で説明/ボタンのAI感を除く指示を受け、自然な操作名と必要な案内に整理。
+- 最新見本design/figma/studio-preview/overview.png・preview.html。書類中心のホーム、全画面トリミング/調整、独立PDF作成、PDF確認/共有、データ管理。撮影/写真を選ぶ/白黒/カラー/バランス/名前を変更/共有/保存。スローガンと重複説明なし。画面遷移だけの合成見本でPDF等の実処理は行わない。
+- Figma新page14:108/board14:122、6画面15:130/244/343/420/514/575、編集可能な文字/図形/部品。URL https://www.figma.com/design/fHlpIMNA9jCL2IBKSTVqxU?node-id=14-122 。最終修正/画像取得はStarter MCP呼出し上限で拒否。ホーム下端867/844と文言修正は未解決、追加課金/上限迂回なし。ローカル最新版とFigmaを同一・検証済みと扱わない。
+- ローカル6画面390×844のテキスト領域検査・PNG目視済み。合成図形のみ。描画Noto Sans CJK/DejaVu、Figma Noto Sans JP/Manropeとは別。台帳design/figma/redesign-state.json、方針docs/DOCPDF_VISUAL_REDESIGN_BRIEF.md、文言docs/DOCPDF_UI_COPY.md。
+- 作業領域/workspace/R-line、専用branch codex/docpdf-line、開始ローカルHEAD3648671。設計/資料のみでGitHub書込み・公開更新なし。公開版cbf445a645eaaaa2/files36、remote先端129a91eadff6e8504343b7aae3813a19073643a8は前回確認値。main/本線変更なし。復元履歴からforce-pushしない。
+- 次の1作業: 最新6画面を本人へ提示し構成/見た目の確認を受ける。採用方向をPDF履歴/ごみ箱/日付/入力/空/処理/失敗/更新状態へ展開→表示層実装/経路検証→既存承認範囲で同URL反映。旧A/B質問を繰返さない。機能、原本、保存、固定編集、白黒1balance/カラー、PDF/共有、ごみ箱/復元を維持。
+
+## 最新：2026-10-13 Figma画面デザイン刷新の初回提案
+
+- 本人が機能/操作を変えず見た目だけ刷新、100万円の制作案件を想定した接客/進行を依頼。実課金なし。初回色分類3案は全て理想にない、量産型/素人/安っぽさが問題、好みの参考なし。実画面2案で確認する方式へ変更。
+- Figma接続/本人チーム1件を確認して新規Design作成。URL https://www.figma.com/design/fHlpIMNA9jCL2IBKSTVqxU?node-id=5-17 。A精密な道具/B静かな品位、同じ操作配置のホーム先頭と白黒調整の4画面を作成。文字/部品/ベクター/階層は編集可能。顧客書類/動画の私的な画面は入れない。
+- 字の欠けを修正し、全テキストNoto Sans JP、画像fill0、編集844pxのfooter下端832px、全体スクショを確認。ライブ画面キャプチャはPlaywright MCPなしで未送信。実機/ブラウザー試験と同等とはしない。台帳design/figma/redesign-state.json、合意docs/DOCPDF_VISUAL_REDESIGN_BRIEF.md。
+- アプリのコード/公開版/処理/保存/本線に変更なし。今回Figma/ローカル資料だけ。全画面完成や採用済みとは扱わない。
+- 次の1作業: 本人の実画面への第一印象(A/B/どちらも違う)と気になる見た目を受け、選んだ方向を全画面/状態へ展開→完成案の確認→表示層のみ実装/検証/公開。操作役割/順序、固定編集、白黒1balance/カラー、PDF/共有、ごみ箱/復元は維持。公開許可の再取得とは別に未確定の視覚方向の判断が必要。
+
 ## 最新：2026-10-09 トリミング後の白黒/カラーとバランス1本
 
 - 公開完了: 実装commit a3425e62bdfbc9e088f8ad154901697d0ab1d2cb（13変更blob一致/既存保持/削除0/計164）、表示高調整commit eb160ebbfa393b58ccb1320ae8052b36c22cca1f。専用branchのみ。最終run https://github.com/lupisflora-n/R/actions/runs/37906520702 build113741189117/deploy113741282922 success、実CIログで50/pass50、公開固定URLのbuild cbf445a645eaaaa2/files36一致を確認。

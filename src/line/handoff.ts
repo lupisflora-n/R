@@ -45,17 +45,16 @@ export function renderHandoff(root: Element, currentUrl: string, userAgent: stri
   brand.append(icon, node('strong', 'docPDF'));
   header.append(brand, node('span', '検証版', 'pill'));
   const main = node('main', '', 'wrap launch');
-  main.append(node('div', '紙からPDFへ', 'eyebrow'),
-    node('h1', insideLine ? '撮影は、ブラウザーで。' : '書類を整えて、PDFに。'),
+  main.append(node('h1', 'docPDFを開く'),
     node('p', insideLine
-      ? `LINEから来た方はこちら。${browserLabel(userAgent)}で開いてから、紙を撮影します。`
+      ? `${browserLabel(userAgent)}で開いてから、書類を撮影します。`
       : '紙を撮影し、四隅と読みやすさを確認。必要な枚数をひとつのPDFにできます。', 'subtitle'));
   const card = node('section', '', 'card launch-card');
   const steps = node('ol', '', 'launch-steps');
   for (const [heading, detail] of [
     ['撮影する', '受け取った写真を、端末内に下書き保存。'],
-    ['読みやすく整える', '四隅を合わせ、原本と白黒・カラーを比較。'],
-    ['PDFを確認して渡す', '端末に保存、または自分で選んだ共有先へ。']
+    ['写真を編集する', '四隅を合わせ、原本と白黒・カラーを比較。'],
+    ['PDFを作成する', '端末に保存、または自分で選んだ共有先へ。']
   ]) {
     const item = node('li', '');
     item.append(node('strong', heading), node('p', detail, 'muted'));
@@ -98,7 +97,7 @@ export function renderHandoff(root: Element, currentUrl: string, userAgent: stri
     node('p', '画像の加工とPDF作成は端末内で行います。アプリから書類を処理サーバーやLINEトークへ自動送信する機能はありません。保存・共有を選ぶと、その保存先や共有先で扱われます。', 'muted'),
     node('p', '端末の紛失・写真の自動バックアップ・宛先の間違いには注意が必要です。ブラウザー内保存は永久保存やバックアップを保証しません。', 'muted'));
   const help = document.createElement('a'); help.href = new URL('help.html', target).href;
-  help.textContent = '使い方・保存と安全の説明'; help.className = 'text-link';
+  help.textContent = 'ヘルプ'; help.className = 'text-link';
   privacy.append(help); main.append(privacy);
   main.append(node('footer', 'docPDF · LINE入口の検証版'));
   root.replaceChildren(header, main);
