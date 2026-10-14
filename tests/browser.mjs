@@ -66,7 +66,7 @@ try{
     assert.equal(await page.evaluate(()=>{const c=document.querySelector('[role=dialog] .pdfcanvas');const pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<pixels.length;i+=4)if(pixels[i+3]>0 && pixels[i]<180 && pixels[i+1]<180 && pixels[i+2]<180)dark++;return dark>100;}),true,'PDF preview must contain visible document ink');
     await page.screenshot({path:'evidence/redesign/pdf-preview.png',fullPage:true});
     await page.evaluate(()=>{Object.defineProperty(navigator,'canShare',{configurable:true,value:()=>true});Object.defineProperty(navigator,'share',{configurable:true,value:()=>Promise.reject(new DOMException('Cancel','AbortError'))});});
-    await page.getByRole('button',{name:'共有',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.status').textContent.includes('共有をキャンセルしました'));
+    await page.getByRole('button',{name:'共有',exact:true}).click();await page.waitForFunction(()=>document.querySelector('.status')?.textContent.includes('共有をキャンセルしました'));
     await page.getByRole('button',{name:'閉じる',exact:true}).click();await page.getByRole('navigation',{name:'画面切替'}).getByRole('button',{name:'書類',exact:true}).click();
     const pdfs=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return(await db.list('pdfs')).length;});assert.equal(pdfs,1);
   });
@@ -100,13 +100,13 @@ try{
     await page.getByRole('button',{name:'書き出す',exact:true}).click();await page.locator('.backups a').waitFor();
     const downloaded=page.waitForEvent('download');await page.locator('.backups a').click();const file=await downloaded;const path=await file.path();
     await page.locator('#restore-input').setInputFiles(path);await page.getByRole('dialog',{name:'復元内容を確認'}).waitFor();await page.getByRole('dialog',{name:'復元内容を確認'}).getByRole('button',{name:'復元',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
-    await page.waitForFunction(()=>document.querySelector('.status').textContent.includes('復元しました'));
+    await page.waitForFunction(()=>document.querySelector('.status')?.textContent.includes('復元しました'));
     const sizes=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return{pages:(await db.list('pages')).length,pdfs:(await db.list('pdfs')).length};});assert.deepEqual(sizes,{pages:2,pdfs:2});
     await page.locator('#restore-input').setInputFiles(path);await page.getByRole('dialog',{name:'復元内容を確認'}).getByRole('button',{name:'復元',exact:true}).click();await page.getByRole('dialog').waitFor({state:'hidden'});
     const count=await page.evaluate(async()=>{const db=await import('/src/storage/db.js');return(await db.list('pages')).length;});assert.equal(count,2);
   });
   await check('second tab is fenced from writing while first tab retains data',async()=>{
-    const other=await context.newPage();await other.goto(base);await other.waitForFunction(()=>document.querySelector('.status').textContent.includes('別の画面で作業中'));
+    const other=await context.newPage();await other.goto(base);await other.waitForFunction(()=>document.querySelector('.status')?.textContent.includes('別の画面で作業中'));
     assert.equal(await other.getByRole('button',{name:'写真を選ぶ',exact:true}).isDisabled(),true);await other.close();
   });
   await check('saved documents survive browser reload',async()=>{
